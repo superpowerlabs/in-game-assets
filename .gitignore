@@ -64,3 +64,5 @@ db
 /etherscan
 .openzeppelin
 deployed.json
+package-lock.json
+ABIs.json
