@@ -1,6 +1,7 @@
 # Superpower in-game assets
 
-A set of smart contract for in-game assets.
+A set of smart contract for in-game assets.  
+Originally forked from https://github.com/ndujaLabs/everdragons2-core
 
 ## Set up you environment
 
