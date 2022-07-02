@@ -37,10 +37,10 @@ async function main() {
   console.log("WhitelistSlot deployed at ", whitelisted.address);
 
   const NftFactory = await ethers.getContractFactory("NftFactory");
-  const nftFarm = await upgrades.deployProxy(NftFactory, []);
-  await nftFarm.deployed();
-  await deployUtils.saveDeployed(chainId, [`NftFactory`], [nftFarm.address]);
-  console.log("NftFactory deployed to:", nftFarm.address);
+  const factory = await upgrades.deployProxy(NftFactory, []);
+  await factory.deployed();
+  await deployUtils.saveDeployed(chainId, [`NftFactory`], [factory.address]);
+  console.log("NftFactory deployed to:", factory.address);
 
   const Game = await ethers.getContractFactory("PlayerMockUpgradeable");
   const game = await upgrades.deployProxy(Game, []);
@@ -54,13 +54,13 @@ async function main() {
     await wl.mintBatch(whitelisted2.address, [id], [amount], []);
     await wl.mintBatch(whitelisted3.address, [id], [amount], []);
     await wl.setBurnerForID(nft.address, id);
-    await turf.setWhitelist(
+    await nft.setWhitelist(
       wl.address,
       getCurrentTimestamp() + 3600 * 24 // 1 day
     );
-    await nft.setFarmer(nftFarm.address, true);
-    await nftFarm.setNewNft(nft.address);
-    await nftFarm.setPrice(id, ethers.utils.parseEther("0.01"));
+    await nft.setFarmer(factory.address, true);
+    await factory.setNewNft(nft.address);
+    await factory.setPrice(id, ethers.utils.parseEther("0.01"));
     await nft.setMaxSupply(1000);
     await nft.setDefaultPlayer(game.address);
   }
