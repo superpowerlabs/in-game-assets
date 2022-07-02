@@ -54,7 +54,7 @@ async function main() {
     await wl.mintBatch(whitelisted2.address, [id], [amount], []);
     await wl.mintBatch(whitelisted3.address, [id], [amount], []);
     await wl.setBurnerForID(nft.address, id);
-    await turf.setWhitelist(
+    await nft.setWhitelist(
       wl.address,
       getCurrentTimestamp() + 3600 * 24 // 1 day
     );
