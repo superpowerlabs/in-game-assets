@@ -33,19 +33,6 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
     _;
   }
 
-  //  /// @custom:oz-upgrades-unsafe-allow constructor
-  //  constructor() initializer {}
-  //
-  //  function initialize(
-  //    string memory name,
-  //    string memory symbol,
-  //    string memory tokenUri
-  //  ) public initializer {
-  //    __SuperpowerNFTBase_init(name, symbol, tokenUri);
-  //  }
-  //
-  //  function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-
   function setDefaultPlayer(address player) external onlyOwner {
     require(player.isContract(), "SuperpowerNFT: player not a contract");
     defaultPlayer = player;
