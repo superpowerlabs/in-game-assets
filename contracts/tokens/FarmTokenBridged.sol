@@ -4,7 +4,7 @@ pragma solidity 0.8.11;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-import "./Farm.sol";
+import "./IFarm.sol";
 import "../SuperpowerNFTBase.sol";
 
 //import "hardhat/console.sol";
@@ -22,6 +22,19 @@ contract FarmTokenBridged is IFarm, SuperpowerNFTBase {
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
+  function attributesOf(uint tokenId) external view returns (string memory) {
+    return string(abi.encodePacked(
+        "uint8 level:",
+        StringsUpgradeable.toString(attributes[tokenId].level),
+        ";uint8 farmState:",
+        StringsUpgradeable.toString(attributes[tokenId].farmState),
+        ";uint32 currentHP:",
+        StringsUpgradeable.toString(attributes[tokenId].currentHP),
+        ";uint32 weedReserves:",
+        StringsUpgradeable.toString(attributes[tokenId].weedReserves)
+      ));
+  }
 
   function updateAttributes(uint256 tokenId, Attributes calldata attributes_) external onlyGame {
     attributes[tokenId] = attributes_;

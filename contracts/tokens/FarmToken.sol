@@ -4,7 +4,7 @@ pragma solidity 0.8.11;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-import "./Farm.sol";
+import "./IFarm.sol";
 import "../SuperpowerNFT.sol";
 
 //import "hardhat/console.sol";
@@ -23,23 +23,36 @@ contract FarmToken is IFarm, SuperpowerNFT {
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-  function updateAttributes(uint256 tokenId, Attributes calldata attributes_) external onlyGame {
+  function attributesOf(uint tokenId) external view returns (string memory) {
+    return string(abi.encodePacked(
+    "uint8 level:",
+      StringsUpgradeable.toString(attributes[tokenId].level),
+    ";uint8 farmState:",
+      StringsUpgradeable.toString(attributes[tokenId].farmState),
+    ";uint32 currentHP:",
+      StringsUpgradeable.toString(attributes[tokenId].currentHP),
+    ";uint32 weedReserves:",
+      StringsUpgradeable.toString(attributes[tokenId].weedReserves)
+    ));
+  }
+
+  function updateAttributes(uint256 tokenId, Attributes calldata attributes_) external onlyGame tokenExists(tokenId) {
     attributes[tokenId] = attributes_;
   }
 
-  function updateLevel(uint256 tokenId, uint8 level) external onlyGame {
+  function updateLevel(uint256 tokenId, uint8 level) external onlyGame tokenExists(tokenId) {
     attributes[tokenId].level = level;
   }
 
-  function updateCurrentHP(uint256 tokenId, uint32 currentHP) external onlyGame {
+  function updateCurrentHP(uint256 tokenId, uint32 currentHP) external onlyGame tokenExists(tokenId) {
     attributes[tokenId].currentHP = currentHP;
   }
 
-  function updateFarmState(uint256 tokenId, uint8 farmState) external onlyGame {
+  function updateFarmState(uint256 tokenId, uint8 farmState) external onlyGame tokenExists(tokenId) {
     attributes[tokenId].farmState = farmState;
   }
 
-  function updateWeedReserves(uint256 tokenId, uint32 weedReserves) external onlyGame {
+  function updateWeedReserves(uint256 tokenId, uint32 weedReserves) external onlyGame tokenExists(tokenId) {
     attributes[tokenId].weedReserves = weedReserves;
   }
 }

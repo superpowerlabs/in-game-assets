@@ -4,7 +4,7 @@ const {initEthers} = require("./helpers");
 
 // tests to be fixed
 
-describe("SuperpowerNFT", function () {
+describe("TurfToken", function () {
   let TurfToken, nft;
   let TurfTokenBridged, bridgedNft;
   let FarmMock, farm;

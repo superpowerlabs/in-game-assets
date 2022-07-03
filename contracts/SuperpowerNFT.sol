@@ -13,9 +13,9 @@ import "./WhitelistSlot.sol";
 
 abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   using AddressUpgradeable for address;
-  uint256 private _nextTokenId;
-  uint256 private _maxSupply;
-  bool private _mintEnded;
+  uint256 internal _nextTokenId;
+  uint256 internal _maxSupply;
+  bool internal _mintEnded;
 
   mapping(address => bool) public factories;
 
@@ -66,7 +66,7 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
     return _nextTokenId > 0 && !_mintEnded && _nextTokenId + amount < _maxSupply + 2;
   }
 
-  function mint(address to, uint256 amount) external override onlyFactory canMint(amount) {
+  function mint(address to, uint256 amount) external override virtual onlyFactory canMint(amount) {
     for (uint256 i = 0; i < amount; i++) {
       _safeMint(to, _nextTokenId++);
     }

@@ -23,6 +23,13 @@ contract TurfToken is ITurf, SuperpowerNFT {
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
+  function attributesOf(uint tokenId) external view returns (string memory) {
+    return string(abi.encodePacked(
+        "uint8 level:",
+        StringsUpgradeable.toString(attributes[tokenId].level)
+      ));
+  }
+
   function updateAttributes(uint256 tokenId, Attributes calldata attributes_) external onlyGame {
     attributes[tokenId] = attributes_;
   }
