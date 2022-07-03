@@ -7,7 +7,6 @@ pragma solidity 0.8.11;
 // Author: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-import "@ndujalabs/erc721playable/contracts/ERC721PlayableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@ndujalabs/wormhole721/contracts/Wormhole721Upgradeable.sol";
@@ -17,11 +16,10 @@ import "./interfaces/ISuperpowerNFTBase.sol";
 
 //import "hardhat/console.sol";
 
-contract SuperpowerNFTBase is
+abstract contract SuperpowerNFTBase is
   ISuperpowerNFTBase,
   Initializable,
   ERC721Upgradeable,
-  ERC721PlayableUpgradeable,
   ERC721EnumerableUpgradeable,
   Wormhole721Upgradeable
 {
@@ -35,9 +33,15 @@ contract SuperpowerNFTBase is
 
   mapping(address => bool) public lockers;
   mapping(uint256 => address) public locked;
+  address public game;
 
   modifier onlyLocker() {
     require(lockers[_msgSender()], "SuperpowerNFTBase: not a staking locker");
+    _;
+  }
+
+  modifier onlyGame() {
+    require(game != address(0) && _msgSender() == game, "SuperpowerNFTBase: not the game");
     _;
   }
 
@@ -56,7 +60,7 @@ contract SuperpowerNFTBase is
     address from,
     address to,
     uint256 tokenId
-  ) internal override(ERC721Upgradeable, ERC721PlayableUpgradeable, ERC721EnumerableUpgradeable) {
+  ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
     require(!isLocked(tokenId), "SuperpowerNFTBase: locked asset");
     super._beforeTokenTransfer(from, to, tokenId);
   }
@@ -64,7 +68,7 @@ contract SuperpowerNFTBase is
   function supportsInterface(bytes4 interfaceId)
     public
     view
-    override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721PlayableUpgradeable, ERC721EnumerableUpgradeable)
+    override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable)
     returns (bool)
   {
     return super.supportsInterface(interfaceId);
@@ -78,14 +82,22 @@ contract SuperpowerNFTBase is
     require(!_baseTokenURIFrozen, "SuperpowerNFTBase: baseTokenUri has been frozen");
     // after revealing, this allows to set up a final uri
     _baseTokenURI = uri;
+    emit TokenURIUpdated(uri);
   }
 
   function freezeTokenURI() external override onlyOwner {
     _baseTokenURIFrozen = true;
+    emit TokenURIFrozen();
   }
 
   function contractURI() public view override returns (string memory) {
     return string(abi.encodePacked(_baseTokenURI, "0"));
+  }
+
+  function setGame(address game_) external onlyOwner {
+    require(game_.isContract(), "SuperpowerNFTBase: game_ not a contract");
+    game = game_;
+    emit GameSet(game_);
   }
 
   // locks
@@ -101,11 +113,13 @@ contract SuperpowerNFTBase is
   function setLocker(address locker) external override onlyOwner {
     require(locker.isContract(), "SuperpowerNFTBase: locker not a contract");
     lockers[locker] = true;
+    emit LockerSet(locker);
   }
 
   function removeLocker(address locker) external override onlyOwner {
     require(lockers[locker], "SuperpowerNFTBase: not an active locker");
     delete lockers[locker];
+    emit LockerRemoved(locker);
   }
 
   function hasLocks(address owner) public view override returns (bool) {
@@ -138,6 +152,7 @@ contract SuperpowerNFTBase is
     require(isLocked(tokenId), "SuperpowerNFTBase: not a locked tokenId");
     require(!lockers[locked[tokenId]], "SuperpowerNFTBase: locker is still active");
     delete locked[tokenId];
+    emit LockRemoved(tokenId);
   }
 
   // manage approval

@@ -15,34 +15,21 @@ async function main() {
       : chainId === 97 ? 'bsc_testnet'
           : 'localhost'
 
+  const { TOKEN_URI } = process.env
+  if (!TOKEN_URI || !/\/$/.test(TOKEN_URI)) {
+    console.error("Missing or invalid parameters")
+    process.exit(1);
+  }
+
   console.log(
       "Deploying contracts with the account:",
       deployer.address,
       'to', network
   );
 
-  const { NAME, SYMBOL, TOKEN_URI } = process.env
-  if (!NAME || !SYMBOL || !TOKEN_URI) {
-    console.error("Missing parameters")
-    process.exit(1);
-  }
-
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const SuperpowerNFT = await ethers.getContractFactory("SuperpowerNFT")
-  const nft = await upgrades.deployProxy(SuperpowerNFT, [
-    NAME,
-    SYMBOL,
-    TOKEN_URI
-  ])
-  console.debug("Tx:", nft.deployTransaction.hash);
-  await nft.deployed()
-  console.log("SuperpowerNFT deployed to:", nft.address);
-
-  console.log("To verify SuperpowerNFT flatten the code and sumbit it for the implementation")
-
-  let prefix = /turf/i.test(NAME) ? "TurfToken" : /farm/i.test(NAME) ? "FarmToken" : SYMBOL;
-  await deployUtils.saveDeployed(chainId, [`${prefix}|SuperpowerNFT`], [nft.address])
+  await deployUtils.deployProxy("TurfToken", TOKEN_URI)
 }
 
 // We recommend this pattern to be able to use async/await everywhere
