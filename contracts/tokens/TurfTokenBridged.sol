@@ -4,12 +4,12 @@ pragma solidity 0.8.11;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-import "./ITurf.sol";
+import "../interfaces/ITurfToken.sol";
 import "../SuperpowerNFTBase.sol";
 
 //import "hardhat/console.sol";
 
-contract TurfTokenBridged is ITurf, SuperpowerNFTBase {
+contract TurfTokenBridged is ITurfToken, SuperpowerNFTBase {
   // when bridging the attributes must be propagated
   // except if we prefer to reset the token on a new chain
   mapping(uint256 => TurfAttributes) public attributes;

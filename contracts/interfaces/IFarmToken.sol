@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 // Author: Francesco Sullo <francesco@superpower.io>
 
-interface IFarm {
+interface IFarmToken {
   struct FarmAttributes {
     uint8 level;
     uint8 farmState;

@@ -4,12 +4,12 @@ pragma solidity 0.8.11;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-import "./IFarm.sol";
+import "../interfaces/IFarmToken.sol";
 import "../SuperpowerNFT.sol";
 
 //import "hardhat/console.sol";
 
-contract FarmToken is IFarm, SuperpowerNFT {
+contract FarmToken is IFarmToken, SuperpowerNFT {
   // when bridging the attributes must be propagated
   // except if we prefer to reset the token on a new chain
   mapping(uint256 => FarmAttributes) public attributes;
