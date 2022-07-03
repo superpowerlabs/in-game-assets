@@ -12,7 +12,7 @@ import "../SuperpowerNFTBase.sol";
 contract TurfTokenBridged is ITurf, SuperpowerNFTBase {
   // when bridging the attributes must be propagated
   // except if we prefer to reset the token on a new chain
-  mapping(uint256 => Attributes) public attributes;
+  mapping(uint256 => TurfAttributes) public attributes;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
@@ -23,14 +23,11 @@ contract TurfTokenBridged is ITurf, SuperpowerNFTBase {
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-  function attributesOf(uint tokenId) external view override tokenExists(tokenId) returns (string memory) {
-    return string(abi.encodePacked(
-        "uint8 level:",
-        StringsUpgradeable.toString(attributes[tokenId].level)
-      ));
+  function attributesOf(uint256 tokenId) external view override tokenExists(tokenId) returns (string memory) {
+    return string(abi.encodePacked("uint8 level:", StringsUpgradeable.toString(attributes[tokenId].level)));
   }
 
-  function updateAttributes(uint256 tokenId, Attributes calldata attributes_) external onlyGame {
+  function updateAttributes(uint256 tokenId, TurfAttributes calldata attributes_) external onlyGame {
     attributes[tokenId] = attributes_;
   }
 }
