@@ -11,20 +11,20 @@ import "./WhitelistSlot.sol";
 
 //import "hardhat/console.sol";
 
-contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
+abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   using AddressUpgradeable for address;
   uint256 private _nextTokenId;
   uint256 private _maxSupply;
   bool private _mintEnded;
 
-  mapping(address => bool) public farmers;
+  mapping(address => bool) public factories;
 
   uint256 private _whitelistActiveUntil;
   WhitelistSlot private _wl;
   address public defaultPlayer;
 
-  modifier onlyFarmer() {
-    require(_msgSender() != address(0) && farmers[_msgSender()], "SuperpowerNFT: forbidden");
+  modifier onlyFactory() {
+    require(_msgSender() != address(0) && factories[_msgSender()], "SuperpowerNFT: forbidden");
     _;
   }
 
@@ -33,18 +33,18 @@ contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
     _;
   }
 
-  /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor() initializer {}
-
-  function initialize(
-    string memory name,
-    string memory symbol,
-    string memory tokenUri
-  ) public initializer {
-    __SuperpowerNFTBase_init(name, symbol, tokenUri);
-  }
-
-  function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+  //  /// @custom:oz-upgrades-unsafe-allow constructor
+  //  constructor() initializer {}
+  //
+  //  function initialize(
+  //    string memory name,
+  //    string memory symbol,
+  //    string memory tokenUri
+  //  ) public initializer {
+  //    __SuperpowerNFTBase_init(name, symbol, tokenUri);
+  //  }
+  //
+  //  function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
   function setDefaultPlayer(address player) external onlyOwner {
     require(player.isContract(), "SuperpowerNFT: player not a contract");
@@ -70,16 +70,16 @@ contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
     _maxSupply = maxSupply_;
   }
 
-  function setFarmer(address farmer_, bool enabled) external override onlyOwner {
-    require(farmer_.isContract(), "SuperpowerNFT: not a contract");
-    farmers[farmer_] = enabled;
+  function setFactory(address factory_, bool enabled) external override onlyOwner {
+    require(factory_.isContract(), "SuperpowerNFT: not a contract");
+    factories[factory_] = enabled;
   }
 
   function canMintAmount(uint256 amount) public view returns (bool) {
     return _nextTokenId > 0 && !_mintEnded && _nextTokenId + amount < _maxSupply + 2;
   }
 
-  function mint(address to, uint256 amount) external override onlyFarmer canMint(amount) {
+  function mint(address to, uint256 amount) external override onlyFactory canMint(amount) {
     for (uint256 i = 0; i < amount; i++) {
       _safeMint(to, _nextTokenId++);
     }
@@ -90,23 +90,6 @@ contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
     if (block.timestamp < _whitelistActiveUntil) {
       require(_wl.balanceOf(to, _wl.getIdByBurner(address(this))) >= amount, "SuperpowerNFT: not enough slot in whitelist");
       _wl.burn(to, _wl.getIdByBurner(address(this)), amount);
-    }
-  }
-
-  function mintInitAndFill(
-    address to,
-    address player,
-    uint8[31] memory initialAttributes
-  ) public override onlyFarmer canMint(1) {
-    _initAttributesAndSafeMint(to, _nextTokenId++, player, initialAttributes);
-    _burnWhitelistSlot(to, 1);
-  }
-
-  // empty attributes
-  function mintAndInit(address to, uint256 amount) external override onlyFarmer canMint(1) {
-    require(defaultPlayer != address(0), "SuperpowerNFT: defaultPlayer not set");
-    for (uint256 i = 0; i < amount; i++) {
-      mintInitAndFill(to, defaultPlayer, _emptyAttributesArray());
     }
   }
 

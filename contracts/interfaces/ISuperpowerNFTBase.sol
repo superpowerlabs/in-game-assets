@@ -4,6 +4,13 @@ pragma solidity 0.8.11;
 // Author: Francesco Sullo <francesco@superpower.io>
 
 interface ISuperpowerNFTBase {
+  event GameSet(address game);
+  event TokenURIFrozen();
+  event TokenURIUpdated(string uri);
+  event LockerSet(address locker);
+  event LockerRemoved(address locker);
+  event LockRemoved(uint256 tokenId);
+
   function updateTokenURI(string memory uri) external;
 
   function freezeTokenURI() external;

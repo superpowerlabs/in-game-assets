@@ -8,16 +8,14 @@ const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider
 describe("NftFactory", function () {
   let owner, whitelisted, notWhitelisted;
   let Whitelist, wl;
-  let SuperpowerNFT, nft;
+  let TurfToken, nft;
   let NftFactory, farm;
-  let Game, game;
 
   before(async function () {
     [owner, whitelisted, notWhitelisted] = await ethers.getSigners();
     Whitelist = await ethers.getContractFactory("WhitelistSlot");
-    SuperpowerNFT = await ethers.getContractFactory("SuperpowerNFT");
+    TurfToken = await ethers.getContractFactory("TurfToken");
     NftFactory = await ethers.getContractFactory("NftFactory");
-    Game = await ethers.getContractFactory("PlayerMockUpgradeable");
     initEthers(ethers);
   });
 
@@ -25,7 +23,7 @@ describe("NftFactory", function () {
     wl = await Whitelist.deploy();
     await wl.deployed();
 
-    nft = await upgrades.deployProxy(SuperpowerNFT, ["Mobland Turf", "MLT", "https://s3.mob.land/turf/"]);
+    nft = await upgrades.deployProxy(TurfToken, ["https://s3.mob.land/turf/"]);
     await nft.deployed();
 
     farm = await upgrades.deployProxy(NftFactory, []);
@@ -36,11 +34,9 @@ describe("NftFactory", function () {
     await wl.mintBatch(whitelisted.address, [id], [amount], []);
     await wl.setBurnerForID(nft.address, id);
     await nft.setWhitelist(wl.address, getCurrentTimestamp() + 1e4);
-    await nft.setFarmer(farm.address, true);
+    await nft.setFactory(farm.address, true);
     await farm.setNewNft(nft.address);
     await farm.setPrice(1, ethers.utils.parseEther("1"));
-    game = await upgrades.deployProxy(Game, []);
-    await game.deployed();
   }
 
   describe("Buy tokens", async function () {
@@ -64,19 +60,10 @@ describe("NftFactory", function () {
       await nft.setMaxSupply(1000);
 
       expect(await nft.canMintAmount(3)).equal(true);
-
-      await expect(
-        farm.connect(whitelisted).buyTokens(1, 3, {
-          value: ethers.BigNumber.from(await farm.getPrice(1)).mul(3),
-        })
-      ).revertedWith("SuperpowerNFT: defaultPlayer not set");
     });
 
     it("should buy tokens", async function () {
       await nft.setMaxSupply(1000);
-      await nft.setDefaultPlayer(game.address);
-
-      expect(await nft.defaultPlayer()).equal(game.address);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
 
       expect(
@@ -97,7 +84,6 @@ describe("NftFactory", function () {
 
     it("should can not buy tokens because not whitelisted", async function () {
       await nft.setMaxSupply(1000);
-      await nft.setDefaultPlayer(game.address);
 
       expect(await wl.balanceOf(notWhitelisted.address, 1)).equal(0);
 
@@ -110,9 +96,6 @@ describe("NftFactory", function () {
 
     it("should buy tokens when whitelist period ends", async function () {
       await nft.setMaxSupply(1000);
-      await nft.setDefaultPlayer(game.address);
-
-      expect(await nft.defaultPlayer()).equal(game.address);
 
       await nft.setWhitelist(ethers.constants.AddressZero, 0);
 

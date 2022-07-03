@@ -17,21 +17,21 @@ contract NftFactory is UUPSUpgradableTemplate {
   using SafeMathUpgradeable for uint256;
 
   event NewPriceFor(uint8 nftId, uint256 price);
-  event FactorySetFor(uint8 nftId, address farmer);
-  event FactoryRemovedFor(uint8 nftId, address farmer);
+  event FactorySetFor(uint8 nftId, address factory);
+  event FactoryRemovedFor(uint8 nftId, address factory);
   event NewNftForSale(uint8 nftId, address nft);
   event NftRemovedFromSale(uint8 nftId, address nft);
 
   mapping(uint8 => ISuperpowerNFT) private _nfts;
   mapping(address => uint8) private _nftsByAddress;
   uint8 private _lastNft;
-  mapping(uint8 => address) private _farmers;
+  mapping(uint8 => address) private _factories;
   mapping(uint8 => uint256) private _prices;
 
   uint256 public proceedsBalance;
 
   modifier onlyFactory(uint8 nftId) {
-    require(nftIdByFactory(_msgSender()) == nftId, "NftFactory: not a farmer for this nft");
+    require(nftIdByFactory(_msgSender()) == nftId, "NftFactory: not a factory for this nft");
     _;
   }
 
@@ -58,16 +58,16 @@ contract NftFactory is UUPSUpgradableTemplate {
     emit NftRemovedFromSale(nftId, nft);
   }
 
-  function setFactory(uint8 nftId, address farmer) external onlyOwner {
-    require(farmer.isContract(), "NftFactory: not a contract");
-    _farmers[nftId] == farmer;
-    emit FactorySetFor(nftId, farmer);
+  function setFactory(uint8 nftId, address factory) external onlyOwner {
+    require(factory.isContract(), "NftFactory: not a contract");
+    _factories[nftId] == factory;
+    emit FactorySetFor(nftId, factory);
   }
 
-  function removeFactoryForNft(uint8 nftId, address farmer) external onlyOwner {
-    require(_farmers[nftId] == farmer, "NftFactory: farmer not found");
-    delete _farmers[nftId];
-    emit FactoryRemovedFor(nftId, farmer);
+  function removeFactoryForNft(uint8 nftId, address factory) external onlyOwner {
+    require(_factories[nftId] == factory, "NftFactory: factory not found");
+    delete _factories[nftId];
+    emit FactoryRemovedFor(nftId, factory);
   }
 
   function setPrice(uint8 nftId, uint256 price) external onlyOwner {
@@ -80,9 +80,9 @@ contract NftFactory is UUPSUpgradableTemplate {
     return _prices[nftId];
   }
 
-  function nftIdByFactory(address farmer) public view returns (uint8) {
+  function nftIdByFactory(address factory) public view returns (uint8) {
     for (uint8 i = 0; i < _lastNft + 1; i++) {
-      if (_farmers[i] == farmer) {
+      if (_factories[i] == factory) {
         return i;
       }
     }
@@ -92,7 +92,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   function buyTokens(uint8 nftId, uint256 amount) external payable {
     require(msg.value >= _prices[nftId].mul(amount), "NftFactory: insufficient payment");
     proceedsBalance += msg.value;
-    _nfts[nftId].mintAndInit(_msgSender(), amount);
+    _nfts[nftId].mint(_msgSender(), amount);
   }
 
   function withdrawProceeds(address beneficiary, uint256 amount) public onlyOwner {
