@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@ndujalabs/erc721playable': 0.6.1
   '@ndujalabs/wormhole-tunnel': 0.4.0
-  '@ndujalabs/wormhole721': ^0.5.2
+  '@ndujalabs/wormhole721': ^0.5.3
   '@nomiclabs/hardhat-ethers': ^2.0.3
   '@nomiclabs/hardhat-etherscan': ^2.1.8
   '@nomiclabs/hardhat-waffle': ^2.0.1
@@ -38,7 +38,7 @@ specifiers:
 devDependencies:
   '@ndujalabs/erc721playable': 0.6.1
   '@ndujalabs/wormhole-tunnel': 0.4.0
-  '@ndujalabs/wormhole721': 0.5.2
+  '@ndujalabs/wormhole721': 0.5.3
   '@nomiclabs/hardhat-ethers': 2.0.4_ethers@5.5.4+hardhat@2.8.3
   '@nomiclabs/hardhat-etherscan': 2.1.8_hardhat@2.8.3
   '@nomiclabs/hardhat-waffle': 2.0.2_6oy2mnnnyf6xpql55mxsdlbst4
@@ -602,13 +602,6 @@ packages:
       '@openzeppelin/contracts-upgradeable': 4.5.0
     dev: true
 
-  /@ndujalabs/wormhole-tunnel/0.3.5:
-    resolution: {integrity: sha512-NrWGmSC0tNoD/VlpGXehXnXVQvc3AjKE4cAZiG1y8txqk5RrZ2FShxfnwIwzrXhFEEdO15/GjcyyVy1x6/WoKQ==}
-    dependencies:
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
-    dev: true
-
   /@ndujalabs/wormhole-tunnel/0.4.0:
     resolution: {integrity: sha512-OpmaD2vRzkpcyUgKuE9Uc2oFs9gt0AWGyHMjrmNRb6sNt/DyZzwH/rXyVxYBEaLbjqb/3V8F05vpbWzyTgkmFA==}
     dependencies:
@@ -616,10 +609,10 @@ packages:
       '@openzeppelin/contracts-upgradeable': 4.5.0
     dev: true
 
-  /@ndujalabs/wormhole721/0.5.2:
-    resolution: {integrity: sha512-eEg7wfPrhT6KFwnatLWTK0PhvlnQl5vYhGy8GtndUuDKQAg8bQ9Q9SLpCvv6a/D11xj8gPjZ6JBNJKyqy3b0Bg==}
+  /@ndujalabs/wormhole721/0.5.3:
+    resolution: {integrity: sha512-JvNr10alOFqxOWC9UICXpQvKaY+zkYNnTtJy1BvJWBGSLy7Nv25NgPhRhVq1dpdSmXpkctjlvG/YVAZqePlHnA==}
     dependencies:
-      '@ndujalabs/wormhole-tunnel': 0.3.5
+      '@ndujalabs/wormhole-tunnel': 0.4.0
       '@openzeppelin/contracts': 4.5.0
       '@openzeppelin/contracts-upgradeable': 4.5.0
     dev: true
