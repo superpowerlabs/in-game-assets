@@ -12,6 +12,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
 import "@ndujalabs/wormhole721/contracts/Wormhole721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "./interfaces/ISuperpowerNFTBase.sol";
 
@@ -46,7 +47,7 @@ abstract contract SuperpowerNFTBase is
     _;
   }
 
-  modifier tokenExists(uint id) {
+  modifier tokenExists(uint256 id) {
     require(_exists(id), "SuperpowerNFTBase: token does not exist");
     _;
   }
@@ -60,6 +61,7 @@ abstract contract SuperpowerNFTBase is
     __Wormhole721_init(name, symbol);
     __ERC721Enumerable_init();
     _baseTokenURI = tokenUri;
+    __Ownable_init();
   }
 
   function _beforeTokenTransfer(
