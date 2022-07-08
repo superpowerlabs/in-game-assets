@@ -60,8 +60,8 @@ abstract contract SuperpowerNFTBase is
   ) internal initializer {
     __Wormhole721_init(name, symbol);
     __ERC721Enumerable_init();
-    _baseTokenURI = tokenUri;
     __Ownable_init();
+    _baseTokenURI = tokenUri;
   }
 
   function _beforeTokenTransfer(

@@ -80,6 +80,14 @@ describe("NftFactory", function () {
 
       expect(await nft.nextTokenId()).equal(4);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(2);
+
+      expect(
+        await nft
+          .connect(whitelisted)
+          ["safeTransferFrom(address,address,uint256)"](whitelisted.address, notWhitelisted.address, 1)
+      )
+        .to.emit(nft, "Transfer")
+        .withArgs(whitelisted.address, notWhitelisted.address, 1);
     });
 
     it("should can not buy tokens because not whitelisted", async function () {
