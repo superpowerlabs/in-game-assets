@@ -39,6 +39,10 @@ contract FarmToken is IFarmToken, SuperpowerNFT {
       );
   }
 
+  function initAttributes(uint256 tokenId, FarmAttributes calldata attributes_) external onlyOwner tokenExists(tokenId) {
+    attributes[tokenId] = attributes_;
+  }
+
   function updateAttributes(uint256 tokenId, FarmAttributes calldata attributes_) external onlyGame tokenExists(tokenId) {
     attributes[tokenId] = attributes_;
   }

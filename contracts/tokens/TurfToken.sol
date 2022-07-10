@@ -27,7 +27,11 @@ contract TurfToken is ITurfToken, SuperpowerNFT {
     return string(abi.encodePacked("uint8 level:", StringsUpgradeable.toString(attributes[tokenId].level)));
   }
 
-  function updateAttributes(uint256 tokenId, TurfAttributes calldata attributes_) external onlyGame {
+  function initAttributes(uint256 tokenId, TurfAttributes calldata attributes_) external onlyOwner tokenExists(tokenId) {
+    attributes[tokenId] = attributes_;
+  }
+
+  function updateAttributes(uint256 tokenId, TurfAttributes calldata attributes_) external onlyGame tokenExists(tokenId) {
     attributes[tokenId] = attributes_;
   }
 }
