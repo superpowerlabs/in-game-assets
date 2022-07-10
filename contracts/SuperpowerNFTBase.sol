@@ -11,6 +11,8 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@ndujalabs/wormhole721/contracts/Wormhole721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "./interfaces/ISuperpowerNFTBase.sol";
 
@@ -45,6 +47,11 @@ abstract contract SuperpowerNFTBase is
     _;
   }
 
+  modifier tokenExists(uint256 id) {
+    require(_exists(id), "SuperpowerNFTBase: token does not exist");
+    _;
+  }
+
   // solhint-disable-next-line
   function __SuperpowerNFTBase_init(
     string memory name,
@@ -53,6 +60,7 @@ abstract contract SuperpowerNFTBase is
   ) internal initializer {
     __Wormhole721_init(name, symbol);
     __ERC721Enumerable_init();
+    __Ownable_init();
     _baseTokenURI = tokenUri;
   }
 
@@ -94,7 +102,7 @@ abstract contract SuperpowerNFTBase is
     return string(abi.encodePacked(_baseTokenURI, "0"));
   }
 
-  function setGame(address game_) external onlyOwner {
+  function setGame(address game_) external virtual onlyOwner {
     require(game_.isContract(), "SuperpowerNFTBase: game_ not a contract");
     game = game_;
     emit GameSet(game_);

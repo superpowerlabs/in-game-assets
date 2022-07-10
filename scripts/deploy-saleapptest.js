@@ -18,8 +18,8 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const turf = await deployUtils.deployProxy("TurfToken", "https://data.mob.land/turf/")
-  const farm = await deployUtils.deployProxy("TurfToken", "https://data.mob.land/farm/")
+  const turf = await deployUtils.deployProxy("TurfToken", "https://api.mob.land/meta/turfs/");
+  const farm = await deployUtils.deployProxy("FarmToken", "https://api.mob.land/meta/farms/");
   const wl = await deployUtils.deploy("WhitelistSlot");
   const factory = await deployUtils.deployProxy("NftFactory");
 

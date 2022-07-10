@@ -1,16 +1,18 @@
+const {requirePath} = require("require-or-mock");
+// if missed, it sets up a mock
+requirePath(".env");
+
+require("dotenv").config();
+require("cryptoenv").parse();
+
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
-require('@openzeppelin/hardhat-upgrades');
+require("@openzeppelin/hardhat-upgrades");
 // require("hardhat-gas-reporter");
 require("solidity-coverage");
-const requireOrMock = require('require-or-mock')
+const requireOrMock = require("require-or-mock");
 
-let env = requireOrMock('env.js', {
-  privateKey: "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
-  privateKeyTestnet: "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-});
-
-if (process.env.GAS_REPORT === 'yes') {
+if (process.env.GAS_REPORT === "yes") {
   require("hardhat-gas-reporter");
 }
 
@@ -32,7 +34,7 @@ task("accounts", "Prints the list of accounts", async () => {
  */
 module.exports = {
   solidity: {
-    version: '0.8.11',
+    version: "0.8.11",
     settings: {
       optimizer: {
         enabled: true,
@@ -45,30 +47,62 @@ module.exports = {
       blockGasLimit: 10000000,
     },
     localhost: {
-      url: "http://localhost:8545"
+      url: "http://localhost:8545",
+      chainId: 1337,
     },
-    ganache: {
-      url: "http://localhost:7545"
-    },
-    bsc_testnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
-      chainId: 97,
-      gasPrice: 20000000000,
-      accounts: [env.privateKeyTestnet]
+    ethereum: {
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: [process.env.FOR_MAINNET],
+      chainId: 1,
     },
     bsc: {
       url: "https://bsc-dataseed.binance.org",
       chainId: 56,
       gasPrice: 20000000000,
-      accounts: [env.privateKey]
+      accounts: [process.env.FOR_MAINNET],
+    },
+    ropsten: {
+      url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      gasLimit: 6000000,
+      accounts: [process.env.FOR_TESTNET],
+    },
+    goerli: {
+      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      gasLimit: 6000000,
+      accounts: [process.env.FOR_TESTNET],
+    },
+    bsc_testnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      // gasPrice: 20000000000,
+      gasLimit: 6000000,
+      accounts: [process.env.FOR_TESTNET],
+    },
+    mumbai: {
+      url: "https://matic-mumbai.chainstacklabs.com",
+      chainId: 80001,
+      // gasPrice: 20000000000,
+      gasLimit: 6000000,
+      accounts: [process.env.FOR_TESTNET],
+    },
+    fuji: {
+      url: "https://api.avax-test.network/ext/bc/C/rpc",
+      gasPrice: 225000000000,
+      chainId: 43113,
+      accounts: [process.env.FOR_TESTNET],
+    },
+    avalance: {
+      url: "https://api.avax.network/ext/bc/C/rpc",
+      gasPrice: 225000000000,
+      chainId: 43114,
+      accounts: [process.env.FOR_TESTNET],
     },
   },
   etherscan: {
-    apiKey: env.bscscanKey
+    // apiKey: env.bscscanKey
   },
   gasReporter: {
-    currency: 'USD',
-    coinmarketcap: env.coinMarketCapAPIKey
-  }
+    currency: "USD",
+    // coinmarketcap: env.coinMarketCapAPIKey
+  },
 };
-

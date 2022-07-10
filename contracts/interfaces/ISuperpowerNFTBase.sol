@@ -11,6 +11,8 @@ interface ISuperpowerNFTBase {
   event LockerRemoved(address locker);
   event LockRemoved(uint256 tokenId);
 
+  function attributesOf(uint tokenId) external view returns (string memory);
+
   function updateTokenURI(string memory uri) external;
 
   function freezeTokenURI() external;
