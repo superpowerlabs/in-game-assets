@@ -9,7 +9,6 @@ import "../tokens/FarmToken.sol";
 //import "hardhat/console.sol";
 
 contract FarmTokenMock is FarmToken {
-
   function setGame(address game_) external virtual override onlyOwner {
     game = game_;
     emit GameSet(game_);

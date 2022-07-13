@@ -11,21 +11,19 @@ import "../SuperpowerNFT.sol";
 
 contract CharacterToken is ICharacterToken, SuperpowerNFT {
   // when bridging the attributes must be propagated
-  // except if we prefer to reset the token on a new chain
   mapping(uint256 => CharacterAttributes) public attributes;
-  uint256 nextTokenId;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
   function initialize(string memory tokenUri) public initializer {
     __SuperpowerNFTBase_init("MOBLAND Character", "mCHAR", tokenUri);
-    nextTokenId = 1;
+    _nextTokenId = 1;
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-  function attributesOf(uint256 tokenId) external view override tokenExists(tokenId) returns (string memory) {
+  function attributesOf(uint256 tokenId) external view tokenExists(tokenId) returns (string memory) {
     return
       string(
         abi.encodePacked(
