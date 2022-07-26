@@ -71,6 +71,12 @@ module.exports = {
       gasLimit: 6000000,
       accounts: [process.env.FOR_TESTNET],
     },
+    bas: {
+      url: `https://rpc.bas.altermafia.com`,
+      chainId: 14000,
+      gasLimit: 6000000,
+      accounts: [process.env.FOR_TESTNET],
+    },
     bsc_testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
