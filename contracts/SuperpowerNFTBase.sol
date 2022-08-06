@@ -9,16 +9,18 @@ pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "@ndujalabs/wormhole721/contracts/Wormhole721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
+import "@ndujalabs/wormhole721/contracts/Wormhole721Upgradeable.sol";
+import "@ndujalabs/attributable/contracts/IAttributable.sol";
+import "@ndujalabs/lockable/contracts/ILockable.sol";
 import "./interfaces/ISuperpowerNFTBase.sol";
 
 //import "hardhat/console.sol";
 
 abstract contract SuperpowerNFTBase is
+  IAttributable,
   ISuperpowerNFTBase,
   Initializable,
   ERC721Upgradeable,
@@ -33,6 +35,8 @@ abstract contract SuperpowerNFTBase is
   mapping(address => bool) public lockers;
   mapping(uint256 => address) public locked;
   address public game;
+
+  mapping(uint256 => mapping(address => mapping(uint8 => uint256))) internal _tokenAttributes;
 
   modifier onlyLocker() {
     require(lockers[_msgSender()], "SuperpowerNFTBase: not a staking locker");
@@ -68,6 +72,31 @@ abstract contract SuperpowerNFTBase is
   ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
     require(!isLocked(tokenId), "SuperpowerNFTBase: locked asset");
     super._beforeTokenTransfer(from, to, tokenId);
+  }
+
+  function attributesOf(
+    uint256 _id,
+    address _player,
+    uint8 _index
+  ) external view override returns (uint256) {
+    return _tokenAttributes[_id][_player][_index];
+  }
+
+  function authorizePlayer(uint256 _id, address _player) external override {
+    require(ownerOf(_id) == _msgSender(), "Not the owner");
+    require(_tokenAttributes[_id][_player][0] == 0, "Player already authorized");
+    _tokenAttributes[_id][_player][0] = 1;
+  }
+
+  function updateAttributes(
+    uint256 _id,
+    uint8 _index,
+    uint256 _attributes
+  ) external override {
+    require(_tokenAttributes[_id][_msgSender()][0] != 0, "Player not authorized");
+    // notice that if the playes set the attributes to zero, it de-authorize itself
+    // and not more changes will be allowed until the NFT owner authorize it again
+    _tokenAttributes[_id][_msgSender()][_index] = _attributes;
   }
 
   function supportsInterface(bytes4 interfaceId)
