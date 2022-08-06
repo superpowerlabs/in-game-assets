@@ -4,7 +4,7 @@ specifiers:
   '@ethersproject/contracts': ^5.6.2
   '@ndujalabs/attributable': ^0.0.1
   '@ndujalabs/erc721playable': 0.6.1
-  '@ndujalabs/lockable': ^0.0.1
+  '@ndujalabs/lockable': ^0.0.2
   '@ndujalabs/wormhole-tunnel': 0.4.0
   '@ndujalabs/wormhole721': ^0.5.3
   '@nomiclabs/hardhat-ethers': ^2.0.3
@@ -43,7 +43,7 @@ devDependencies:
   '@ethersproject/contracts': 5.6.2
   '@ndujalabs/attributable': 0.0.1
   '@ndujalabs/erc721playable': 0.6.1
-  '@ndujalabs/lockable': 0.0.1
+  '@ndujalabs/lockable': 0.0.2
   '@ndujalabs/wormhole-tunnel': 0.4.0
   '@ndujalabs/wormhole721': 0.5.3
   '@nomiclabs/hardhat-ethers': 2.0.4_ethers@5.5.4+hardhat@2.8.3
@@ -787,8 +787,8 @@ packages:
       '@openzeppelin/contracts-upgradeable': 4.5.0
     dev: true
 
-  /@ndujalabs/lockable/0.0.1:
-    resolution: {integrity: sha512-QUN64h5gU3N8i3GPoROT30gJmEZQ5TSD8eEsUkC+Bw1hV7+/2VMYHJVPmxETXi9cZe7Vwthcp+thy3tH4hu7Zw==}
+  /@ndujalabs/lockable/0.0.2:
+    resolution: {integrity: sha512-gck3BN+ul4aalrM8srCpdkyLKUID4JelJ0R6Sr6zfTqUaEIgyJvf8rwwyyYv637mJPcNJbdIvlH2YbDl28aYwQ==}
     dev: true
 
   /@ndujalabs/wormhole-tunnel/0.4.0:

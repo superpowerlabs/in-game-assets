@@ -14,7 +14,6 @@ import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@ndujalabs/wormhole721/contracts/Wormhole721Upgradeable.sol";
 import "@ndujalabs/attributable/contracts/IAttributable.sol";
-import "@ndujalabs/lockable/contracts/ILockable.sol";
 import "./interfaces/ISuperpowerNFTBase.sol";
 
 //import "hardhat/console.sol";
@@ -32,14 +31,14 @@ abstract contract SuperpowerNFTBase is
   string private _baseTokenURI;
   bool private _baseTokenURIFrozen;
 
-  mapping(address => bool) public lockers;
-  mapping(uint256 => address) public locked;
+  mapping(address => bool) private _lockers;
+  mapping(uint256 => address) private _lockedBy;
   address public game;
 
   mapping(uint256 => mapping(address => mapping(uint8 => uint256))) internal _tokenAttributes;
 
   modifier onlyLocker() {
-    require(lockers[_msgSender()], "SuperpowerNFTBase: not a staking locker");
+    require(_lockers[_msgSender()], "SuperpowerNFTBase: not a staking locker");
     _;
   }
 
@@ -137,26 +136,26 @@ abstract contract SuperpowerNFTBase is
   // locks
 
   function isLocked(uint256 tokenId) public view override returns (bool) {
-    return locked[tokenId] != address(0);
+    return _lockedBy[tokenId] != address(0);
   }
 
   function lockerOf(uint256 tokenId) external view override returns (address) {
-    return locked[tokenId];
+    return _lockedBy[tokenId];
   }
 
   function isLocker(address locker) public view override returns (bool) {
-    return lockers[locker];
+    return _lockers[locker];
   }
 
   function setLocker(address locker) external override onlyOwner {
     require(locker.isContract(), "SuperpowerNFTBase: locker not a contract");
-    lockers[locker] = true;
+    _lockers[locker] = true;
     emit LockerSet(locker);
   }
 
   function removeLocker(address locker) external override onlyOwner {
-    require(lockers[locker], "SuperpowerNFTBase: not an active locker");
-    delete lockers[locker];
+    require(_lockers[locker], "SuperpowerNFTBase: not an active locker");
+    delete _lockers[locker];
     emit LockerRemoved(locker);
   }
 
@@ -175,22 +174,22 @@ abstract contract SuperpowerNFTBase is
     // locker must be approved to mark the token as locked
     require(isLocker(_msgSender()), "Not an authorized locker");
     require(getApproved(tokenId) == _msgSender() || isApprovedForAll(ownerOf(tokenId), _msgSender()), "Locker not approved");
-    locked[tokenId] = _msgSender();
+    _lockedBy[tokenId] = _msgSender();
     emit Locked(tokenId);
   }
 
   function unlock(uint256 tokenId) external override onlyLocker {
     // will revert if token does not exist
-    require(locked[tokenId] == _msgSender(), "SuperpowerNFTBase: wrong locker");
-    delete locked[tokenId];
+    require(_lockedBy[tokenId] == _msgSender(), "SuperpowerNFTBase: wrong locker");
+    delete _lockedBy[tokenId];
     emit Unlocked(tokenId);
   }
 
   // emergency function in case a compromised locker is removed
   function unlockIfRemovedLocker(uint256 tokenId) external override onlyOwner {
     require(isLocked(tokenId), "SuperpowerNFTBase: not a locked tokenId");
-    require(!lockers[locked[tokenId]], "SuperpowerNFTBase: locker is still active");
-    delete locked[tokenId];
+    require(!_lockers[_lockedBy[tokenId]], "SuperpowerNFTBase: locker is still active");
+    delete _lockedBy[tokenId];
     emit ForcefullyUnlocked(tokenId);
   }
 

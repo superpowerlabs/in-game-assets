@@ -4,7 +4,6 @@ pragma solidity 0.8.11;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-//import "./TurfTokenBase.sol";
 import "../SuperpowerNFT.sol";
 
 //import "hardhat/console.sol";
