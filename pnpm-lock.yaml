@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@ethersproject/contracts': ^5.6.2
-  '@ndujalabs/attributable': ^0.0.1
+  '@ndujalabs/attributable': ^0.0.3
   '@ndujalabs/erc721playable': 0.6.1
   '@ndujalabs/lockable': ^0.0.2
   '@ndujalabs/wormhole-tunnel': 0.4.0
@@ -41,7 +41,7 @@ specifiers:
 
 devDependencies:
   '@ethersproject/contracts': 5.6.2
-  '@ndujalabs/attributable': 0.0.1
+  '@ndujalabs/attributable': 0.0.3
   '@ndujalabs/erc721playable': 0.6.1
   '@ndujalabs/lockable': 0.0.2
   '@ndujalabs/wormhole-tunnel': 0.4.0
@@ -776,8 +776,8 @@ packages:
     resolution: {integrity: sha512-eMk0b9ReBbV23xXU693TAIrLyeO5iTgBZGSJfpqriG8UkYvr/hC9u9pyMlAakDNHWmbhMZCDs6KQO0jzKD8OTw==}
     dev: true
 
-  /@ndujalabs/attributable/0.0.1:
-    resolution: {integrity: sha512-Nd9FReP5bmUNLjijM3Ac2Mb+HXuu3thgpwEH1lpqTwgtBsJLPsVUbbvVhDnWAsRmB/k5DUDUSh69Uc6i6ZA6NQ==}
+  /@ndujalabs/attributable/0.0.3:
+    resolution: {integrity: sha512-gubxCQ+j9n3kdG4InaA6qbGI9Qs/MQxRn7qzRq2OI7u7DDPwp5K3hh2Lf45IoryTeQObyVeBqymb2JKQQcbtIw==}
     dev: true
 
   /@ndujalabs/erc721playable/0.6.1:

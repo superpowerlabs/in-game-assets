@@ -18,7 +18,7 @@
   "license": "MIT",
   "devDependencies": {
     "@ethersproject/contracts": "^5.6.2",
-    "@ndujalabs/attributable": "^0.0.1",
+    "@ndujalabs/attributable": "^0.0.3",
     "@ndujalabs/erc721playable": "0.6.1",
     "@ndujalabs/lockable": "^0.0.2",
     "@ndujalabs/wormhole-tunnel": "0.4.0",

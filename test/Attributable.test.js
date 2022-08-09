@@ -37,7 +37,7 @@ describe("Attributable", function () {
 
     await expect(myPlayer.updateAttributesOf(myToken.address, tokenId, tokenData)).revertedWith("Player not authorized");
 
-    await myToken.connect(holder).authorizePlayer(tokenId, myPlayer.address);
+    await myToken.connect(holder).initializeAttributesFor(tokenId, myPlayer.address);
 
     await myPlayer.updateAttributesOf(myToken.address, tokenId, tokenData);
 

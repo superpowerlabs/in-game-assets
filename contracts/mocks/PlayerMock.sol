@@ -4,9 +4,9 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@ndujalabs/attributable/contracts/IAttributable.sol";
-import "@ndujalabs/attributable/contracts/IPlayer.sol";
+import "@ndujalabs/attributable/contracts/IAttributablePlayer.sol";
 
-contract PlayerMock is IPlayer, Ownable {
+contract PlayerMock is IAttributablePlayer, Ownable {
   address internal _operator;
 
   struct TokenData {
