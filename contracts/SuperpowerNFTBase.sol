@@ -226,5 +226,5 @@ abstract contract SuperpowerNFTBase is
     return super.isApprovedForAll(owner, operator);
   }
 
-  uint256[50] private __gap;
+  uint256[49] private __gap;
 }
