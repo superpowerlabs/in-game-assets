@@ -73,6 +73,11 @@ abstract contract SuperpowerNFTBase is
     super._beforeTokenTransfer(from, to, tokenId);
   }
 
+  function initAttributes(uint256 tokenId, uint256 initialAttributes) external onlyOwner tokenExists(tokenId) {
+    require(_attributes[tokenId].level == 0, "FarmTokenBase: attributes already set");
+    _attributes[tokenId] = initialAttributes;
+  }
+
   function attributesOf(
     uint256 _id,
     address _player,
