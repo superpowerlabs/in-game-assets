@@ -15,4 +15,6 @@ interface ISuperpowerNFTBase is ILockable {
   function freezeTokenURI() external;
 
   function contractURI() external view returns (string memory);
+
+  function preInitializeAttributesFor(uint256 _id, uint256 _attributes0) external;
 }

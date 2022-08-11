@@ -4,12 +4,12 @@ pragma solidity 0.8.11;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-import "./FarmTokenBase.sol";
+//import "./FarmTokenBase.sol";
 import "../SuperpowerNFT.sol";
 
 //import "hardhat/console.sol";
 
-contract FarmToken is FarmTokenBase, SuperpowerNFT {
+contract FarmToken is SuperpowerNFT {
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 

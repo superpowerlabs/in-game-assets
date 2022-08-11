@@ -6,21 +6,40 @@ const Helpers = {
   },
 
   async assertThrowsMessage(promise, message) {
-    let notThrowing;
     try {
       await promise;
-      notThrowing = true;
-      throw new Error("Not throwing");
+      console.log("It did not throw :-(");
+      assert.isTrue(false);
     } catch (e) {
-      const rightMessage = e.message.indexOf(message) > -1;
-      if (notThrowing) {
-        console.log("Not throwing");
-      } else if (!rightMessage) {
+      const shouldBeTrue = e.message.indexOf(message) > -1;
+      if (!shouldBeTrue) {
         console.error("Expected:", message);
         console.error("Returned:", e.message);
+        // console.log(e)
       }
-      assert.isTrue(rightMessage);
+      assert.isTrue(shouldBeTrue);
     }
+  },
+
+  async deployContractBy(contractName, owner, ...args) {
+    const Contract = await this.ethers.getContractFactory(contractName);
+    const contract = await Contract.connect(owner).deploy(...args);
+    await contract.deployed();
+    return contract;
+  },
+
+  async deployContract(contractName, ...args) {
+    const Contract = await this.ethers.getContractFactory(contractName);
+    const contract = await Contract.deploy(...args);
+    await contract.deployed();
+    return contract;
+  },
+
+  async deployContractUpgradeable(contractName, args = []) {
+    const Contract = await this.ethers.getContractFactory(contractName);
+    const contract = await upgrades.deployProxy(Contract, args);
+    await contract.deployed();
+    return contract;
   },
 
   async signPackedData(
@@ -37,13 +56,11 @@ const Helpers = {
     return (await this.ethers.provider.getBlock()).timestamp;
   },
 
+  addr0: "0x0000000000000000000000000000000000000000",
+
   async increaseBlockTimestampBy(offset) {
     await this.ethers.provider.send("evm_increaseTime", [offset]);
     await this.ethers.provider.send("evm_mine");
-  },
-
-  normalize(val, n = 18) {
-    return "" + val + "0".repeat(n);
   },
 };
 

@@ -39,31 +39,4 @@ describe("FarmToken", function () {
       await expect(await nft.factories(farm.address)).equal(false);
     });
   });
-
-  describe("attributes", async function () {
-    beforeEach(async function () {
-      await initAndDeploy();
-    });
-
-    it("should set up attributes on chain and get them", async function () {
-      await nft.setGame(game.address);
-      await nft.setMaxSupply(1000);
-      await nft.mint(holder.address, 1);
-      const attributes = {
-        level: 2,
-        farmState: 243,
-        currentHP: 2736543,
-        weedReserves: 33322343,
-      };
-      await nft.initAttributes(1, attributes);
-      expect(await nft.attributesOf(1)).equal(
-        "uint8 level:2;uint8 farmState:243;uint32 currentHP:2736543;uint32 weedReserves:33322343"
-      );
-      attributes.farmState = 153;
-      await nft.connect(game).updateAttributes(1, attributes);
-      expect(await nft.attributesOf(1)).equal(
-        "uint8 level:2;uint8 farmState:153;uint32 currentHP:2736543;uint32 weedReserves:33322343"
-      );
-    });
-  });
 });
