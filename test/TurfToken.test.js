@@ -12,8 +12,8 @@ describe("TurfToken", function () {
 
   before(async function () {
     [owner, holder] = await ethers.getSigners();
-    TurfToken = await ethers.getContractFactory("TurfToken");
-    TurfTokenBridged = await ethers.getContractFactory("TurfTokenBridged");
+    TurfToken = await ethers.getContractFactory("Turf");
+    TurfTokenBridged = await ethers.getContractFactory("TurfBridged");
     FarmMock = await ethers.getContractFactory("FarmMock");
 
     initEthers(ethers);
