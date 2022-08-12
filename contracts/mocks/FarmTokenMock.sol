@@ -4,11 +4,11 @@ pragma solidity 0.8.11;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-import "../tokens/FarmToken.sol";
+import "../tokens/Farm.sol";
 
 //import "hardhat/console.sol";
 
-contract FarmTokenMock is FarmToken {
+contract FarmTokenMock is Farm {
   function setGame(address game_) external virtual override onlyOwner {
     game = game_;
     emit GameSet(game_);

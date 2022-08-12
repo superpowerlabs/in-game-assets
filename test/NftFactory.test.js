@@ -14,7 +14,7 @@ describe("NftFactory", function () {
   before(async function () {
     [owner, whitelisted, notWhitelisted] = await ethers.getSigners();
     Whitelist = await ethers.getContractFactory("WhitelistSlot");
-    TurfToken = await ethers.getContractFactory("TurfToken");
+    TurfToken = await ethers.getContractFactory("Turf");
     NftFactory = await ethers.getContractFactory("NftFactory");
     initEthers(ethers);
   });

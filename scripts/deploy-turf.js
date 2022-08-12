@@ -11,19 +11,13 @@ async function main() {
   const chainId = await deployUtils.currentChainId();
   let [deployer] = await ethers.getSigners();
 
-  const network = chainId === 56 ? "bsc" : chainId === 97 ? "bsc_testnet" : "localhost";
-
-  const {TOKEN_URI} = process.env;
-  if (!TOKEN_URI || !/\/$/.test(TOKEN_URI)) {
-    console.error("Missing or invalid parameters");
-    process.exit(1);
-  }
+  const network = chainId === 56 ? "bsc" : chainId === 97 ? "bsc_testnet" : chainId === 43113 ? "fuji" : "localhost";
 
   console.log("Deploying contracts with the account:", deployer.address, "to", network);
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  await deployUtils.deployProxy("TurfToken", TOKEN_URI);
+  await deployUtils.deployProxy("Turf", "https://meta.mob.land/turfs/");
 
   // console.log(await (await deployUtils.attach("TurfToken")).owner())
 }
