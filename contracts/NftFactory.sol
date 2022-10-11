@@ -124,6 +124,7 @@ contract NftFactory is UUPSUpgradableTemplate {
     require(msg.value >= _pricesInSeed[nftId].mul(amount), "NftFactory: insufficient payment");
     seedProceedsBalance += msg.value;
     seedToken.transferFrom(_msgSender(), address(this), _pricesInSeed[nftId].mul(amount));
+    _nfts[nftId].mint(_msgSender(), amount);
   }
 
   function withdrawSeedProceeds(address beneficiary, uint256 amount) public onlyOwner {
@@ -132,7 +133,7 @@ contract NftFactory is UUPSUpgradableTemplate {
     }
     require(amount <= seedProceedsBalance, "NftFactory: insufficient SEEDS funds");
     seedProceedsBalance -= amount;
-    (bool success, ) = beneficiary.call{value: seedProceedsBalance}("");
+    seedToken.transferFrom(address(this), beneficiary, amount);
     require(success);
   }
 }
