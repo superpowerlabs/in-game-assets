@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "soliutils/contracts/UUPSUpgradableTemplate.sol";
 
 import "./interfaces/ISuperpowerNFT.sol";
-import "../EXTERNAL/synr-seed/token/SeedToken.sol";
+import "./EXTERNAL/synr-seed/token/SeedToken.sol";
 
 //import "hardhat/console.sol";
 
@@ -120,7 +120,7 @@ contract NftFactory is UUPSUpgradableTemplate {
     require(success);
   }
 
-  function buyTokensWithSeeds(uint8 nftId, uint256 amount) external {
+  function buyTokensWithSeeds(uint8 nftId, uint256 amount) external payable {
     require(msg.value >= _pricesInSeed[nftId].mul(amount), "NftFactory: insufficient payment");
     seedProceedsBalance += msg.value;
     seedToken.transferFrom(_msgSender(), address(this), _pricesInSeed[nftId].mul(amount));
@@ -134,6 +134,5 @@ contract NftFactory is UUPSUpgradableTemplate {
     require(amount <= seedProceedsBalance, "NftFactory: insufficient SEEDS funds");
     seedProceedsBalance -= amount;
     seedToken.transferFrom(address(this), beneficiary, amount);
-    require(success);
   }
 }

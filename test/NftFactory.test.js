@@ -2,6 +2,7 @@ const {expect, assert} = require("chai");
 
 const {initEthers} = require("./helpers");
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
+const DeployUtils = require("../scripts/lib/DeployUtils");
 
 // tests to be fixed
 
@@ -10,6 +11,9 @@ describe("NftFactory", function () {
   let Whitelist, wl;
   let TurfToken, nft;
   let NftFactory, farm;
+  let seed;
+
+  const deployUtils = new DeployUtils(ethers);
 
   before(async function () {
     [owner, whitelisted, notWhitelisted] = await ethers.getSigners();
@@ -20,6 +24,8 @@ describe("NftFactory", function () {
   });
 
   async function initAndDeploy() {
+    const eth_amount = ethers.utils.parseEther("10000000000");
+
     wl = await Whitelist.deploy();
     await wl.deployed();
 
@@ -29,6 +35,9 @@ describe("NftFactory", function () {
     farm = await upgrades.deployProxy(NftFactory, []);
     await farm.deployed();
 
+    seed = await deployUtils.deployProxy("SeedTokenMock");
+    // await seed.mint(wl.address, eth_amount);
+
     const id = 1;
     const amount = 5;
     await wl.mintBatch(whitelisted.address, [id], [amount], []);
@@ -37,6 +46,7 @@ describe("NftFactory", function () {
     await nft.setFactory(farm.address, true);
     await farm.setNewNft(nft.address);
     await farm.setPrice(1, ethers.utils.parseEther("1"));
+    await farm.setPriceInSeed(1, ethers.utils.parseEther("100"));
   }
 
   describe("Buy tokens", async function () {
@@ -120,6 +130,73 @@ describe("NftFactory", function () {
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 3);
 
       expect(await nft.nextTokenId()).equal(4);
+    });
+  });
+
+  describe("Token prices", async function () {
+    beforeEach(async function () {
+      await initAndDeploy();
+    });
+
+    it("should get token price", async function () {
+      const tokenId = 1;
+      const price = ethers.utils.parseEther("1");
+      expect(await farm.getPrice(tokenId)).equal(price);
+    });
+
+    // TODO: fix this test
+    it.skip("should set token price", async function () {
+      const tokenId = 1;
+      const price = ethers.utils.parseEther("1");
+      expect(await farm.setPriceInSeed(tokenId, price))
+        .to.emit(nft, "NewPriceFor")
+        .withArgs(tokenId, price);
+    });
+
+    it("should get token price in Seeds", async function () {
+      const tokenId = 1;
+      const price = ethers.utils.parseEther("100");
+      expect(await farm.getPriceInSeed(tokenId)).equal(price);
+    });
+
+    // TODO: fix this test
+    it.skip("should set token price in Seeds", async function () {
+      const tokenId = 1;
+      const price = ethers.utils.parseEther("100");
+      expect(await farm.setPriceInSeed(tokenId, price))
+        .to.emit(nft, "NewPriceInSeedFor")
+        .withArgs(tokenId, price);
+    });
+  });
+
+  describe("Buy tokens with SEEDs", async function () {
+    beforeEach(async function () {
+      await initAndDeploy();
+    });
+
+    // TODO: fix this test
+    it.skip("should succeed", async function () {
+      await nft.setMaxSupply(1000);
+      expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
+
+      expect(
+        await farm.connect(whitelisted).buyTokensWithSeeds(1, 3, {
+          value: ethers.BigNumber.from(await farm.getPriceInSeed(1)).mul(3),
+        })
+      )
+        .to.emit(nft, "Transfer")
+        .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
+        .to.emit(nft, "Transfer")
+        .withArgs(ethers.constants.AddressZero, whitelisted.address, 2)
+        .to.emit(nft, "Transfer")
+        .withArgs(ethers.constants.AddressZero, whitelisted.address, 3);
+
+      expect(await nft.nextTokenId()).equal(4);
+      expect(await wl.balanceOf(whitelisted.address, 1)).equal(2);
+    });
+
+    it("should fail with insufficient payment", async function () {
+      expect(farm.connect(whitelisted).buyTokens(1, 3)).revertedWith("NftFactory: insufficient payment");
     });
   });
 });
