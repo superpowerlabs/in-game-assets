@@ -34,9 +34,8 @@ describe("NftFactory", function () {
 
     seed = await deployUtils.deployProxy("SeedTokenMock");
     await seed.deployed();
-    // await seed.mint(wl.address, eth_amount);
+    await seed.mint(whitelisted.address, eth_amount);
 
-    // this is not working...
     farm = await upgrades.deployProxy(NftFactory, [seed.address]);
     await farm.deployed();
 
@@ -180,11 +179,11 @@ describe("NftFactory", function () {
       await initAndDeploy();
     });
 
-    // TODO: fix this test
-    // fails with
-    //      Error: VM Exception while processing transaction: reverted with reason string 'ERC20: insufficient allowance'
-    it.skip("should succeed", async function () {
+    it("should succeed", async function () {
       await nft.setMaxSupply(1000);
+      const seedAmount = ethers.utils.parseEther("10");
+      await seed.connect(whitelisted).approve(farm.address, seedAmount.mul(400));
+
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
 
       expect(
