@@ -4,13 +4,7 @@ const {Contract} = require("@ethersproject/contracts");
 const abi = require("ethereumjs-abi");
 const {deployProxyImpl} = require("@openzeppelin/hardhat-upgrades/dist/utils");
 
-let deployedJson;
-
-if (process.env.NODE_ENV === "test") {
-  deployedJson = require("../../export/deployedForTest.json");
-} else {
-  deployedJson = require("../../export/deployed.json");
-}
+let deployedJson = require("../../export/deployed.json");
 
 const oZChainName = {
   1: "mainnet",
@@ -43,6 +37,16 @@ const scanner = {
   41224: "snowtrace.io",
   43113: "testnet.snowtrace.io",
 };
+
+function noTest() {
+  return process.env.NODE_ENV !== "test";
+}
+
+function debug(...params) {
+  if (noTest()) {
+    console.debug(...params);
+  }
+}
 
 class DeployUtils {
   constructor(ethers) {
@@ -89,29 +93,30 @@ class DeployUtils {
   }
 
   async Tx(promise, msg) {
+    debug();
     if (msg) {
-      console.debug(msg);
+      debug(msg);
     }
     let tx = await promise;
-    console.log("Tx:", tx.hash);
+    debug("Tx:", tx.hash);
     await tx.wait();
-    console.log("Mined.");
+    debug("Mined.");
   }
 
   async deploy(contractName, ...args) {
     const chainId = await this.currentChainId();
-    console.debug("Deploying", contractName, "to", this.network(chainId));
+    debug("Deploying", contractName, "to", this.network(chainId));
     const contract = await ethers.getContractFactory(contractName);
     const deployed = await contract.deploy(...args);
-    console.debug("Tx:", deployed.deployTransaction.hash);
+    debug("Tx:", deployed.deployTransaction.hash);
     await deployed.deployed();
-    console.debug("Deployed at", deployed.address);
+    debug("Deployed at", deployed.address);
     await this.saveDeployed(chainId, [contractName], [deployed.address]);
-    console.debug(`To verify the source code:
+    debug(`To verify the source code:
     
   npx hardhat verify --show-stack-traces --network ${this.network(chainId)} ${deployed.address} ${[...args]
-        .map((e) => e.toString())
-        .join(" ")}
+      .map((e) => e.toString())
+      .join(" ")}
       
 `);
     return deployed;
@@ -120,31 +125,35 @@ class DeployUtils {
   async attach(contractName) {
     const chainId = await this.currentChainId();
     const contract = await ethers.getContractFactory(contractName);
-    return contract.attach(deployedJson[chainId][contractName]);
+    if (deployedJson[chainId][contractName]) {
+      return contract.attach(deployedJson[chainId][contractName]);
+    } else {
+      return false;
+    }
   }
 
   async deployProxy(contractName, ...args) {
     const chainId = await this.currentChainId();
-    console.debug("Deploying", contractName, "to", this.network(chainId));
+    debug("Deploying", contractName, "to", this.network(chainId));
     const contract = await ethers.getContractFactory(contractName);
     const deployed = await upgrades.deployProxy(contract, [...args]);
-    console.debug("Tx:", deployed.deployTransaction.hash);
+    debug("Tx:", deployed.deployTransaction.hash);
     await deployed.deployed();
-    console.debug("Deployed at", deployed.address);
+    debug("Deployed at", deployed.address);
     await this.saveDeployed(chainId, [contractName], [deployed.address]);
-    console.debug(await this.verifyCodeInstructions(contractName, deployed.deployTransaction.hash));
+    debug(await this.verifyCodeInstructions(contractName, deployed.deployTransaction.hash));
     return deployed;
   }
 
   async upgradeProxy(contractName, gasLimit) {
     const chainId = await this.currentChainId();
-    console.debug("Upgrading", contractName, "to", this.network(chainId));
+    debug("Upgrading", contractName, "to", this.network(chainId));
     const Contract = await ethers.getContractFactory(contractName);
     const upgraded = await upgrades.upgradeProxy(deployedJson[chainId][contractName], Contract, gasLimit ? {gasLimit} : {});
-    console.debug("Tx:", upgraded.deployTransaction.hash);
+    debug("Tx:", upgraded.deployTransaction.hash);
     await upgraded.deployed();
-    console.debug("Upgraded");
-    console.debug(await this.verifyCodeInstructions(contractName, upgraded.deployTransaction.hash));
+    debug("Upgraded");
+    debug(await this.verifyCodeInstructions(contractName, upgraded.deployTransaction.hash));
     return upgraded;
   }
 
@@ -157,39 +166,41 @@ class DeployUtils {
   }
 
   async saveDeployed(chainId, names, addresses, extras) {
-    if (names.length !== addresses.length) {
-      throw new Error("Inconsistent arrays");
-    }
-
-    const deployedFilename = process.env.NODE_ENV === "test" ? "deployedForTest" : "deployed";
-
-    const deployedJson = path.resolve(__dirname, `../../export/${deployedFilename}.json`);
-    if (!(await fs.pathExists(deployedJson))) {
-      await fs.ensureDir(path.dirname(deployedJson));
-      await fs.writeFile(deployedJson, "{}");
-    }
-    const deployed = JSON.parse(await fs.readFile(deployedJson, "utf8"));
-    if (!deployed[chainId]) {
-      deployed[chainId] = {};
-    }
-    const data = {};
-    for (let i = 0; i < names.length; i++) {
-      data[names[i]] = addresses[i];
-    }
-    deployed[chainId] = Object.assign(deployed[chainId], data);
-
-    if (extras) {
-      // data needed for verifications
-      if (!deployed.extras) {
-        deployed.extras = {};
+    if (noTest()) {
+      if (names.length !== addresses.length) {
+        throw new Error("Inconsistent arrays");
       }
-      if (!deployed.extras[chainId]) {
-        deployed.extras[chainId] = {};
+
+      const deployedFilename = process.env.NODE_ENV === "test" ? "deployedForTest" : "deployed";
+
+      const deployedJson = path.resolve(__dirname, `../../export/${deployedFilename}.json`);
+      if (!(await fs.pathExists(deployedJson))) {
+        await fs.ensureDir(path.dirname(deployedJson));
+        await fs.writeFile(deployedJson, "{}");
       }
-      deployed.extras[chainId] = Object.assign(deployed.extras[chainId], extras);
+      const deployed = JSON.parse(await fs.readFile(deployedJson, "utf8"));
+      if (!deployed[chainId]) {
+        deployed[chainId] = {};
+      }
+      const data = {};
+      for (let i = 0; i < names.length; i++) {
+        data[names[i]] = addresses[i];
+      }
+      deployed[chainId] = Object.assign(deployed[chainId], data);
+
+      if (extras) {
+        // data needed for verifications
+        if (!deployed.extras) {
+          deployed.extras = {};
+        }
+        if (!deployed.extras[chainId]) {
+          deployed.extras[chainId] = {};
+        }
+        deployed.extras[chainId] = Object.assign(deployed.extras[chainId], extras);
+      }
+      // console.log(deployed)
+      await fs.writeFile(deployedJson, JSON.stringify(deployed, null, 2));
     }
-    // console.log(deployed)
-    await fs.writeFile(deployedJson, JSON.stringify(deployed, null, 2));
   }
 
   encodeArguments(parameterTypes, parameterValues) {
@@ -197,32 +208,34 @@ class DeployUtils {
   }
 
   async verifyCodeInstructions(contractName, tx) {
-    const chainId = await this.currentChainId();
-    let chainName = oZChainName[chainId] || "unknown-" + chainId;
-    const oz = JSON.parse(await fs.readFile(path.resolve(__dirname, "../../.openzeppelin", chainName + ".json")));
-    let address;
-    let keys = Object.keys(oz.impls);
-    let i = keys.length - 1;
-    LOOP: while (i >= 0) {
-      let key = keys[i];
-      let storage = oz.impls[key].layout.storage;
-      for (let s of storage) {
-        if (s.contract === contractName) {
-          address = oz.impls[key].address;
-          break LOOP;
+    if (noTest()) {
+      const chainId = await this.currentChainId();
+      let chainName = oZChainName[chainId] || "unknown-" + chainId;
+      const oz = JSON.parse(await fs.readFile(path.resolve(__dirname, "../../.openzeppelin", chainName + ".json")));
+      let address;
+      let keys = Object.keys(oz.impls);
+      let i = keys.length - 1;
+      LOOP: while (i >= 0) {
+        let key = keys[i];
+        let storage = oz.impls[key].layout.storage;
+        for (let s of storage) {
+          if (s.contract === contractName) {
+            address = oz.impls[key].address;
+            break LOOP;
+          }
         }
+        i--;
       }
-      i--;
-    }
 
-    let response = `To verify ${contractName} source code, flatten the source code and find the address of the implementation looking at the data in the following transaction 
+      let response = `To verify ${contractName} source code, flatten the source code and find the address of the implementation looking at the data in the following transaction 
     
 https://${scanner[chainId]}/tx/${tx}
 
 as a single file, without constructor's parameters    
 
 `;
-    return this.saveLog(contractName, response);
+      return this.saveLog(contractName, response);
+    }
   }
 
   async saveLog(contractName, response) {
