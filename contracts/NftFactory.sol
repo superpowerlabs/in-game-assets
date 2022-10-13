@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "soliutils/contracts/UUPSUpgradableTemplate.sol";
 
 import "./interfaces/ISuperpowerNFT.sol";
+import "./EXTERNAL/synr-seed/token/SeedToken.sol";
 
 //import "hardhat/console.sol";
 
@@ -17,6 +18,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   using SafeMathUpgradeable for uint256;
 
   event NewPriceFor(uint8 nftId, uint256 price);
+  event NewPriceInSeedFor(uint8 nftId, uint256 price);
   event FactorySetFor(uint8 nftId, address factory);
   event FactoryRemovedFor(uint8 nftId, address factory);
   event NewNftForSale(uint8 nftId, address nft);
@@ -27,16 +29,21 @@ contract NftFactory is UUPSUpgradableTemplate {
   uint8 private _lastNft;
   mapping(uint8 => address) private _factories;
   mapping(uint8 => uint256) private _prices;
+  mapping(uint8 => uint256) private _pricesInSeed;
 
   uint256 public proceedsBalance;
+  uint256 public seedProceedsBalance;
+  SeedToken public seedToken;
 
   modifier onlyFactory(uint8 nftId) {
     require(nftIdByFactory(_msgSender()) == nftId, "NftFactory: not a factory for this nft");
     _;
   }
 
-  function initialize() public initializer {
+  function initialize(address seed) public initializer {
     __UUPSUpgradableTemplate_init();
+    require(seed.isContract(), "NftFactory: seed is not a contract");
+    seedToken = SeedToken(seed);
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -80,6 +87,16 @@ contract NftFactory is UUPSUpgradableTemplate {
     return _prices[nftId];
   }
 
+  function setPriceInSeed(uint8 nftId, uint256 price) external onlyOwner {
+    require(address(_nfts[nftId]) != address(0), "NftFactory: token not found");
+    _pricesInSeed[nftId] = price;
+    emit NewPriceInSeedFor(nftId, price);
+  }
+
+  function getPriceInSeed(uint8 nftId) external view returns (uint256) {
+    return _pricesInSeed[nftId];
+  }
+
   function nftIdByFactory(address factory) public view returns (uint8) {
     for (uint8 i = 0; i < _lastNft + 1; i++) {
       if (_factories[i] == factory) {
@@ -103,5 +120,21 @@ contract NftFactory is UUPSUpgradableTemplate {
     proceedsBalance -= amount;
     (bool success, ) = beneficiary.call{value: amount}("");
     require(success);
+  }
+
+  function buyTokensWithSeeds(uint8 nftId, uint256 amount) external payable {
+    require(msg.value >= _pricesInSeed[nftId].mul(amount), "NftFactory: insufficient payment");
+    seedProceedsBalance += msg.value;
+    seedToken.transferFrom(_msgSender(), address(this), _pricesInSeed[nftId].mul(amount));
+    _nfts[nftId].mint(_msgSender(), amount);
+  }
+
+  function withdrawSeedProceeds(address beneficiary, uint256 amount) public onlyOwner {
+    if (amount == 0) {
+      amount = seedProceedsBalance;
+    }
+    require(amount <= seedProceedsBalance, "NftFactory: insufficient SEEDS funds");
+    seedProceedsBalance -= amount;
+    seedToken.transferFrom(address(this), beneficiary, amount);
   }
 }
