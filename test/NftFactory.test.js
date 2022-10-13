@@ -145,14 +145,11 @@ describe("NftFactory", function () {
       expect(await farm.getPrice(tokenId)).equal(price);
     });
 
-    // TODO: fix this test
-    // fails with
-    //       Uncaught AssertionError: Expected event "NewPriceFor" to be emitted, but it doesn't exist in the contract. Please make sure you've compiled its latest version before running the test.
-    it.skip("should set token price", async function () {
+    it("should set token price", async function () {
       const tokenId = 1;
       const price = ethers.utils.parseEther("1");
       expect(await farm.setPrice(tokenId, price))
-        .to.emit(nft, "NewPriceFor")
+        .to.emit(farm, "NewPriceFor")
         .withArgs(tokenId, price);
     });
 
@@ -162,14 +159,11 @@ describe("NftFactory", function () {
       expect(await farm.getPriceInSeed(tokenId)).equal(price);
     });
 
-    // TODO: fix this test
-    // fails with
-    //       Uncaught AssertionError: Expected event "NewPriceInSeedFor" to be emitted, but it doesn't exist in the contract. Please make sure you've compiled its latest version before running the test.
-    it.skip("should set token price in Seeds", async function () {
+    it("should set token price in Seeds", async function () {
       const tokenId = 1;
       const price = ethers.utils.parseEther("100");
       expect(await farm.setPriceInSeed(tokenId, price))
-        .to.emit(nft, "NewPriceInSeedFor")
+        .to.emit(farm, "NewPriceInSeedFor")
         .withArgs(tokenId, price);
     });
   });
