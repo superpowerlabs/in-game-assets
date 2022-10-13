@@ -32,11 +32,13 @@ describe("NftFactory", function () {
     nft = await upgrades.deployProxy(TurfToken, ["https://s3.mob.land/turf/"]);
     await nft.deployed();
 
-    farm = await upgrades.deployProxy(NftFactory, []);
-    await farm.deployed();
-
     seed = await deployUtils.deployProxy("SeedTokenMock");
+    await seed.deployed();
     // await seed.mint(wl.address, eth_amount);
+
+    // this is not working...
+    farm = await upgrades.deployProxy(NftFactory, [seed.address]);
+    await farm.deployed();
 
     const id = 1;
     const amount = 5;
@@ -145,10 +147,12 @@ describe("NftFactory", function () {
     });
 
     // TODO: fix this test
+    // fails with
+    //       Uncaught AssertionError: Expected event "NewPriceFor" to be emitted, but it doesn't exist in the contract. Please make sure you've compiled its latest version before running the test.
     it.skip("should set token price", async function () {
       const tokenId = 1;
       const price = ethers.utils.parseEther("1");
-      expect(await farm.setPriceInSeed(tokenId, price))
+      expect(await farm.setPrice(tokenId, price))
         .to.emit(nft, "NewPriceFor")
         .withArgs(tokenId, price);
     });
@@ -160,6 +164,8 @@ describe("NftFactory", function () {
     });
 
     // TODO: fix this test
+    // fails with
+    //       Uncaught AssertionError: Expected event "NewPriceInSeedFor" to be emitted, but it doesn't exist in the contract. Please make sure you've compiled its latest version before running the test.
     it.skip("should set token price in Seeds", async function () {
       const tokenId = 1;
       const price = ethers.utils.parseEther("100");
@@ -175,6 +181,8 @@ describe("NftFactory", function () {
     });
 
     // TODO: fix this test
+    // fails with
+    //      Error: VM Exception while processing transaction: reverted with reason string 'ERC20: insufficient allowance'
     it.skip("should succeed", async function () {
       await nft.setMaxSupply(1000);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);

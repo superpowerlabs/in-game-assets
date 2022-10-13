@@ -40,8 +40,10 @@ contract NftFactory is UUPSUpgradableTemplate {
     _;
   }
 
-  function initialize() public initializer {
+  function initialize(address seed) public initializer {
     __UUPSUpgradableTemplate_init();
+    require(seed.isContract(), "NftFactory: seed is not a contract");
+    seedToken = SeedToken(seed);
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
