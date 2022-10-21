@@ -42,8 +42,9 @@ async function main() {
     );
     await nft.setFactory(factory.address, true);
     await factory.setNewNft(nft.address);
-    await nft.setMaxSupply(1000);
   }
+  await turf.setMaxSupply(1000);
+  await farm.setMaxSupply(3000);
   await factory.setPrice(1, ethers.utils.parseEther("0.01"));
   await factory.setPriceInSeed(1, ethers.utils.parseEther("100"));
   await factory.setPrice(2, ethers.utils.parseEther("0.05"));
