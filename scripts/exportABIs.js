@@ -14,8 +14,8 @@ async function main() {
   }
   abi("NftFactory", "");
   abi("WhitelistSlot", "");
-  abi("FarmTokenMock", "mocks");
-  abi("TurfTokenMock", "mocks");
+  abi("Farm", "tokens");
+  abi("Turf", "tokens");
   abi("SeedTokenMock", "mocks");
 
   await fs.writeFile(path.resolve(__dirname, "../export/ABIs.json"), JSON.stringify(ABIs, null, 2));

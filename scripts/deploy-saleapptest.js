@@ -20,8 +20,8 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const turf = await deployUtils.deployProxy("TurfTokenMock", "https://api.mob.land/meta/turfs/");
-  const farm = await deployUtils.deployProxy("FarmTokenMock", "https://api.mob.land/meta/farms/");
+  const turf = await deployUtils.deployProxy("Turf", "https://api.mob.land/meta/turfs/");
+  const farm = await deployUtils.deployProxy("Farm", "https://api.mob.land/meta/farms/");
   const wl = await deployUtils.deploy("WhitelistSlot");
 
   const seed = await deployUtils.deployProxy("SeedTokenMock");
