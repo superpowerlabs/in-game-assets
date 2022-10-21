@@ -123,9 +123,9 @@ contract NftFactory is UUPSUpgradableTemplate {
   }
 
   function buyTokensWithSeeds(uint8 nftId, uint256 amount) external payable {
-    require(msg.value >= _pricesInSeed[nftId].mul(amount), "NftFactory: insufficient payment");
-    seedProceedsBalance += msg.value;
-    seedToken.transferFrom(_msgSender(), address(this), _pricesInSeed[nftId].mul(amount));
+    uint256 seedAmount = _pricesInSeed[nftId].mul(amount);
+    seedProceedsBalance += seedAmount;
+    seedToken.transferFrom(_msgSender(), address(this), seedAmount);
     _nfts[nftId].mint(_msgSender(), amount);
   }
 
