@@ -180,11 +180,7 @@ describe("NftFactory", function () {
 
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
 
-      expect(
-        await farm.connect(whitelisted).buyTokensWithSeeds(1, 3, {
-          value: ethers.BigNumber.from(await farm.getPriceInSeed(1)).mul(3),
-        })
-      )
+      expect(await farm.connect(whitelisted).buyTokensWithSeeds(1, 3))
         .to.emit(nft, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
         .to.emit(nft, "Transfer")
