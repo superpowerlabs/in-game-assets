@@ -26,6 +26,8 @@ async function main() {
 
   const seed = await deployUtils.deployProxy("SeedTokenMock");
   await seed.mint(whitelisted.address, eth_amount);
+  await seed.mint(whitelisted2.address, eth_amount);
+  await seed.mint(whitelisted3.address, eth_amount);
 
   const factory = await deployUtils.deployProxy("NftFactory", seed.address);
 
