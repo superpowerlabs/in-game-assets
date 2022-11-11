@@ -2,11 +2,13 @@ require("dotenv").config();
 const hre = require("hardhat");
 const ethers = hre.ethers;
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
+const {factory} = require("typescript");
 
 const DeployUtils = require("./lib/DeployUtils");
 let deployUtils;
 
 async function main() {
+  const eth_amount = ethers.utils.parseEther("10000000000");
   deployUtils = new DeployUtils(ethers);
 
   const chainId = await deployUtils.currentChainId();
@@ -18,10 +20,16 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const turf = await deployUtils.deployProxy("TurfToken", "https://api.mob.land/meta/turfs/");
-  const farm = await deployUtils.deployProxy("FarmToken", "https://api.mob.land/meta/farms/");
+  const turf = await deployUtils.deployProxy("Turf", "https://api.mob.land/meta/turfs/");
+  const farm = await deployUtils.deployProxy("Farm", "https://api.mob.land/meta/farms/");
   const wl = await deployUtils.deploy("WhitelistSlot");
-  const factory = await deployUtils.deployProxy("NftFactory");
+
+  const seed = await deployUtils.deployProxy("SeedTokenMock");
+  await seed.mint(whitelisted.address, eth_amount);
+  await seed.mint(whitelisted2.address, eth_amount);
+  await seed.mint(whitelisted3.address, eth_amount);
+
+  const factory = await deployUtils.deployProxy("NftFactory", seed.address);
 
   for (let id = 1; id <= 2; id++) {
     let nft = id === 1 ? turf : farm;
@@ -36,9 +44,13 @@ async function main() {
     );
     await nft.setFactory(factory.address, true);
     await factory.setNewNft(nft.address);
-    await factory.setPrice(id, ethers.utils.parseEther("0.01"));
-    await nft.setMaxSupply(1000);
   }
+  await turf.setMaxSupply(1000);
+  await farm.setMaxSupply(3000);
+  await factory.setPrice(1, ethers.utils.parseEther("0.01"));
+  await factory.setPriceInSeed(1, ethers.utils.parseEther("100"));
+  await factory.setPrice(2, ethers.utils.parseEther("0.05"));
+  await factory.setPriceInSeed(2, ethers.utils.parseEther("500"));
 }
 
 main()
