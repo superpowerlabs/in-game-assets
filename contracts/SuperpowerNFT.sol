@@ -9,7 +9,7 @@ import "./SuperpowerNFTBase.sol";
 import "./interfaces/ISuperpowerNFT.sol";
 import "./WhitelistSlot.sol";
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   error Forbidden();
@@ -58,10 +58,10 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
       revert NotAContract();
     }
     _wl = WhitelistSlot(wl);
-    // else we just want to update period of whitelisting
-    if (activeUntil == 0) {
-      activeUntil = block.timestamp;
-    }
+    //    if (activeUntil == 0) {
+    //      // solhint-disable-next-line not-rely-on-time
+    //      activeUntil = block.timestamp;
+    //    }
     _whitelistActiveUntil = activeUntil;
   }
 
@@ -94,6 +94,9 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   }
 
   function _burnWhitelistSlot(address to, uint256 amount) internal {
+    // solhint-disable-next-line not-rely-on-time
+    console.log(block.timestamp < _whitelistActiveUntil);
+    console.log(block.timestamp, _whitelistActiveUntil);
     if (block.timestamp < _whitelistActiveUntil) {
       if (_wl.balanceOf(to, _wl.getIdByBurner(address(this))) < amount) {
         revert NotEnoughWLSlots();

@@ -2,7 +2,6 @@
 pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
@@ -10,7 +9,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20Burnable
 import "../utils/Versionable.sol";
 
 contract SideToken is Versionable, Initializable, OwnableUpgradeable, ERC20Upgradeable, ERC20BurnableUpgradeable {
-  event ImplementationUpgraded(address newImplementation);
   using AddressUpgradeable for address;
 
   mapping(address => bool) public minters;

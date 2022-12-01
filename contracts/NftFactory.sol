@@ -4,12 +4,13 @@ pragma solidity 0.8.11;
 // Author : Francesco Sullo < francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "soliutils/contracts/UUPSUpgradableTemplate.sol";
 
 import "./interfaces/ISuperpowerNFT.sol";
-import "./EXTERNAL/synr-seed/token/SeedToken.sol";
+import "../external-contracts/synr-seed/token/SeedToken.sol";
 
 //import "hardhat/console.sol";
 
@@ -26,6 +27,12 @@ contract NftFactory is UUPSUpgradableTemplate {
 
   error NotAFactoryForThisNFT(uint id);
   error NotAContract();
+  error NFTAlreadySet();
+  error NFTNotFound();
+  error FactoryNotFound();
+  error InsufficientPayment();
+  error InsufficientFunds();
+  error TransferFailed();
 
   mapping(uint8 => ISuperpowerNFT) private _nfts;
   mapping(address => uint8) private _nftsByAddress;
@@ -36,31 +43,25 @@ contract NftFactory is UUPSUpgradableTemplate {
 
   uint256 public proceedsBalance;
   uint256 public seedProceedsBalance;
-  SeedToken public seedToken;
+  ERC20 public seedToken;
+  ERC20 public usdToken;
 
   modifier onlyFactory(uint8 nftId) {
-    if (nftIdByFactory(_msgSender()) != nftId) {
-      revert NotAFactoryForThisNFT(nftId);
-    }
+    if (nftIdByFactory(_msgSender()) != nftId) revert NotAFactoryForThisNFT(nftId);
     _;
   }
 
   function initialize(address seed, address stableCoin) public initializer {
     __UUPSUpgradableTemplate_init();
-    if (!seed.isContract()) {
-      revert NotAContract();
-    } else if (!stableCoin.isContract()) {
-      revert NotAContract();
-    }
-    seedToken = SeedToken(seed);
-    usdToken = SeedToken(stableCoin);
+    if (!seed.isContract()) revert NotAContract();
+    else if (!stableCoin.isContract()) revert NotAContract();
+    seedToken = ERC20(seed);
+    usdToken = ERC20(stableCoin);
   }
 
-  function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-
   function setNewNft(address nft) external onlyOwner {
-    require(nft.isContract(), "NftFactory: not a contract");
-    require(_nftsByAddress[nft] == 0, "NftFactory: token already set");
+    if (!nft.isContract()) revert NotAContract();
+    if (_nftsByAddress[nft] > 0) revert NFTAlreadySet();
     _lastNft++;
     _nftsByAddress[nft] = _lastNft;
     _nfts[_lastNft] = ISuperpowerNFT(nft);
@@ -68,7 +69,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   }
 
   function removeNewNft(address nft) external onlyOwner {
-    require(_nftsByAddress[nft] > 0, "NftFactory: token not found");
+    if (_nftsByAddress[nft] == 0) revert NFTNotFound();
     uint8 nftId = _nftsByAddress[nft];
     delete _nfts[nftId];
     delete _nftsByAddress[nft];
@@ -76,19 +77,19 @@ contract NftFactory is UUPSUpgradableTemplate {
   }
 
   function setFactory(uint8 nftId, address factory) external onlyOwner {
-    require(factory.isContract(), "NftFactory: not a contract");
+    if (!factory.isContract()) revert NotAContract();
     _factories[nftId] == factory;
     emit FactorySetFor(nftId, factory);
   }
 
   function removeFactoryForNft(uint8 nftId, address factory) external onlyOwner {
-    require(_factories[nftId] == factory, "NftFactory: factory not found");
+    if (_factories[nftId] != factory) revert FactoryNotFound();
     delete _factories[nftId];
     emit FactoryRemovedFor(nftId, factory);
   }
 
   function setPrice(uint8 nftId, uint256 price) external onlyOwner {
-    require(address(_nfts[nftId]) != address(0), "NftFactory: token not found");
+    if (address(_nfts[nftId]) == address(0)) revert NFTNotFound();
     _prices[nftId] = price;
     emit NewPriceFor(nftId, price);
   }
@@ -98,7 +99,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   }
 
   function setPriceInSeed(uint8 nftId, uint256 price) external onlyOwner {
-    require(address(_nfts[nftId]) != address(0), "NftFactory: token not found");
+    if (address(_nfts[nftId]) == address(0)) revert NFTNotFound();
     _pricesInSeed[nftId] = price;
     emit NewPriceInSeedFor(nftId, price);
   }
@@ -117,7 +118,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   }
 
   function buyTokens(uint8 nftId, uint256 amount) external payable {
-    require(msg.value >= _prices[nftId].mul(amount), "NftFactory: insufficient payment");
+    if (msg.value < _prices[nftId].mul(amount)) revert InsufficientPayment();
     proceedsBalance += msg.value;
     _nfts[nftId].mint(_msgSender(), amount);
   }
@@ -126,10 +127,13 @@ contract NftFactory is UUPSUpgradableTemplate {
     if (amount == 0) {
       amount = proceedsBalance;
     }
-    require(amount <= proceedsBalance, "NftFactory: insufficient funds");
+    if (amount > proceedsBalance) revert InsufficientFunds();
     proceedsBalance -= amount;
+    // solhint-disable-next-line avoid-low-level-calls
     (bool success, ) = beneficiary.call{value: amount}("");
-    require(success);
+    if (!success) {
+      revert TransferFailed();
+    }
   }
 
   function buyTokensWithSeeds(uint8 nftId, uint256 amount) external payable {
@@ -143,7 +147,7 @@ contract NftFactory is UUPSUpgradableTemplate {
     if (amount == 0) {
       amount = seedProceedsBalance;
     }
-    require(amount <= seedProceedsBalance, "NftFactory: insufficient SEEDS funds");
+    if (amount > seedProceedsBalance) revert InsufficientFunds();
     seedProceedsBalance -= amount;
     seedToken.transferFrom(address(this), beneficiary, amount);
   }

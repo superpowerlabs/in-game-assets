@@ -8,7 +8,7 @@ import "../WhitelistSlot.sol";
 contract BurnerMock {
   WhitelistSlot public whitelist;
 
-  constructor(address whitelist_) {
+  constructor(address whitelist_) public {
     require(whitelist_.code.length > 0, "Not a contract");
     whitelist = WhitelistSlot(whitelist_);
   }

@@ -1,6 +1,6 @@
 const {expect, assert} = require("chai");
 
-const {initEthers} = require("./helpers");
+const {initEthers, increaseBlockTimestampBy} = require("./helpers");
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
 const DeployUtils = require("../scripts/lib/DeployUtils");
 
@@ -9,9 +9,10 @@ const DeployUtils = require("../scripts/lib/DeployUtils");
 describe("NftFactory", function () {
   let owner, whitelisted, notWhitelisted;
   let Whitelist, wl;
-  let TurfToken, nft;
+  let TurfToken, turf;
   let NftFactory, farm;
-  let seed;
+  let ERC20;
+  let seed, busd;
 
   const deployUtils = new DeployUtils(ethers);
 
@@ -20,32 +21,38 @@ describe("NftFactory", function () {
     Whitelist = await ethers.getContractFactory("WhitelistSlot");
     TurfToken = await ethers.getContractFactory("Turf");
     NftFactory = await ethers.getContractFactory("NftFactory");
+    ERC20 = await ethers.getContractFactory("ERC20");
     initEthers(ethers);
   });
 
   async function initAndDeploy() {
-    const eth_amount = ethers.utils.parseEther("10000000000");
+    const seedAmount = ethers.utils.parseEther("10000000000");
+    const usdAmount = ethers.utils.parseEther("1000000");
 
     wl = await Whitelist.deploy();
     await wl.deployed();
 
-    nft = await upgrades.deployProxy(TurfToken, ["https://s3.mob.land/turf/"]);
-    await nft.deployed();
+    turf = await upgrades.deployProxy(TurfToken, ["https://s3.mob.land/turf/"]);
+    await turf.deployed();
+
+    busd = await deployUtils.deployProxy("SeedTokenMock");
+    await busd.deployed();
+    await busd.mint(whitelisted.address, usdAmount);
 
     seed = await deployUtils.deployProxy("SeedTokenMock");
     await seed.deployed();
-    await seed.mint(whitelisted.address, eth_amount);
+    await seed.mint(whitelisted.address, seedAmount);
 
-    farm = await upgrades.deployProxy(NftFactory, [seed.address]);
+    farm = await upgrades.deployProxy(NftFactory, [seed.address, busd.address]);
     await farm.deployed();
 
     const id = 1;
     const amount = 5;
     await wl.mintBatch(whitelisted.address, [id], [amount], []);
-    await wl.setBurnerForID(nft.address, id);
-    await nft.setWhitelist(wl.address, getCurrentTimestamp() + 1e4);
-    await nft.setFactory(farm.address, true);
-    await farm.setNewNft(nft.address);
+    await wl.setBurnerForID(turf.address, id);
+    await turf.setWhitelist(wl.address, getCurrentTimestamp() + 1e4);
+    await turf.setFactory(farm.address, true);
+    await farm.setNewNft(turf.address);
     await farm.setPrice(1, ethers.utils.parseEther("1"));
     await farm.setPriceInSeed(1, ethers.utils.parseEther("100"));
   }
@@ -56,11 +63,11 @@ describe("NftFactory", function () {
     });
 
     it("should not buy because no payment", async function () {
-      expect(farm.connect(whitelisted).buyTokens(1, 3)).revertedWith("NftFactory: insufficient payment");
+      expect(farm.connect(whitelisted).buyTokens(1, 3)).revertedWith("InsufficientPayment()");
     });
 
     it("should revert maxSupply not set or defaultPlayer not set", async function () {
-      expect(await nft.canMintAmount(3)).equal(false);
+      expect(await turf.canMintAmount(3)).equal(false);
 
       await expect(
         farm.connect(whitelisted).buyTokens(1, 3, {
@@ -68,13 +75,13 @@ describe("NftFactory", function () {
         })
       ).revertedWith("CannotMint()");
 
-      await nft.setMaxSupply(1000);
+      await turf.setMaxSupply(1000);
 
-      expect(await nft.canMintAmount(3)).equal(true);
+      expect(await turf.canMintAmount(3)).equal(true);
     });
 
     it("should buy tokens", async function () {
-      await nft.setMaxSupply(1000);
+      await turf.setMaxSupply(1000);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
 
       expect(
@@ -82,27 +89,27 @@ describe("NftFactory", function () {
           value: ethers.BigNumber.from(await farm.getPrice(1)).mul(3),
         })
       )
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 2)
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 3);
 
-      expect(await nft.nextTokenId()).equal(4);
+      expect(await turf.nextTokenId()).equal(4);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(2);
 
       expect(
-        await nft
+        await turf
           .connect(whitelisted)
           ["safeTransferFrom(address,address,uint256)"](whitelisted.address, notWhitelisted.address, 1)
       )
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(whitelisted.address, notWhitelisted.address, 1);
     });
 
     it("should can not buy tokens because not whitelisted", async function () {
-      await nft.setMaxSupply(1000);
+      await turf.setMaxSupply(1000);
 
       expect(await wl.balanceOf(notWhitelisted.address, 1)).equal(0);
 
@@ -114,23 +121,23 @@ describe("NftFactory", function () {
     });
 
     it("should buy tokens when whitelist period ends", async function () {
-      await nft.setMaxSupply(1000);
+      await turf.setMaxSupply(1000);
 
-      await nft.setWhitelist(ethers.constants.AddressZero, 0);
+      await increaseBlockTimestampBy(getCurrentTimestamp() + 1e4 + 10);
 
       expect(
         await farm.connect(notWhitelisted).buyTokens(1, 3, {
           value: ethers.BigNumber.from(await farm.getPrice(1)).mul(3),
         })
       )
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 1)
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 2)
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 3);
 
-      expect(await nft.nextTokenId()).equal(4);
+      expect(await turf.nextTokenId()).equal(4);
     });
   });
 
@@ -174,26 +181,55 @@ describe("NftFactory", function () {
     });
 
     it("should succeed", async function () {
-      await nft.setMaxSupply(1000);
+      await turf.setMaxSupply(1000);
       const seedAmount = ethers.utils.parseEther("10");
       await seed.connect(whitelisted).approve(farm.address, seedAmount.mul(400));
 
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
 
       expect(await farm.connect(whitelisted).buyTokensWithSeeds(1, 3))
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 2)
-        .to.emit(nft, "Transfer")
+        .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 3);
 
-      expect(await nft.nextTokenId()).equal(4);
+      expect(await turf.nextTokenId()).equal(4);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(2);
     });
 
     it("should fail with insufficient payment", async function () {
-      expect(farm.connect(whitelisted).buyTokens(1, 3)).revertedWith("NftFactory: insufficient payment");
+      expect(farm.connect(whitelisted).buyTokens(1, 3)).revertedWith("InsufficientPayment()");
+    });
+  });
+
+  describe("Buy tokens with BUSD", async function () {
+    beforeEach(async function () {
+      await initAndDeploy();
+    });
+
+    it("should succeed", async function () {
+      await turf.setMaxSupply(1000);
+      const seedAmount = ethers.utils.parseEther("10");
+      await seed.connect(whitelisted).approve(farm.address, seedAmount.mul(400));
+
+      expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
+
+      expect(await farm.connect(whitelisted).buyTokensWithSeeds(1, 3))
+        .to.emit(turf, "Transfer")
+        .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
+        .to.emit(turf, "Transfer")
+        .withArgs(ethers.constants.AddressZero, whitelisted.address, 2)
+        .to.emit(turf, "Transfer")
+        .withArgs(ethers.constants.AddressZero, whitelisted.address, 3);
+
+      expect(await turf.nextTokenId()).equal(4);
+      expect(await wl.balanceOf(whitelisted.address, 1)).equal(2);
+    });
+
+    it("should fail with insufficient payment", async function () {
+      expect(farm.connect(whitelisted).buyTokens(1, 3)).revertedWith("InsufficientPayment()");
     });
   });
 });

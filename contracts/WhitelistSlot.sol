@@ -13,6 +13,7 @@ contract WhitelistSlot is ERC1155, Ownable {
   error UnauthorizedBurner();
   error NotAContract();
 
+  // solhint-disable-next-line
   constructor() ERC1155("") {}
 
   mapping(address => uint256) private _burners;

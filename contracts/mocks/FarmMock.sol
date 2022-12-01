@@ -11,7 +11,7 @@ import "../interfaces/ISuperpowerNFT.sol";
 contract FarmMock {
   ISuperpowerNFT public nft;
 
-  constructor(address nft_) {
+  constructor(address nft_) public {
     require(nft_.code.length > 0, "Not a contract");
     nft = ISuperpowerNFT(nft_);
   }

@@ -9,12 +9,7 @@ import "../SuperpowerNFTBase.sol";
 //import "hardhat/console.sol";
 
 contract FarmBridged is SuperpowerNFTBase {
-  /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor() initializer {}
-
   function initialize(string memory tokenUri) public initializer {
     __SuperpowerNFTBase_init("MOBLAND Farm", "mFARM", tokenUri);
   }
-
-  function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }
