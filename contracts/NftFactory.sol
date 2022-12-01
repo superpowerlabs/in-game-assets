@@ -18,14 +18,14 @@ contract NftFactory is UUPSUpgradableTemplate {
   using AddressUpgradeable for address;
   using SafeMathUpgradeable for uint256;
 
-  event NewPriceFor(uint8 nftId, uint256 price);
+  event NewPriceFor(uint8 nftId, address paymentToken, uint256 price);
   event NewPriceInSeedFor(uint8 nftId, uint256 price);
   event FactorySetFor(uint8 nftId, address factory);
   event FactoryRemovedFor(uint8 nftId, address factory);
   event NewNftForSale(uint8 nftId, address nft);
   event NftRemovedFromSale(uint8 nftId, address nft);
 
-  error NotAFactoryForThisNFT(uint id);
+  error NotAFactoryForThisNFT(uint256 id);
   error NotAContract();
   error NFTAlreadySet();
   error NFTNotFound();
@@ -33,30 +33,32 @@ contract NftFactory is UUPSUpgradableTemplate {
   error InsufficientPayment();
   error InsufficientFunds();
   error TransferFailed();
+  error InvalidPaymentToken();
 
   mapping(uint8 => ISuperpowerNFT) private _nfts;
   mapping(address => uint8) private _nftsByAddress;
   uint8 private _lastNft;
   mapping(uint8 => address) private _factories;
-  mapping(uint8 => uint256) private _prices;
-  mapping(uint8 => uint256) private _pricesInSeed;
-
-  uint256 public proceedsBalance;
-  uint256 public seedProceedsBalance;
-  ERC20 public seedToken;
-  ERC20 public usdToken;
+  mapping(uint8 => mapping(address => uint256)) private _prices;
+  mapping(address => uint256) public proceedsBalances;
+  mapping(address => bool) public paymentTokens;
 
   modifier onlyFactory(uint8 nftId) {
     if (nftIdByFactory(_msgSender()) != nftId) revert NotAFactoryForThisNFT(nftId);
     _;
   }
 
-  function initialize(address seed, address stableCoin) public initializer {
+  function initialize() public initializer {
     __UUPSUpgradableTemplate_init();
-    if (!seed.isContract()) revert NotAContract();
-    else if (!stableCoin.isContract()) revert NotAContract();
-    seedToken = ERC20(seed);
-    usdToken = ERC20(stableCoin);
+  }
+
+  function setPaymentToken(address paymentToken, bool active) external onlyOwner {
+    if (active) {
+      if (!paymentToken.isContract()) revert NotAContract();
+      paymentTokens[paymentToken] = true;
+    } else if (!paymentTokens[paymentToken]) {
+      delete paymentTokens[paymentToken];
+    }
   }
 
   function setNewNft(address nft) external onlyOwner {
@@ -88,24 +90,19 @@ contract NftFactory is UUPSUpgradableTemplate {
     emit FactoryRemovedFor(nftId, factory);
   }
 
-  function setPrice(uint8 nftId, uint256 price) external onlyOwner {
+  function setPrice(
+    uint8 nftId,
+    address paymentToken,
+    uint256 price
+  ) external onlyOwner {
     if (address(_nfts[nftId]) == address(0)) revert NFTNotFound();
-    _prices[nftId] = price;
-    emit NewPriceFor(nftId, price);
+    if (!paymentTokens[paymentToken]) revert InvalidPaymentToken();
+    _prices[nftId][paymentToken] = price;
+    emit NewPriceFor(nftId, paymentToken, price);
   }
 
-  function getPrice(uint8 nftId) external view returns (uint256) {
-    return _prices[nftId];
-  }
-
-  function setPriceInSeed(uint8 nftId, uint256 price) external onlyOwner {
-    if (address(_nfts[nftId]) == address(0)) revert NFTNotFound();
-    _pricesInSeed[nftId] = price;
-    emit NewPriceInSeedFor(nftId, price);
-  }
-
-  function getPriceInSeed(uint8 nftId) external view returns (uint256) {
-    return _pricesInSeed[nftId];
+  function getPrice(uint8 nftId, address paymentToken) external view returns (uint256) {
+    return _prices[nftId][paymentToken];
   }
 
   function nftIdByFactory(address factory) public view returns (uint8) {
@@ -117,38 +114,28 @@ contract NftFactory is UUPSUpgradableTemplate {
     return 0;
   }
 
-  function buyTokens(uint8 nftId, uint256 amount) external payable {
-    if (msg.value < _prices[nftId].mul(amount)) revert InsufficientPayment();
-    proceedsBalance += msg.value;
+  function buyTokens(
+    uint8 nftId,
+    address paymentToken,
+    uint256 amount
+  ) external payable {
+    if (!paymentTokens[paymentToken]) revert InvalidPaymentToken();
+    uint256 tokenAmount = _prices[nftId][paymentToken].mul(amount);
+    proceedsBalances[paymentToken] += tokenAmount;
+    SideToken(paymentToken).transferFrom(_msgSender(), address(this), tokenAmount);
     _nfts[nftId].mint(_msgSender(), amount);
   }
 
-  function withdrawProceeds(address beneficiary, uint256 amount) public onlyOwner {
+  function withdrawProceeds(
+    address beneficiary,
+    address paymentToken,
+    uint256 amount
+  ) public onlyOwner {
     if (amount == 0) {
-      amount = proceedsBalance;
+      amount = proceedsBalances[paymentToken];
     }
-    if (amount > proceedsBalance) revert InsufficientFunds();
-    proceedsBalance -= amount;
-    // solhint-disable-next-line avoid-low-level-calls
-    (bool success, ) = beneficiary.call{value: amount}("");
-    if (!success) {
-      revert TransferFailed();
-    }
-  }
-
-  function buyTokensWithSeeds(uint8 nftId, uint256 amount) external payable {
-    uint256 seedAmount = _pricesInSeed[nftId].mul(amount);
-    seedProceedsBalance += seedAmount;
-    seedToken.transferFrom(_msgSender(), address(this), seedAmount);
-    _nfts[nftId].mint(_msgSender(), amount);
-  }
-
-  function withdrawSeedProceeds(address beneficiary, uint256 amount) public onlyOwner {
-    if (amount == 0) {
-      amount = seedProceedsBalance;
-    }
-    if (amount > seedProceedsBalance) revert InsufficientFunds();
-    seedProceedsBalance -= amount;
-    seedToken.transferFrom(address(this), beneficiary, amount);
+    if (amount > proceedsBalances[paymentToken]) revert InsufficientFunds();
+    proceedsBalances[paymentToken] -= amount;
+    SideToken(paymentToken).transferFrom(address(this), beneficiary, amount);
   }
 }

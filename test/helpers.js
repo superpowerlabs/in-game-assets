@@ -62,6 +62,11 @@ const Helpers = {
     await this.ethers.provider.send("evm_increaseTime", [offset]);
     await this.ethers.provider.send("evm_mine");
   },
+
+  async sleep(millis) {
+    // eslint-disable-next-line no-undef
+    return new Promise((resolve) => setTimeout(resolve, millis));
+  },
 };
 
 module.exports = Helpers;

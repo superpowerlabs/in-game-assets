@@ -75,7 +75,11 @@ abstract contract SuperpowerNFTBase is
   }
 
   // solhint-disable-next-line
-  function __SuperpowerNFTBase_init(string memory name, string memory symbol, string memory tokenUri) internal initializer {
+  function __SuperpowerNFTBase_init(
+    string memory name,
+    string memory symbol,
+    string memory tokenUri
+  ) internal initializer {
     __Wormhole721_init(name, symbol);
     __ERC721Enumerable_init();
     __Ownable_init();
@@ -101,7 +105,11 @@ abstract contract SuperpowerNFTBase is
     emit AttributesInitializedFor(_id, game);
   }
 
-  function attributesOf(uint256 _id, address _player, uint256 _index) external view override returns (uint256) {
+  function attributesOf(
+    uint256 _id,
+    address _player,
+    uint256 _index
+  ) external view override returns (uint256) {
     return _tokenAttributes[_id][_player][_index];
   }
 
@@ -116,7 +124,11 @@ abstract contract SuperpowerNFTBase is
     emit AttributesInitializedFor(_id, _player);
   }
 
-  function updateAttributes(uint256 _id, uint256 _index, uint256 _attributes) external override {
+  function updateAttributes(
+    uint256 _id,
+    uint256 _index,
+    uint256 _attributes
+  ) external override {
     if (_tokenAttributes[_id][_msgSender()][0] == 0) {
       revert PlayerNotAuthorized();
     }
@@ -125,9 +137,12 @@ abstract contract SuperpowerNFTBase is
     _tokenAttributes[_id][_msgSender()][_index] = _attributes;
   }
 
-  function supportsInterface(
-    bytes4 interfaceId
-  ) public view override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable) returns (bool) {
+  function supportsInterface(bytes4 interfaceId)
+    public
+    view
+    override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable)
+    returns (bool)
+  {
     return super.supportsInterface(interfaceId);
   }
 

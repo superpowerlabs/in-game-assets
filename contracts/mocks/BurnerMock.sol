@@ -8,12 +8,17 @@ import "../WhitelistSlot.sol";
 contract BurnerMock {
   WhitelistSlot public whitelist;
 
-  constructor(address whitelist_) public {
+  // solhint-disable-next-line func-visibility
+  constructor(address whitelist_) {
     require(whitelist_.code.length > 0, "Not a contract");
     whitelist = WhitelistSlot(whitelist_);
   }
 
-  function burn(address account, uint256 id, uint256 amount) public {
+  function burn(
+    address account,
+    uint256 id,
+    uint256 amount
+  ) public {
     whitelist.burn(account, id, amount);
   }
 }

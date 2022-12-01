@@ -20,7 +20,11 @@ contract PlayerMock is IAttributablePlayer, Ownable {
     _operator = operator;
   }
 
-  function updateAttributesOf(address _nft, uint256 tokenId, TokenData memory data) external {
+  function updateAttributesOf(
+    address _nft,
+    uint256 tokenId,
+    TokenData memory data
+  ) external {
     require(_operator != address(0) && _operator == _msgSender(), "Not the operator");
     uint256 attributes = 1 | (uint256(data.level) << 8) | (uint256(data.stamina) << 16) | (uint256(uint160(data.winner)) << 48);
     IAttributable(_nft).updateAttributes(tokenId, 0, attributes);

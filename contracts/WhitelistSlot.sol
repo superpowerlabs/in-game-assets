@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/utils/Address.sol";
 
 import "./SuperpowerNFT.sol";
 
+//import "hardhat/console.sol";
+
 contract WhitelistSlot is ERC1155, Ownable {
   using Address for address;
 
@@ -41,11 +43,20 @@ contract WhitelistSlot is ERC1155, Ownable {
   }
 
   // airdropped to wallets to be whitelisted
-  function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) public onlyOwner {
+  function mintBatch(
+    address to,
+    uint256[] memory ids,
+    uint256[] memory amounts,
+    bytes memory data
+  ) public onlyOwner {
     _mintBatch(to, ids, amounts, data);
   }
 
-  function burn(address account, uint256 id, uint256 amount) public virtual onlyBurner(id) {
+  function burn(
+    address account,
+    uint256 id,
+    uint256 amount
+  ) public virtual onlyBurner(id) {
     _burn(account, id, amount);
   }
 }
