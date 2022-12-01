@@ -1,6 +1,6 @@
 const {expect, assert} = require("chai");
 
-const {initEthers, increaseBlockTimestampBy, sleep} = require("./helpers");
+const {initEthers, increaseBlockTimestampBy} = require("./helpers");
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
 const DeployUtils = require("../scripts/lib/DeployUtils");
 
