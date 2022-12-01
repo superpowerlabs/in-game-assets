@@ -66,7 +66,7 @@ describe("NftFactory", function () {
         farm.connect(whitelisted).buyTokens(1, 3, {
           value: ethers.BigNumber.from(await farm.getPrice(1)).mul(3),
         })
-      ).revertedWith("SuperpowerNFT: can not mint");
+      ).revertedWith("CannotMint()");
 
       await nft.setMaxSupply(1000);
 
@@ -110,7 +110,7 @@ describe("NftFactory", function () {
         farm.connect(notWhitelisted).buyTokens(1, 3, {
           value: ethers.BigNumber.from(await farm.getPrice(1)).mul(3),
         })
-      ).revertedWith("SuperpowerNFT: not enough slot in whitelist");
+      ).revertedWith("NotEnoughWLSlots()");
     });
 
     it("should buy tokens when whitelist period ends", async function () {

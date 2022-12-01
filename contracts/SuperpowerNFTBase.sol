@@ -28,6 +28,22 @@ abstract contract SuperpowerNFTBase is
 {
   using AddressUpgradeable for address;
 
+  error NotALocker();
+  error NotTheGame();
+  error AssetDoesNotExist();
+  error AlreadyInitiated();
+  error NotTheAssetOwner();
+  error PlayerAlreadyAuthorized();
+  error PlayerNotAuthorized();
+  error FrozenTokenURI();
+  error NotAContract();
+  error NotADeactivatedLocker();
+  error WrongLocker();
+  error NotLockedAsset();
+  error LockedAsset();
+  error AtLeastOneLockedAsset();
+  error LockerNotApproved();
+
   string private _baseTokenURI;
   bool private _baseTokenURIFrozen;
 
@@ -38,26 +54,28 @@ abstract contract SuperpowerNFTBase is
   mapping(uint256 => mapping(address => mapping(uint256 => uint256))) internal _tokenAttributes;
 
   modifier onlyLocker() {
-    require(_lockers[_msgSender()], "SuperpowerNFTBase: not a staking locker");
+    if (!_lockers[_msgSender()]) {
+      revert NotALocker();
+    }
     _;
   }
 
   modifier onlyGame() {
-    require(game != address(0) && _msgSender() == game, "SuperpowerNFTBase: not the game");
+    if (game == address(0) || _msgSender() != game) {
+      revert NotTheGame();
+    }
     _;
   }
 
   modifier tokenExists(uint256 id) {
-    require(_exists(id), "SuperpowerNFTBase: token does not exist");
+    if (!_exists(id)) {
+      revert AssetDoesNotExist();
+    }
     _;
   }
 
   // solhint-disable-next-line
-  function __SuperpowerNFTBase_init(
-    string memory name,
-    string memory symbol,
-    string memory tokenUri
-  ) internal initializer {
+  function __SuperpowerNFTBase_init(string memory name, string memory symbol, string memory tokenUri) internal initializer {
     __Wormhole721_init(name, symbol);
     __ERC721Enumerable_init();
     __Ownable_init();
@@ -69,48 +87,47 @@ abstract contract SuperpowerNFTBase is
     address to,
     uint256 tokenId
   ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
-    require(!isLocked(tokenId), "SuperpowerNFTBase: locked asset");
+    if (isLocked(tokenId)) {
+      revert LockedAsset();
+    }
     super._beforeTokenTransfer(from, to, tokenId);
   }
 
   function preInitializeAttributesFor(uint256 _id, uint256 _attributes0) external override onlyOwner tokenExists(_id) {
-    require(_tokenAttributes[_id][game][0] == 0, "Already initialized");
+    if (_tokenAttributes[_id][game][0] > 0) {
+      revert AlreadyInitiated();
+    }
     _tokenAttributes[_id][game][0] = _attributes0;
     emit AttributesInitializedFor(_id, game);
   }
 
-  function attributesOf(
-    uint256 _id,
-    address _player,
-    uint256 _index
-  ) external view override returns (uint256) {
+  function attributesOf(uint256 _id, address _player, uint256 _index) external view override returns (uint256) {
     return _tokenAttributes[_id][_player][_index];
   }
 
   function initializeAttributesFor(uint256 _id, address _player) external override {
-    require(ownerOf(_id) == _msgSender(), "Not the owner");
-    require(_tokenAttributes[_id][_player][0] == 0, "Player already authorized");
+    if (ownerOf(_id) != _msgSender()) {
+      revert NotTheAssetOwner();
+    }
+    if (_tokenAttributes[_id][_player][0] > 0) {
+      revert PlayerAlreadyAuthorized();
+    }
     _tokenAttributes[_id][_player][0] = 1;
     emit AttributesInitializedFor(_id, _player);
   }
 
-  function updateAttributes(
-    uint256 _id,
-    uint256 _index,
-    uint256 _attributes
-  ) external override {
-    require(_tokenAttributes[_id][_msgSender()][0] != 0, "Player not authorized");
+  function updateAttributes(uint256 _id, uint256 _index, uint256 _attributes) external override {
+    if (_tokenAttributes[_id][_msgSender()][0] == 0) {
+      revert PlayerNotAuthorized();
+    }
     // notice that if the playes set the attributes to zero, it de-authorize itself
     // and not more changes will be allowed until the NFT owner authorize it again
     _tokenAttributes[_id][_msgSender()][_index] = _attributes;
   }
 
-  function supportsInterface(bytes4 interfaceId)
-    public
-    view
-    override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable)
-    returns (bool)
-  {
+  function supportsInterface(
+    bytes4 interfaceId
+  ) public view override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable) returns (bool) {
     return super.supportsInterface(interfaceId);
   }
 
@@ -119,7 +136,9 @@ abstract contract SuperpowerNFTBase is
   }
 
   function updateTokenURI(string memory uri) external override onlyOwner {
-    require(!_baseTokenURIFrozen, "SuperpowerNFTBase: baseTokenUri has been frozen");
+    if (_baseTokenURIFrozen) {
+      revert FrozenTokenURI();
+    }
     // after revealing, this allows to set up a final uri
     _baseTokenURI = uri;
     emit TokenURIUpdated(uri);
@@ -135,7 +154,9 @@ abstract contract SuperpowerNFTBase is
   }
 
   function setGame(address game_) external virtual onlyOwner {
-    require(game_.isContract(), "SuperpowerNFTBase: game_ not a contract");
+    if (!game_.isContract()) {
+      revert NotAContract();
+    }
     game = game_;
     emit GameSet(game_);
   }
@@ -155,13 +176,17 @@ abstract contract SuperpowerNFTBase is
   }
 
   function setLocker(address locker) external override onlyOwner {
-    require(locker.isContract(), "SuperpowerNFTBase: locker not a contract");
+    if (!locker.isContract()) {
+      revert NotAContract();
+    }
     _lockers[locker] = true;
     emit LockerSet(locker);
   }
 
   function removeLocker(address locker) external override onlyOwner {
-    require(_lockers[locker], "SuperpowerNFTBase: not an active locker");
+    if (!_lockers[locker]) {
+      revert NotALocker();
+    }
     delete _lockers[locker];
     emit LockerRemoved(locker);
   }
@@ -178,24 +203,30 @@ abstract contract SuperpowerNFTBase is
   }
 
   function lock(uint256 tokenId) external override onlyLocker {
-    // locker must be approved to mark the token as locked
-    require(isLocker(_msgSender()), "Not an authorized locker");
-    require(getApproved(tokenId) == _msgSender() || isApprovedForAll(ownerOf(tokenId), _msgSender()), "Locker not approved");
+    if (getApproved(tokenId) != _msgSender() && !isApprovedForAll(ownerOf(tokenId), _msgSender())) {
+      revert LockerNotApproved();
+    }
     _lockedBy[tokenId] = _msgSender();
     emit Locked(tokenId);
   }
 
   function unlock(uint256 tokenId) external override onlyLocker {
     // will revert if token does not exist
-    require(_lockedBy[tokenId] == _msgSender(), "SuperpowerNFTBase: wrong locker");
+    if (_lockedBy[tokenId] != _msgSender()) {
+      revert WrongLocker();
+    }
     delete _lockedBy[tokenId];
     emit Unlocked(tokenId);
   }
 
   // emergency function in case a compromised locker is removed
   function unlockIfRemovedLocker(uint256 tokenId) external override onlyOwner {
-    require(isLocked(tokenId), "SuperpowerNFTBase: not a locked tokenId");
-    require(!_lockers[_lockedBy[tokenId]], "SuperpowerNFTBase: locker is still active");
+    if (!isLocked(tokenId)) {
+      revert NotLockedAsset();
+    }
+    if (_lockers[_lockedBy[tokenId]]) {
+      revert NotADeactivatedLocker();
+    }
     delete _lockedBy[tokenId];
     emit ForcefullyUnlocked(tokenId);
   }
@@ -203,7 +234,9 @@ abstract contract SuperpowerNFTBase is
   // manage approval
 
   function approve(address to, uint256 tokenId) public override {
-    require(!isLocked(tokenId), "SuperpowerNFTBase: locked asset");
+    if (isLocked(tokenId)) {
+      revert LockedAsset();
+    }
     super.approve(to, tokenId);
   }
 
@@ -215,7 +248,9 @@ abstract contract SuperpowerNFTBase is
   }
 
   function setApprovalForAll(address operator, bool approved) public override {
-    require(!approved || !hasLocks(_msgSender()), "SuperpowerNFTBase: at least one asset is locked");
+    if (approved && hasLocks(_msgSender())) {
+      revert AtLeastOneLockedAsset();
+    }
     super.setApprovalForAll(operator, approved);
   }
 

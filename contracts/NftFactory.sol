@@ -24,6 +24,9 @@ contract NftFactory is UUPSUpgradableTemplate {
   event NewNftForSale(uint8 nftId, address nft);
   event NftRemovedFromSale(uint8 nftId, address nft);
 
+  error NotAFactoryForThisNFT(uint id);
+  error NotAContract();
+
   mapping(uint8 => ISuperpowerNFT) private _nfts;
   mapping(address => uint8) private _nftsByAddress;
   uint8 private _lastNft;
@@ -36,14 +39,21 @@ contract NftFactory is UUPSUpgradableTemplate {
   SeedToken public seedToken;
 
   modifier onlyFactory(uint8 nftId) {
-    require(nftIdByFactory(_msgSender()) == nftId, "NftFactory: not a factory for this nft");
+    if (nftIdByFactory(_msgSender()) != nftId) {
+      revert NotAFactoryForThisNFT(nftId);
+    }
     _;
   }
 
-  function initialize(address seed) public initializer {
+  function initialize(address seed, address stableCoin) public initializer {
     __UUPSUpgradableTemplate_init();
-    require(seed.isContract(), "NftFactory: seed is not a contract");
+    if (!seed.isContract()) {
+      revert NotAContract();
+    } else if (!stableCoin.isContract()) {
+      revert NotAContract();
+    }
     seedToken = SeedToken(seed);
+    usdToken = SeedToken(stableCoin);
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}

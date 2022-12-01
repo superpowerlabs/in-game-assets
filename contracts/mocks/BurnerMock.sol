@@ -13,11 +13,7 @@ contract BurnerMock {
     whitelist = WhitelistSlot(whitelist_);
   }
 
-  function burn(
-    address account,
-    uint256 id,
-    uint256 amount
-  ) public {
+  function burn(address account, uint256 id, uint256 amount) public {
     whitelist.burn(account, id, amount);
   }
 }

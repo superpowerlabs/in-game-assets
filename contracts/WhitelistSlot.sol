@@ -10,12 +10,17 @@ import "./SuperpowerNFT.sol";
 contract WhitelistSlot is ERC1155, Ownable {
   using Address for address;
 
+  error UnauthorizedBurner();
+  error NotAContract();
+
   constructor() ERC1155("") {}
 
   mapping(address => uint256) private _burners;
 
   modifier onlyBurner(uint256 id) {
-    require(_burners[_msgSender()] == id, "WhitelistSlot: not the NFT using this whitelist");
+    if (_burners[_msgSender()] != id) {
+      revert UnauthorizedBurner();
+    }
     _;
   }
 
@@ -24,7 +29,9 @@ contract WhitelistSlot is ERC1155, Ownable {
   }
 
   function setBurnerForID(address burner, uint256 id) external onlyOwner {
-    require(burner.isContract(), "WhitelistSlot: burner not a contract");
+    if (!burner.isContract()) {
+      revert NotAContract();
+    }
     _burners[burner] = id;
   }
 
@@ -33,20 +40,11 @@ contract WhitelistSlot is ERC1155, Ownable {
   }
 
   // airdropped to wallets to be whitelisted
-  function mintBatch(
-    address to,
-    uint256[] memory ids,
-    uint256[] memory amounts,
-    bytes memory data
-  ) public onlyOwner {
+  function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) public onlyOwner {
     _mintBatch(to, ids, amounts, data);
   }
 
-  function burn(
-    address account,
-    uint256 id,
-    uint256 amount
-  ) public virtual onlyBurner(id) {
+  function burn(address account, uint256 id, uint256 amount) public virtual onlyBurner(id) {
     _burn(account, id, amount);
   }
 }
