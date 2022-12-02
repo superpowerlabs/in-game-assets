@@ -7,15 +7,23 @@ import "@openzeppelin/contracts/utils/Address.sol";
 
 import "./SuperpowerNFT.sol";
 
+//import "hardhat/console.sol";
+
 contract WhitelistSlot is ERC1155, Ownable {
   using Address for address;
 
+  error UnauthorizedBurner();
+  error NotAContract();
+
+  // solhint-disable-next-line
   constructor() ERC1155("") {}
 
   mapping(address => uint256) private _burners;
 
   modifier onlyBurner(uint256 id) {
-    require(_burners[_msgSender()] == id, "WhitelistSlot: not the NFT using this whitelist");
+    if (_burners[_msgSender()] != id) {
+      revert UnauthorizedBurner();
+    }
     _;
   }
 
@@ -24,7 +32,9 @@ contract WhitelistSlot is ERC1155, Ownable {
   }
 
   function setBurnerForID(address burner, uint256 id) external onlyOwner {
-    require(burner.isContract(), "WhitelistSlot: burner not a contract");
+    if (!burner.isContract()) {
+      revert NotAContract();
+    }
     _burners[burner] = id;
   }
 

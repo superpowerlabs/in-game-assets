@@ -31,7 +31,7 @@
     "@openzeppelin/hardhat-upgrades": "^1.12.0",
     "@poanet/solidity-flattener": "^3.0.6",
     "chai": "^4.3.4",
-    "cryptoenv": "^0.1.6",
+    "cryptoenv": "^0.2.0",
     "dotenv": "^11.0.0",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.2",
@@ -52,7 +52,7 @@
     "require-or-mock": "^0.2.1",
     "solhint": "^3.3.6",
     "solidity-coverage": "^0.7.21",
-    "soliutils": "^0.0.5",
+    "soliutils": "0.0.6",
     "typescript": "^4.7.3"
   },
   "lint-staged": {

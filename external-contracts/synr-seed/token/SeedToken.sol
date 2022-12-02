@@ -2,9 +2,9 @@
 pragma solidity 0.8.11;
 
 import "soliutils/contracts/UUPSUpgradableTemplate.sol";
-import "./SideTokenMock.sol";
+import "./SideToken.sol";
 
-contract SeedTokenMock is SideTokenMock, UUPSUpgradableTemplate {
+contract SeedToken is SideToken, UUPSUpgradableTemplate {
   function initialize() public initializer {
     __UUPSUpgradableTemplate_init();
     __SideToken_init("Mobland Seed Token", "SEED");

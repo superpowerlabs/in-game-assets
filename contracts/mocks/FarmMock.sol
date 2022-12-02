@@ -11,6 +11,7 @@ import "../interfaces/ISuperpowerNFT.sol";
 contract FarmMock {
   ISuperpowerNFT public nft;
 
+  // solhint-disable-next-line func-visibility
   constructor(address nft_) {
     require(nft_.code.length > 0, "Not a contract");
     nft = ISuperpowerNFT(nft_);

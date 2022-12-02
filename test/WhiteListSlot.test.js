@@ -43,7 +43,7 @@ describe("WhiteList", function () {
       expect(await wl.getIdByBurner(burner.address)).equal(55);
       await wl.setBurnerForID(burner.address, 100);
       expect(await wl.getIdByBurner(burner.address)).equal(100);
-      expect(wl.setBurnerForID(holder.address, 100)).revertedWith("WhitelistSlot: burner not a contract");
+      expect(wl.setBurnerForID(holder.address, 100)).revertedWith("NotAContract()");
     });
 
     it("should batch mint", async function () {
@@ -67,7 +67,7 @@ describe("WhiteList", function () {
       let balance2 = await wl.balanceOf(holder.address, ids[0]);
       expect(balance2).equal(balance.sub(burnAmmount));
       balance = await wl.balanceOf(holder.address, ids[1]);
-      expect(burner.burn(holder.address, ids[1], burnAmmount)).revertedWith("WhitelistSlot: not the NFT using this whitelist");
+      expect(burner.burn(holder.address, ids[1], burnAmmount)).revertedWith("UnauthorizedBurner()");
       await wl.setBurnerForID(burner.address, ids[1]);
       await burner.burn(holder.address, ids[1], burnAmmount);
       balance2 = await wl.balanceOf(holder.address, ids[1]);
