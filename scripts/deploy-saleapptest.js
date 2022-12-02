@@ -29,7 +29,8 @@ async function main() {
   await seed.mint(whitelisted2.address, eth_amount);
   await seed.mint(whitelisted3.address, eth_amount);
 
-  const factory = await deployUtils.deployProxy("NftFactory", seed.address);
+  const factory = await deployUtils.deployProxy("NftFactory");
+  await factory.setPaymentToken(seed.address, true);
 
   for (let id = 1; id <= 2; id++) {
     let nft = id === 1 ? turf : farm;
@@ -47,10 +48,8 @@ async function main() {
   }
   await turf.setMaxSupply(1000);
   await farm.setMaxSupply(3000);
-  await factory.setPrice(1, ethers.utils.parseEther("0.01"));
-  await factory.setPriceInSeed(1, ethers.utils.parseEther("100"));
-  await factory.setPrice(2, ethers.utils.parseEther("0.05"));
-  await factory.setPriceInSeed(2, ethers.utils.parseEther("500"));
+  await factory.setPrice(1, seed.address, ethers.utils.parseEther("0.01"));
+  await factory.setPrice(2, seed.address, ethers.utils.parseEther("0.05"));
 }
 
 main()
