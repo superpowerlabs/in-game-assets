@@ -8,8 +8,7 @@ import "../WhitelistSlot.sol";
 contract BurnerMock {
   WhitelistSlot public whitelist;
 
-  // solhint-disable-next-line func-visibility
-  constructor(address whitelist_) {
+  function setWl(address whitelist_) external {
     require(whitelist_.code.length > 0, "Not a contract");
     whitelist = WhitelistSlot(whitelist_);
   }

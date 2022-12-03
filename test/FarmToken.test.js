@@ -25,11 +25,6 @@ describe("FarmToken", function () {
     await farm.deployed();
   }
 
-  async function configure() {
-    await nft.setMaxSupply(1000);
-    await nft.setFactory(farm.address, true);
-  }
-
   describe("constructor and initialization", async function () {
     beforeEach(async function () {
       await initAndDeploy();

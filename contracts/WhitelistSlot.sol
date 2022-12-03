@@ -12,37 +12,24 @@ import "./SuperpowerNFT.sol";
 contract WhitelistSlot is ERC1155, Ownable {
   using Address for address;
 
-  error UnauthorizedBurner();
+  error NotTheBurner();
   error NotAContract();
+  error InconsistentArrays();
+
+  address internal _burner;
 
   // solhint-disable-next-line
-  constructor() ERC1155("") {}
-
-  mapping(address => uint256) private _burners;
-
-  modifier onlyBurner(uint256 id) {
-    if (_burners[_msgSender()] != id) {
-      revert UnauthorizedBurner();
+  constructor(address burner) ERC1155("") {
+    if (!burner.isContract()) {
+      revert NotAContract();
     }
-    _;
+    _burner = burner;
   }
 
   function setURI(string memory newUri) public onlyOwner {
     _setURI(newUri);
   }
 
-  function setBurnerForID(address burner, uint256 id) external onlyOwner {
-    if (!burner.isContract()) {
-      revert NotAContract();
-    }
-    _burners[burner] = id;
-  }
-
-  function getIdByBurner(address burner) public view returns (uint256) {
-    return _burners[burner];
-  }
-
-  // airdropped to wallets to be whitelisted
   function mintBatch(
     address to,
     uint256[] memory ids,
@@ -52,11 +39,25 @@ contract WhitelistSlot is ERC1155, Ownable {
     _mintBatch(to, ids, amounts, data);
   }
 
+  function mintMany(
+    address[] memory to,
+    uint256[][] memory ids,
+    uint256[][] memory amounts
+  ) public onlyOwner {
+    if (to.length != ids.length || ids.length != amounts.length) revert InconsistentArrays();
+    for (uint256 i = 0; i < ids.length; i++) {
+      _mintBatch(to[i], ids[i], amounts[i], "");
+    }
+  }
+
   function burn(
     address account,
     uint256 id,
     uint256 amount
-  ) public virtual onlyBurner(id) {
+  ) public virtual {
+    if (_burner != _msgSender()) {
+      revert NotTheBurner();
+    }
     _burn(account, id, amount);
   }
 }
