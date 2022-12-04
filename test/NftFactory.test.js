@@ -1,6 +1,6 @@
 const {expect, assert} = require("chai");
 
-const {initEthers, increaseBlockTimestampBy} = require("./helpers");
+const {initEthers, increaseBlockTimestampBy, cleanStruct} = require("./helpers");
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
 const DeployUtils = require("../scripts/lib/DeployUtils");
 
@@ -13,6 +13,7 @@ describe("NftFactory", function () {
   let FarmToken, farm;
   let NftFactory, factory;
   let seed, busd;
+  let startsAt, endsAt;
 
   const deployUtils = new DeployUtils(ethers);
 
@@ -76,6 +77,9 @@ describe("NftFactory", function () {
 
     if (configure) {
       const ts = await getCurrentTimestamp();
+      startsAt = ts;
+      endsAt = ts + 1000;
+
       await factory.newSale(
         1,
         100,
@@ -106,6 +110,17 @@ describe("NftFactory", function () {
 
     it("should not buy because no payment", async function () {
       await expect(factory.connect(whitelisted).buyTokens(1, busd.address, 3)).revertedWith("ERC20: insufficient allowance");
+    });
+
+    it("should verify the sale is set", async function () {
+      const turfSale = cleanStruct(await factory.sales(1));
+      assert.deepEqual(turfSale, {
+        amountForSale: 100,
+        soldTokens: 0,
+        startAt: startsAt,
+        whitelistUntil: endsAt,
+        whitelistedId: 1,
+      });
     });
 
     it("should buy tokens in BUSD", async function () {

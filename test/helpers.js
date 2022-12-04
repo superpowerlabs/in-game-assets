@@ -56,6 +56,16 @@ const Helpers = {
     return (await this.ethers.provider.getBlock()).timestamp;
   },
 
+  cleanStruct(struct) {
+    let ret = {};
+    for (let key in struct) {
+      if (isNaN(parseInt(key))) {
+        ret[key] = struct[key];
+      }
+    }
+    return ret;
+  },
+
   addr0: "0x0000000000000000000000000000000000000000",
 
   async increaseBlockTimestampBy(offset) {
