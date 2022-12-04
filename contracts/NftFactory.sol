@@ -158,6 +158,10 @@ contract NftFactory is UUPSUpgradableTemplate {
     }
   }
 
+  function getSale(uint8 nftId) external view returns (Sale memory) {
+    return sales[nftId];
+  }
+
   function getPrice(uint8 nftId, address paymentToken) public view returns (uint256) {
     for (uint256 i = 0; i < sales[nftId].acceptedTokens.length; i++) {
       if (sales[nftId].acceptedTokens[i] == paymentToken) {
