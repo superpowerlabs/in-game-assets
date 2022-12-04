@@ -36,7 +36,7 @@ describe("TurfToken", function () {
     });
 
     it("should revert if not authorized", async function () {
-      await expect(await nft.factories(farm.address)).equal(false);
+      await expect(await nft.isFactory(farm.address)).equal(false);
     });
   });
 });

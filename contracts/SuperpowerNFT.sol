@@ -25,12 +25,16 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   uint256 internal _maxSupply;
   bool internal _mintEnded;
 
-  mapping(address => bool) public factories;
+  address[] public factories;
 
   address public defaultPlayer;
 
   modifier onlyFactory() {
-    if (_msgSender() == address(0) || !factories[_msgSender()]) revert Forbidden();
+    if (
+      !(isFactory(_msgSender()) ||
+        // owner is authorized as long as there are no factories
+        (!hasFactories() && _msgSender() != owner()))
+    ) revert Forbidden();
     _;
   }
 
@@ -54,7 +58,39 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
 
   function setFactory(address factory_, bool enabled) external override onlyOwner {
     if (!factory_.isContract()) revert NotAContract();
-    factories[factory_] = enabled;
+    if (enabled) {
+      if (!isFactory(factory_)) {
+        factories.push(factory_);
+      }
+    } else {
+      if (isFactory(factory_)) {
+        for (uint256 i = 0; i < factories.length; i++) {
+          if (factories[i] == factory_) {
+            factories[i] = address(0);
+          }
+        }
+      }
+    }
+  }
+
+  function isFactory(address factory_) public view returns (bool) {
+    for (uint256 i = 0; i < factories.length; i++) {
+      if (factories[i] != address(0)) {
+        if (factories[i] == factory_) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function hasFactories() public view returns (bool) {
+    for (uint256 i = 0; i < factories.length; i++) {
+      if (factories[i] != address(0)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   function canMintAmount(uint256 amount) public view returns (bool) {
@@ -66,15 +102,6 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
       _safeMint(to, _nextTokenId++);
     }
   }
-
-  //
-  //  function _burnWhitelistSlot(address to, uint256 amount) internal {
-  //    // solhint-disable-next-line not-rely-on-time
-  //    if (block.timestamp < _whitelistActiveUntil) {
-  //      if (_wl.balanceOf(to, _wl.getIdByBurner(address(this))) < amount) revert NotEnoughWLSlots();
-  //      _wl.burn(to, _wl.getIdByBurner(address(this)), amount);
-  //    }
-  //  }
 
   function endMinting() external override onlyOwner {
     _mintEnded = true;
