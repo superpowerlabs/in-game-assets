@@ -25,6 +25,7 @@ const chainName = {
   80001: "mumbai",
   41224: "avalance",
   43113: "fuji",
+  44787: "alfajores",
 };
 
 const scanner = {
@@ -36,6 +37,7 @@ const scanner = {
   97: "testnet.bscscan.com",
   41224: "snowtrace.io",
   43113: "testnet.snowtrace.io",
+  44787: "alfajores-blockscout.celo-testnet.org",
 };
 
 function noTest() {
@@ -133,10 +135,16 @@ class DeployUtils {
   }
 
   async deployProxy(contractName, ...args) {
+    let options;
+    if (typeof args[args.length - 1] === "object") {
+      if (args[args.length - 1].hasOwnProperty("gasLimit") || args[args.length - 1].hasOwnProperty("gasPrice")) {
+        options = args.pop();
+      }
+    }
     const chainId = await this.currentChainId();
     debug("Deploying", contractName, "to", this.network(chainId));
     const contract = await ethers.getContractFactory(contractName);
-    const deployed = await upgrades.deployProxy(contract, [...args]);
+    const deployed = await upgrades.deployProxy(contract, [...args], options);
     debug("Tx:", deployed.deployTransaction.hash);
     await deployed.deployed();
     debug("Deployed at", deployed.address);

@@ -9,7 +9,7 @@ import "./SuperpowerNFTBase.sol";
 import "./interfaces/ISuperpowerNFT.sol";
 import "./WhitelistSlot.sol";
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   error Forbidden();
@@ -31,11 +31,11 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
 
   modifier onlyFactory() {
     if (
-      !(isFactory(_msgSender()) ||
-        // owner is authorized as long as there are no factories
-        (!hasFactories() && _msgSender() != owner()))
-    ) revert Forbidden();
-    _;
+      isFactory(_msgSender()) ||
+      // owner is authorized as long as there are no factories
+      (!hasFactories() && _msgSender() == owner())
+    ) _;
+    else revert Forbidden();
   }
 
   modifier canMint(uint256 amount) {

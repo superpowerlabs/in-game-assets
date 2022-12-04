@@ -15,9 +15,10 @@ async function main() {
   }
 
   const chainId = await deployUtils.currentChainId();
-  let [deployer, whitelisted, whitelisted2, whitelisted3] = await ethers.getSigners();
+  let [deployer] = await ethers.getSigners();
+  const provider = this.ethers.provider;
 
-  const network = chainId === 56 ? "bsc" : chainId === 43113 ? "fuji" : "localhost";
+  const network = chainId === 56 ? "bsc" : chainId === 44787 ? "alfajores" : "localhost";
 
   console.log("Deploying contracts with the account:", deployer.address, "to", network);
 
@@ -33,16 +34,43 @@ async function main() {
   await factory.setPaymentToken(seed.address, true);
   await factory.setPaymentToken(busd.address, true);
 
-  const wl = await deployUtils.deploy("WhitelistSlot", factory.address);
-  await wl.setURI("https://api.mob.land/meta/wl");
-
   await turf.setMaxSupply(150);
   await farm.setMaxSupply(1250);
 
-  await factory.setPrice(1, busd.address, pe(419), pe(599));
-  await factory.setPrice(1, seed.address, pe(220500), pe(295000));
-  await factory.setPrice(2, busd.address, pe(209), pe(299));
-  await factory.setPrice(2, seed.address, pe(110000), pe(147500));
+  await deployUtils.Tx(
+    turf.mint(process.env.TURF_OWNER || deployer.address, 15, {gasLimit: 2000000}),
+    "Minting turf 1-15 to " + (process.env.TURF_OWNER || deployer.address)
+  );
+
+  // const turf = await deployUtils.attach("Turf");
+  // const farm = await deployUtils.attach("Farm");
+  // const seed = await deployUtils.attach("SeedTokenMock");
+  // const busd = await deployUtils.attach("BUSDMock");
+  // const factory = await deployUtils.attach("NftFactory");
+
+  const wl = await deployUtils.deploy("WhitelistSlot", factory.address);
+  await wl.setURI("https://api.mob.land/meta/wl");
+  for (let id = 1; id <= 2; id++) {
+    let nft = id === 1 ? turf : farm;
+    await nft.setFactory(factory.address, true);
+    await factory.setNewNft(nft.address);
+  }
+
+  await factory.setWl(wl.address);
+
+  await wl.mintBatch(deployer.address, [1, 2], [10, 10]);
+
+  const now = (await provider.getBlock()).timestamp;
+
+  await deployUtils.Tx(factory.newSale(1, 135, now, now + 3600 * 72, 1, [busd.address, seed.address]), "Setting sale for turf");
+  await deployUtils.Tx(factory.setPrice(1, busd.address, pe(419), pe(599)));
+  await deployUtils.Tx(factory.setPrice(1, seed.address, pe(220500), pe(295000)));
+  await deployUtils.Tx(
+    factory.newSale(2, 1250, now, now + 3600 * 72, 2, [busd.address, seed.address]),
+    "Setting sale for farm"
+  );
+  await deployUtils.Tx(factory.setPrice(2, busd.address, pe(209), pe(299)));
+  await deployUtils.Tx(factory.setPrice(2, seed.address, pe(110000), pe(147500)));
 }
 
 main()

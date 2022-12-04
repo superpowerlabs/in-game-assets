@@ -95,6 +95,14 @@ contract NftFactory is UUPSUpgradableTemplate {
     emit NftRemovedFromSale(nftId, nft);
   }
 
+  function getNftIdByAddress(address nft) external view returns (uint8) {
+    return _nftsByAddress[nft];
+  }
+
+  function getNftAddressById(uint8 nftId) external view returns (address) {
+    return address(_nfts[nftId]);
+  }
+
   function newSale(
     uint8 nftId,
     uint16 amountForSale,

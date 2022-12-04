@@ -3,7 +3,7 @@ const {requirePath} = require("require-or-mock");
 requirePath(".env");
 
 require("dotenv").config();
-require("cryptoenv").parse();
+require("cryptoenv").parse(() => process.env.NODE_ENV !== "test");
 
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
@@ -102,6 +102,11 @@ module.exports = {
       gasPrice: 225000000000,
       chainId: 43114,
       accounts: [process.env.FOR_TESTNET],
+    },
+    alfajores: {
+      url: "https://alfajores-forno.celo-testnet.org",
+      accounts: [process.env.FOR_TESTNET],
+      chainId: 44787,
     },
   },
   etherscan: {

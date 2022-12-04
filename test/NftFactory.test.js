@@ -41,6 +41,8 @@ describe("NftFactory", function () {
     await farm.deployed();
     await farm.setMaxSupply(5000);
 
+    await farm.mint(owner.address, 3);
+
     busd = await deployUtils.deployProxy("SeedTokenMock");
     await busd.deployed();
     await busd.mint(whitelisted.address, usdAmount);
@@ -116,6 +118,13 @@ describe("NftFactory", function () {
       )
         .to.emit(turf, "Transfer")
         .withArgs(whitelisted.address, notWhitelisted.address, 1);
+    });
+
+    it("should get info about the tokens for sale", async function () {
+      expect(await factory.getNftAddressById(1)).equal(turf.address);
+      expect(await factory.getNftAddressById(2)).equal(farm.address);
+      expect(await factory.getNftIdByAddress(turf.address)).equal(1);
+      expect(await factory.getNftIdByAddress(farm.address)).equal(2);
     });
 
     it("should buy tokens in SEED", async function () {
