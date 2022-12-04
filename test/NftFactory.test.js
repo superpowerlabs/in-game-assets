@@ -76,12 +76,26 @@ describe("NftFactory", function () {
 
     if (configure) {
       const ts = await getCurrentTimestamp();
-      await factory.newSale(1, 100, ts, ts + 1000, 1, [busd.address, seed.address]);
-      await factory.setPrice(1, busd.address, pe("100"), pe("130"));
-      await factory.setPrice(1, seed.address, pe("10000"), pe("13000"));
-      await factory.newSale(2, 300, ts, ts + 1000, 2, [busd.address, seed.address]);
-      await factory.setPrice(2, busd.address, pe("100"), pe("130"));
-      await factory.setPrice(2, seed.address, pe("10000"), pe("13000"));
+      await factory.newSale(
+        1,
+        100,
+        ts,
+        ts + 1000,
+        1,
+        [busd.address, seed.address],
+        [pe("100"), pe("10000")],
+        [pe("130"), pe("13000")]
+      );
+      await factory.newSale(
+        2,
+        300,
+        ts,
+        ts + 1000,
+        2,
+        [busd.address, seed.address],
+        [pe("100"), pe("10000")],
+        [pe("130"), pe("13000")]
+      );
     }
   }
 
@@ -175,9 +189,9 @@ describe("NftFactory", function () {
       expect(await factory.getWlPrice(tokenId, busd.address)).equal(pe("100"));
     });
 
-    it("should set token price", async function () {
+    it("should update token price", async function () {
       const tokenId = 1;
-      expect(await factory.setPrice(tokenId, busd.address, pe("1"), pe("1.4")))
+      expect(await factory.updatePrice(tokenId, busd.address, pe("1"), pe("1.4")))
         .to.emit(factory, "NewPriceFor")
         .withArgs(tokenId, busd.address, pe("1"), pe("1.4"));
     });
@@ -188,10 +202,10 @@ describe("NftFactory", function () {
       expect(await factory.getPrice(tokenId, seed.address)).equal(price);
     });
 
-    it("should set token price in Seeds", async function () {
+    it("should update token price in Seeds", async function () {
       const tokenId = 1;
       const price = pe("10000");
-      expect(await factory.setPrice(tokenId, seed.address, price, price))
+      expect(await factory.updatePrice(tokenId, seed.address, price, price))
         .to.emit(factory, "NewPriceFor")
         .withArgs(tokenId, seed.address, price, price);
     });

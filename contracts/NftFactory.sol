@@ -37,10 +37,10 @@ contract NftFactory is UUPSUpgradableTemplate {
   error TransferFailed();
   error InvalidPaymentToken();
   error ASaleIsActiveForThisNFT();
-  error SaleEnded();
+  error SaleNotFoundMaybeEnded();
   error NotEnoughTokenForSale();
-  error SaleNotActive();
   error NotEnoughWLSlots();
+  error InconsistentArrays();
 
   struct Sale {
     uint16 amountForSale;
@@ -49,16 +49,16 @@ contract NftFactory is UUPSUpgradableTemplate {
     uint32 whitelistUntil;
     uint16 whitelistedId;
     address[] acceptedTokens;
+    uint256[] wlPrices;
+    uint256[] prices;
   }
 
   mapping(uint8 => ISuperpowerNFT) private _nfts;
   mapping(address => uint8) private _nftsByAddress;
   uint8 private _lastNft;
-  mapping(uint8 => mapping(address => uint256)) private _wlPrices;
-  mapping(uint8 => mapping(address => uint256)) private _prices;
   mapping(address => uint256) public proceedsBalances;
   mapping(address => bool) public paymentTokens;
-  mapping(uint8 => Sale) internal _sales;
+  mapping(uint8 => Sale) public sales;
   WhitelistSlot private _wl;
 
   function initialize() public initializer {
@@ -103,34 +103,43 @@ contract NftFactory is UUPSUpgradableTemplate {
     return address(_nfts[nftId]);
   }
 
+  function getPaymentTokenSymbol(address paymentToken) external view returns (string memory) {
+    return SeedToken(paymentToken).symbol();
+  }
+
   function newSale(
     uint8 nftId,
     uint16 amountForSale,
     uint32 startAt,
     uint32 whitelistUntil,
     uint16 whitelistedId,
-    address[] memory acceptedTokens
+    address[] memory acceptedTokens,
+    uint256[] memory wlPrices,
+    uint256[] memory prices
   ) external onlyOwner {
-    if (_sales[nftId].amountForSale != _sales[nftId].soldTokens) revert ASaleIsActiveForThisNFT();
-    _sales[nftId] = Sale({
+    if (sales[nftId].amountForSale != sales[nftId].soldTokens) revert ASaleIsActiveForThisNFT();
+    if (acceptedTokens.length != wlPrices.length || wlPrices.length != prices.length) revert InconsistentArrays();
+    sales[nftId] = Sale({
       amountForSale: amountForSale,
       soldTokens: 0,
       startAt: startAt,
       whitelistUntil: whitelistUntil,
       whitelistedId: whitelistedId,
-      acceptedTokens: acceptedTokens
+      acceptedTokens: acceptedTokens,
+      wlPrices: wlPrices,
+      prices: prices
     });
     emit NewSale(nftId, amountForSale);
   }
 
   function endSale(uint8 nftId) external onlyOwner {
-    if (_sales[nftId].amountForSale > 0) {
-      delete _sales[nftId];
+    if (sales[nftId].amountForSale > 0) {
+      delete sales[nftId];
       emit EndSale(nftId);
     }
   }
 
-  function setPrice(
+  function updatePrice(
     uint8 nftId,
     address paymentToken,
     uint256 wlPrice,
@@ -138,25 +147,33 @@ contract NftFactory is UUPSUpgradableTemplate {
   ) external onlyOwner {
     if (address(_nfts[nftId]) == address(0)) revert NFTNotFound();
     if (!paymentTokens[paymentToken]) revert InvalidPaymentToken();
-    _wlPrices[nftId][paymentToken] = wlPrice;
-    _prices[nftId][paymentToken] = price;
-    emit NewPriceFor(nftId, paymentToken, wlPrice, price);
+    if (sales[nftId].amountForSale == 0) revert SaleNotFoundMaybeEnded();
+    for (uint256 i = 0; i < sales[nftId].acceptedTokens.length; i++) {
+      if (sales[nftId].acceptedTokens[i] == paymentToken) {
+        sales[nftId].wlPrices[i] = wlPrice;
+        sales[nftId].prices[i] = price;
+        emit NewPriceFor(nftId, paymentToken, wlPrice, price);
+        break;
+      }
+    }
   }
 
-  function getPrice(uint8 nftId, address paymentToken) external view returns (uint256) {
-    return _prices[nftId][paymentToken];
+  function getPrice(uint8 nftId, address paymentToken) public view returns (uint256) {
+    for (uint256 i = 0; i < sales[nftId].acceptedTokens.length; i++) {
+      if (sales[nftId].acceptedTokens[i] == paymentToken) {
+        return sales[nftId].prices[i];
+      }
+    }
+    revert NFTNotFound();
   }
 
-  function getWlPrice(uint8 nftId, address paymentToken) external view returns (uint256) {
-    return _wlPrices[nftId][paymentToken];
-  }
-
-  function getSale(uint8 nftId) external view returns (Sale memory) {
-    return _sales[nftId];
-  }
-
-  function getSalePaymentTokens(uint8 nftId) external view returns (address[] memory) {
-    return _sales[nftId].acceptedTokens;
+  function getWlPrice(uint8 nftId, address paymentToken) public view returns (uint256) {
+    for (uint256 i = 0; i < sales[nftId].acceptedTokens.length; i++) {
+      if (sales[nftId].acceptedTokens[i] == paymentToken) {
+        return sales[nftId].wlPrices[i];
+      }
+    }
+    revert NFTNotFound();
   }
 
   function buyTokens(
@@ -165,24 +182,24 @@ contract NftFactory is UUPSUpgradableTemplate {
     uint256 amount
   ) external payable {
     if (!paymentTokens[paymentToken]) revert InvalidPaymentToken();
-    if (_sales[nftId].amountForSale == 0) revert SaleNotActive();
-    if (_sales[nftId].soldTokens == _sales[nftId].amountForSale) revert SaleEnded();
-    if (amount > _sales[nftId].amountForSale - _sales[nftId].soldTokens) revert NotEnoughTokenForSale();
+    if (sales[nftId].amountForSale == 0) revert SaleNotFoundMaybeEnded();
+    if (sales[nftId].soldTokens == sales[nftId].amountForSale) revert SaleNotFoundMaybeEnded();
+    if (amount > sales[nftId].amountForSale - sales[nftId].soldTokens) revert NotEnoughTokenForSale();
     uint256 tokenAmount;
     // solhint-disable-next-line not-rely-on-time
-    bool isWl = block.timestamp < _sales[nftId].whitelistUntil;
+    bool isWl = block.timestamp < sales[nftId].whitelistUntil;
     if (isWl) {
-      if (_wl.balanceOf(_msgSender(), _sales[nftId].whitelistedId) < amount) revert NotEnoughWLSlots();
-      tokenAmount = _wlPrices[nftId][paymentToken].mul(amount);
+      if (_wl.balanceOf(_msgSender(), sales[nftId].whitelistedId) < amount) revert NotEnoughWLSlots();
+      tokenAmount = getWlPrice(nftId, paymentToken);
     } else {
-      tokenAmount = _prices[nftId][paymentToken].mul(amount);
+      tokenAmount = getPrice(nftId, paymentToken);
     }
     proceedsBalances[paymentToken] += tokenAmount;
-    _sales[nftId].soldTokens += uint16(amount);
+    sales[nftId].soldTokens += uint16(amount);
     SideToken(paymentToken).transferFrom(_msgSender(), address(this), tokenAmount);
     _nfts[nftId].mint(_msgSender(), amount);
     if (isWl) {
-      _wl.burn(_msgSender(), _sales[nftId].whitelistedId, amount);
+      _wl.burn(_msgSender(), sales[nftId].whitelistedId, amount);
     }
   }
 
