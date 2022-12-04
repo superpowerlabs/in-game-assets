@@ -20,14 +20,18 @@ contract WhitelistSlot is ERC1155, Ownable {
 
   // solhint-disable-next-line
   constructor(address burner) ERC1155("") {
-    if (!burner.isContract()) {
-      revert NotAContract();
-    }
-    _burner = burner;
+    setBurner(burner);
   }
 
   function setURI(string memory newUri) public onlyOwner {
     _setURI(newUri);
+  }
+
+  function setBurner(address burner) public onlyOwner {
+    if (!burner.isContract()) {
+      revert NotAContract();
+    }
+    _burner = burner;
   }
 
   function mintBatch(

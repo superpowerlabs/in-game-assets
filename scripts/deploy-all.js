@@ -62,15 +62,32 @@ async function main() {
 
   const now = (await provider.getBlock()).timestamp;
 
-  await deployUtils.Tx(factory.newSale(1, 135, now, now + 3600 * 72, 1, [busd.address, seed.address]), "Setting sale for turf");
-  await deployUtils.Tx(factory.setPrice(1, busd.address, pe(419), pe(599)));
-  await deployUtils.Tx(factory.setPrice(1, seed.address, pe(220500), pe(295000)));
   await deployUtils.Tx(
-    factory.newSale(2, 1250, now, now + 3600 * 72, 2, [busd.address, seed.address]),
+    factory.newSale(
+      1,
+      135,
+      now,
+      now + 3600 * 72,
+      1,
+      [busd.address, seed.address],
+      [pe(419), pe(220500)],
+      [pe(599), pe(295000)]
+    ),
+    "Setting sale for turf"
+  );
+  await deployUtils.Tx(
+    factory.newSale(
+      2,
+      1250,
+      now,
+      now + 3600 * 72,
+      2,
+      [busd.address, seed.address],
+      [pe(209), pe(110000)],
+      [pe(299), pe(147500)]
+    ),
     "Setting sale for farm"
   );
-  await deployUtils.Tx(factory.setPrice(2, busd.address, pe(209), pe(299)));
-  await deployUtils.Tx(factory.setPrice(2, seed.address, pe(110000), pe(147500)));
 }
 
 main()
