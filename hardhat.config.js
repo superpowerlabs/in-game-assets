@@ -1,7 +1,7 @@
 const {requirePath} = require("require-or-mock");
 // if missed, it sets up a mock
 requirePath(".env");
-requirePath("export/deployed.json", "{}");
+requirePath("export/deployed.json");
 
 require("dotenv").config();
 require("cryptoenv").parse(() => process.env.NODE_ENV !== "test");

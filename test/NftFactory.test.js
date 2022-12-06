@@ -112,17 +112,11 @@ describe("NftFactory", function () {
       await expect(factory.connect(whitelisted).buyTokens(1, busd.address, 3)).revertedWith("ERC20: insufficient allowance");
     });
 
-    it.only("should verify the sale is set", async function () {
-      const turfSale = cleanStruct(await factory.sales(1));
-      assert.deepEqual(turfSale, {
-        amountForSale: 100,
-        soldTokens: 0,
-        startAt: startsAt,
-        whitelistUntil: endsAt,
-        whitelistedId: 1,
-      });
-      console.log(JSON.stringify(cleanStruct(await factory.sales(1)), null, 2));
-      console.log(JSON.stringify(cleanStruct(await factory.getSale(1)), null, 2));
+    it("should verify the sale is set", async function () {
+      const turfSale = cleanStruct(await factory.getSale(1));
+      expect(turfSale.amountForSale).equal(100);
+      expect(turfSale.soldTokens).equal(0);
+      expect(turfSale.wlPrices[0].toString()).equal("100000000000000000000");
     });
 
     it("should buy tokens in BUSD", async function () {
