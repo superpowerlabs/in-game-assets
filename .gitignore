@@ -66,3 +66,4 @@ db
 deployed.json
 package-lock.json
 ABIs.json
+/scripts/wallets.json
