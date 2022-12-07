@@ -25,18 +25,13 @@ describe("FarmToken", function () {
     await farm.deployed();
   }
 
-  async function configure() {
-    await nft.setMaxSupply(1000);
-    await nft.setFactory(farm.address, true);
-  }
-
   describe("constructor and initialization", async function () {
     beforeEach(async function () {
       await initAndDeploy();
     });
 
     it("should revert if not authorized", async function () {
-      await expect(await nft.factories(farm.address)).equal(false);
+      await expect(await nft.isFactory(farm.address)).equal(false);
     });
   });
 });

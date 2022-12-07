@@ -1,6 +1,6 @@
 const {expect, assert} = require("chai");
 
-const {initEthers, increaseBlockTimestampBy} = require("./helpers");
+const {initEthers, increaseBlockTimestampBy, cleanStruct} = require("./helpers");
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
 const DeployUtils = require("../scripts/lib/DeployUtils");
 
@@ -10,28 +10,39 @@ describe("NftFactory", function () {
   let owner, whitelisted, notWhitelisted;
   let Whitelist, wl;
   let TurfToken, turf;
-  let NftFactory, farm;
+  let FarmToken, farm;
+  let NftFactory, factory;
   let seed, busd;
+  let startsAt, endsAt;
 
   const deployUtils = new DeployUtils(ethers);
+
+  function pe(amount) {
+    return ethers.utils.parseEther(amount.toString());
+  }
 
   before(async function () {
     [owner, whitelisted, notWhitelisted] = await ethers.getSigners();
     Whitelist = await ethers.getContractFactory("WhitelistSlot");
     TurfToken = await ethers.getContractFactory("Turf");
+    FarmToken = await ethers.getContractFactory("Farm");
     NftFactory = await ethers.getContractFactory("NftFactory");
     initEthers(ethers);
   });
 
-  async function initAndDeploy() {
-    const seedAmount = ethers.utils.parseEther("10000000000");
-    const usdAmount = ethers.utils.parseEther("1000000");
-
-    wl = await Whitelist.deploy();
-    await wl.deployed();
+  async function initAndDeploy(configure) {
+    const seedAmount = pe("10000000000");
+    const usdAmount = pe("1000000");
 
     turf = await upgrades.deployProxy(TurfToken, ["https://s3.mob.land/turf/"]);
     await turf.deployed();
+    await turf.setMaxSupply(1000);
+
+    farm = await upgrades.deployProxy(FarmToken, ["https://s3.mob.land/farm/"]);
+    await farm.deployed();
+    await farm.setMaxSupply(5000);
+
+    await farm.mint(owner.address, 3);
 
     busd = await deployUtils.deployProxy("SeedTokenMock");
     await busd.deployed();
@@ -43,54 +54,78 @@ describe("NftFactory", function () {
     await seed.mint(whitelisted.address, seedAmount);
     await seed.mint(notWhitelisted.address, seedAmount);
 
-    farm = await upgrades.deployProxy(NftFactory);
-    await farm.deployed();
-    await farm.setPaymentToken(seed.address, true);
-    await farm.setPaymentToken(busd.address, true);
+    factory = await upgrades.deployProxy(NftFactory);
+    await factory.deployed();
+    await factory.setPaymentToken(seed.address, true);
+    await factory.setPaymentToken(busd.address, true);
 
-    const id = 1;
+    wl = await Whitelist.deploy(factory.address);
+    await wl.deployed();
+
+    await factory.setWl(wl.address);
+
     const amount = 5;
-    await wl.mintBatch(whitelisted.address, [id], [amount], []);
-    await wl.setBurnerForID(turf.address, id);
-    await turf.setWhitelist(wl.address, (await getCurrentTimestamp()) + 1e4);
-    await turf.setFactory(farm.address, true);
-    await farm.setNewNft(turf.address);
-  }
 
-  async function setPrices() {
-    await farm.setPrice(1, busd.address, ethers.utils.parseEther("100"));
-    await farm.setPrice(1, seed.address, ethers.utils.parseEther("10000"));
+    await wl.mintBatch(whitelisted.address, [1], [amount], []);
+    await wl.mintBatch(whitelisted.address, [2], [amount], []);
+
+    await turf.setFactory(factory.address, true);
+    await farm.setFactory(factory.address, true);
+
+    await factory.setNewNft(turf.address);
+    await factory.setNewNft(farm.address);
+
+    if (configure) {
+      const ts = await getCurrentTimestamp();
+      startsAt = ts;
+      endsAt = ts + 1000;
+
+      await factory.newSale(
+        1,
+        100,
+        ts,
+        ts + 1000,
+        1,
+        [busd.address, seed.address],
+        [pe("100"), pe("10000")],
+        [pe("130"), pe("13000")]
+      );
+      await factory.newSale(
+        2,
+        300,
+        ts,
+        ts + 1000,
+        2,
+        [busd.address, seed.address],
+        [pe("100"), pe("10000")],
+        [pe("130"), pe("13000")]
+      );
+    }
   }
 
   describe("Buy tokens", async function () {
     beforeEach(async function () {
-      await initAndDeploy();
-      await setPrices();
+      await initAndDeploy(true);
     });
 
     it("should not buy because no payment", async function () {
-      expect(farm.connect(whitelisted).buyTokens(1, busd.address, 3)).revertedWith("ERC20: insufficient allowance");
+      await expect(factory.connect(whitelisted).buyTokens(1, busd.address, 3)).revertedWith("ERC20: insufficient allowance");
     });
 
-    it("should revert maxSupply not set or defaultPlayer not set", async function () {
-      expect(await turf.canMintAmount(3)).equal(false);
-      const usdPrice = await farm.getPrice(1, busd.address);
-      await busd.connect(whitelisted).approve(farm.address, usdPrice.mul(3));
-
-      await expect(farm.connect(whitelisted).buyTokens(1, busd.address, 3)).revertedWith("CannotMint()");
-
-      await turf.setMaxSupply(1000);
-
-      expect(await turf.canMintAmount(3)).equal(true);
+    it("should verify the sale is set", async function () {
+      const turfSale = cleanStruct(await factory.getSale(1));
+      expect(turfSale.amountForSale).equal(100);
+      expect(turfSale.soldTokens).equal(0);
+      expect(turfSale.wlPrices[0].toString()).equal("100000000000000000000");
     });
 
     it("should buy tokens in BUSD", async function () {
       await turf.setMaxSupply(1000);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
-      const usdPrice = await farm.getPrice(1, busd.address);
-      await busd.connect(whitelisted).approve(farm.address, usdPrice.mul(3));
+      const usdPrice = await factory.getPrice(1, busd.address);
+      await busd.connect(whitelisted).approve(factory.address, usdPrice.mul(3));
 
-      expect(await farm.connect(whitelisted).buyTokens(1, busd.address, 3))
+      expect(await factory.connect(whitelisted).buyTokens(1, busd.address, 3))
         .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
         .to.emit(turf, "Transfer")
@@ -110,13 +145,20 @@ describe("NftFactory", function () {
         .withArgs(whitelisted.address, notWhitelisted.address, 1);
     });
 
+    it("should get info about the tokens for sale", async function () {
+      expect(await factory.getNftAddressById(1)).equal(turf.address);
+      expect(await factory.getNftAddressById(2)).equal(farm.address);
+      expect(await factory.getNftIdByAddress(turf.address)).equal(1);
+      expect(await factory.getNftIdByAddress(farm.address)).equal(2);
+    });
+
     it("should buy tokens in SEED", async function () {
       await turf.setMaxSupply(1000);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
-      const seedPrice = await farm.getPrice(1, seed.address);
-      await seed.connect(whitelisted).approve(farm.address, seedPrice.mul(3));
+      const seedPrice = await factory.getPrice(1, seed.address);
+      await seed.connect(whitelisted).approve(factory.address, seedPrice.mul(3));
 
-      expect(await farm.connect(whitelisted).buyTokens(1, seed.address, 3))
+      expect(await factory.connect(whitelisted).buyTokens(1, seed.address, 3))
         .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
         .to.emit(turf, "Transfer")
@@ -138,64 +180,60 @@ describe("NftFactory", function () {
 
     it("should can not buy tokens because not whitelisted", async function () {
       await turf.setMaxSupply(1000);
-      const usdPrice = await farm.getPrice(1, busd.address);
-      await busd.connect(notWhitelisted).approve(farm.address, usdPrice.mul(3));
+      const usdPrice = await factory.getPrice(1, busd.address);
+      await busd.connect(notWhitelisted).approve(factory.address, usdPrice.mul(3));
 
       expect(await wl.balanceOf(notWhitelisted.address, 1)).equal(0);
 
-      await expect(farm.connect(notWhitelisted).buyTokens(1, busd.address, 3)).revertedWith("NotEnoughWLSlots()");
+      await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 3)).revertedWith("NotEnoughWLSlots()");
     });
   });
 
   describe("Token prices", async function () {
     beforeEach(async function () {
-      await initAndDeploy();
+      await initAndDeploy(true);
     });
 
     it("should get token price", async function () {
-      await setPrices();
       const tokenId = 1;
-      const price = ethers.utils.parseEther("100");
-      expect(await farm.getPrice(tokenId, busd.address)).equal(price);
+      expect(await factory.getPrice(tokenId, busd.address)).equal(pe("130"));
+      expect(await factory.getWlPrice(tokenId, busd.address)).equal(pe("100"));
     });
 
-    it("should set token price", async function () {
+    it("should update token price", async function () {
       const tokenId = 1;
-      const price = ethers.utils.parseEther("1");
-      expect(await farm.setPrice(tokenId, busd.address, price))
-        .to.emit(farm, "NewPriceFor")
-        .withArgs(tokenId, busd.address, price);
+      expect(await factory.updatePrice(tokenId, busd.address, pe("1"), pe("1.4")))
+        .to.emit(factory, "NewPriceFor")
+        .withArgs(tokenId, busd.address, pe("1"), pe("1.4"));
     });
 
     it("should get token price in Seeds", async function () {
-      await setPrices();
       const tokenId = 1;
-      const price = ethers.utils.parseEther("10000");
-      expect(await farm.getPrice(tokenId, seed.address)).equal(price);
+      const price = pe("13000");
+      expect(await factory.getPrice(tokenId, seed.address)).equal(price);
     });
 
-    it("should set token price in Seeds", async function () {
+    it("should update token price in Seeds", async function () {
       const tokenId = 1;
-      const price = ethers.utils.parseEther("10000");
-      expect(await farm.setPrice(tokenId, seed.address, price))
-        .to.emit(farm, "NewPriceFor")
-        .withArgs(tokenId, seed.address, price);
+      const price = pe("10000");
+      expect(await factory.updatePrice(tokenId, seed.address, price, price))
+        .to.emit(factory, "NewPriceFor")
+        .withArgs(tokenId, seed.address, price, price);
     });
   });
 
   describe("Buy tokens out of whitelisting period", async function () {
     beforeEach(async function () {
-      await initAndDeploy();
-      await setPrices();
+      await initAndDeploy(true);
     });
     it("should buy tokens when whitelist period ends", async function () {
       await turf.setMaxSupply(1000);
-      const usdPrice = await farm.getPrice(1, busd.address);
-      await busd.connect(notWhitelisted).approve(farm.address, usdPrice.mul(3));
+      const usdPrice = await factory.getPrice(1, busd.address);
+      await busd.connect(notWhitelisted).approve(factory.address, usdPrice.mul(3));
 
       await increaseBlockTimestampBy((await getCurrentTimestamp()) + 1e4 + 10);
 
-      expect(await farm.connect(notWhitelisted).buyTokens(1, busd.address, 3))
+      expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 3))
         .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 1)
         .to.emit(turf, "Transfer")

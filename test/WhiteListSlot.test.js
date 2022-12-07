@@ -18,11 +18,13 @@ describe("WhiteList", function () {
   });
 
   async function initAndDeploy() {
-    wl = await Whitelist.deploy();
+    burner = await BurnerMock.deploy();
+    await burner.deployed();
+
+    wl = await Whitelist.deploy(burner.address);
     await wl.deployed();
 
-    burner = await BurnerMock.deploy(wl.address);
-    await burner.deployed();
+    await burner.setWl(wl.address);
   }
 
   describe("Whitelist Test", async function () {
@@ -36,14 +38,6 @@ describe("WhiteList", function () {
       expect(await wl.uri(0)).equal("https://s3.mob.land/Whitelist");
       await wl.setURI("https://s3.mob.land/WHITE");
       expect(await wl.uri(0)).equal("https://s3.mob.land/WHITE");
-    });
-
-    it("should check set burner and get ID", async function () {
-      await wl.setBurnerForID(burner.address, 55);
-      expect(await wl.getIdByBurner(burner.address)).equal(55);
-      await wl.setBurnerForID(burner.address, 100);
-      expect(await wl.getIdByBurner(burner.address)).equal(100);
-      expect(wl.setBurnerForID(holder.address, 100)).revertedWith("NotAContract()");
     });
 
     it("should batch mint", async function () {
@@ -60,15 +54,12 @@ describe("WhiteList", function () {
       const ammounts = [100, 50];
       const burnAmmount = 10;
       await wl.mintBatch(holder.address, ids, ammounts, []);
-      await wl.setBurnerForID(burner.address, ids[0]);
 
       let balance = await wl.balanceOf(holder.address, ids[0]);
       await burner.burn(holder.address, ids[0], burnAmmount);
       let balance2 = await wl.balanceOf(holder.address, ids[0]);
       expect(balance2).equal(balance.sub(burnAmmount));
       balance = await wl.balanceOf(holder.address, ids[1]);
-      expect(burner.burn(holder.address, ids[1], burnAmmount)).revertedWith("UnauthorizedBurner()");
-      await wl.setBurnerForID(burner.address, ids[1]);
       await burner.burn(holder.address, ids[1], burnAmmount);
       balance2 = await wl.balanceOf(holder.address, ids[1]);
       expect(balance2).equal(balance.sub(burnAmmount));

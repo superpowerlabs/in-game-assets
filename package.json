@@ -9,7 +9,7 @@
     "compile": "npx hardhat compile",
     "size": "npx hardhat size-contracts",
     "lint": "prettier --write 'contracts/**/*.sol' && solhint 'contracts/**/*.sol'",
-    "format": "npx prettier --write 'test'/**/*.js",
+    "format": "npx prettier --write ./**/*.js",
     "coverage": "npx hardhat coverage",
     "postinstall": "./post-install.sh",
     "prepare": "husky install"

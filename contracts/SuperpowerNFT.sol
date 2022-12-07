@@ -9,7 +9,7 @@ import "./SuperpowerNFTBase.sol";
 import "./interfaces/ISuperpowerNFT.sol";
 import "./WhitelistSlot.sol";
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   error Forbidden();
@@ -18,21 +18,24 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   error InvalidSupply();
   error NotEnoughWLSlots();
   error InvalidDeadline();
+  error WhitelistNotSetYet();
 
   using AddressUpgradeable for address;
   uint256 internal _nextTokenId;
   uint256 internal _maxSupply;
   bool internal _mintEnded;
 
-  mapping(address => bool) public factories;
+  address[] public factories;
 
-  uint256 private _whitelistActiveUntil;
-  WhitelistSlot private _wl;
   address public defaultPlayer;
 
   modifier onlyFactory() {
-    if (_msgSender() == address(0) || !factories[_msgSender()]) revert Forbidden();
-    _;
+    if (
+      isFactory(_msgSender()) ||
+      // owner is authorized as long as there are no factories
+      (!hasFactories() && _msgSender() == owner())
+    ) _;
+    else revert Forbidden();
   }
 
   modifier canMint(uint256 amount) {
@@ -45,15 +48,6 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
     defaultPlayer = player;
   }
 
-  function setWhitelist(address wl, uint256 activeUntil) external onlyOwner {
-    if (wl == address(0)) revert ZeroAddress();
-    if (!wl.isContract()) revert NotAContract();
-    _wl = WhitelistSlot(wl);
-    // solhint-disable-next-line not-rely-on-time
-    if (activeUntil < block.timestamp) revert InvalidDeadline();
-    _whitelistActiveUntil = activeUntil;
-  }
-
   function setMaxSupply(uint256 maxSupply_) external onlyOwner {
     if (_nextTokenId == 0) {
       _nextTokenId = 1;
@@ -64,7 +58,39 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
 
   function setFactory(address factory_, bool enabled) external override onlyOwner {
     if (!factory_.isContract()) revert NotAContract();
-    factories[factory_] = enabled;
+    if (enabled) {
+      if (!isFactory(factory_)) {
+        factories.push(factory_);
+      }
+    } else {
+      if (isFactory(factory_)) {
+        for (uint256 i = 0; i < factories.length; i++) {
+          if (factories[i] == factory_) {
+            factories[i] = address(0);
+          }
+        }
+      }
+    }
+  }
+
+  function isFactory(address factory_) public view returns (bool) {
+    for (uint256 i = 0; i < factories.length; i++) {
+      if (factories[i] != address(0)) {
+        if (factories[i] == factory_) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function hasFactories() public view returns (bool) {
+    for (uint256 i = 0; i < factories.length; i++) {
+      if (factories[i] != address(0)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   function canMintAmount(uint256 amount) public view returns (bool) {
@@ -74,15 +100,6 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   function mint(address to, uint256 amount) external virtual override onlyFactory canMint(amount) {
     for (uint256 i = 0; i < amount; i++) {
       _safeMint(to, _nextTokenId++);
-    }
-    _burnWhitelistSlot(to, amount);
-  }
-
-  function _burnWhitelistSlot(address to, uint256 amount) internal {
-    // solhint-disable-next-line not-rely-on-time
-    if (block.timestamp < _whitelistActiveUntil) {
-      if (_wl.balanceOf(to, _wl.getIdByBurner(address(this))) < amount) revert NotEnoughWLSlots();
-      _wl.burn(to, _wl.getIdByBurner(address(this)), amount);
     }
   }
 
