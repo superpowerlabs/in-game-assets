@@ -1,6 +1,9 @@
 require("dotenv").config();
 const hre = require("hardhat");
 const ethers = hre.ethers;
+const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
+const {wl: turfWl} = require("./data/wlTurfWinners.json");
+const {wl: farmWl} = require("./data/wlFarmWinners.json");
 
 const DeployUtils = require("./lib/DeployUtils");
 let deployUtils;
@@ -12,23 +15,17 @@ async function main() {
   const chainId = await deployUtils.currentChainId();
   let [deployer] = await ethers.getSigners();
 
-  const network = chainId === 56 ? "bsc" : chainId === 97 ? "bsc_testnet" : chainId === 43113 ? "fuji" : "localhost";
-
-  // const { TOKEN_URI } = process.env
-  // if (!TOKEN_URI || !/\/$/.test(TOKEN_URI)) {
-  //   console.error("Missing or invalid parameters")
-  //   process.exit(1);
-  // }
+  const network = chainId === 56 ? "bsc" : chainId === 44787 ? "alfajores" : "localhost";
 
   console.log("Deploying contracts with the account:", deployer.address, "to", network);
-
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  await deployUtils.deployProxy("Farm", "https://meta.mob.land/farms/");
+  const wl = await deployUtils.deploy("WhitelistSlot");
+  await wl.setURI("https://api.mob.land/wl/{id}");
+
+  // await wl.mintBatch(deployer.address, [1, 2], [10, 10]);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main()
   .then(() => process.exit(0))
   .catch((error) => {

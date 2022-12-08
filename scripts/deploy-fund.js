@@ -10,6 +10,7 @@ let deployUtils;
 
 async function main() {
   deployUtils = new DeployUtils(ethers);
+  require("./consoleLogAlert")();
 
   function pe(amount) {
     return ethers.utils.parseEther(amount.toString());

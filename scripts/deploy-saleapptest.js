@@ -9,6 +9,7 @@ let deployUtils;
 
 async function main() {
   deployUtils = new DeployUtils(ethers);
+  require("./consoleLogAlert")();
 
   function pe(amount) {
     return ethers.utils.parseEther(amount.toString());
@@ -40,7 +41,8 @@ async function main() {
   await factory.setPaymentToken(seed.address, true);
   await factory.setPaymentToken(busd.address, true);
 
-  const wl = await deployUtils.deploy("WhitelistSlot", factory.address);
+  const wl = await deployUtils.deploy("WhitelistSlot");
+  await wl.setBurner(factory.address);
   for (let id = 1; id <= 2; id++) {
     let nft = id === 1 ? turf : farm;
     const amount = 5;

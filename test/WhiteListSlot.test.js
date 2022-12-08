@@ -21,9 +21,9 @@ describe("WhiteList", function () {
     burner = await BurnerMock.deploy();
     await burner.deployed();
 
-    wl = await Whitelist.deploy(burner.address);
+    wl = await Whitelist.deploy();
     await wl.deployed();
-
+    await wl.setBurner(burner.address);
     await burner.setWl(wl.address);
   }
 
@@ -34,10 +34,10 @@ describe("WhiteList", function () {
 
     it("should check if set URI sets URI", async function () {
       expect(await wl.uri(0)).equal("");
-      await wl.setURI("https://s3.mob.land/Whitelist");
-      expect(await wl.uri(0)).equal("https://s3.mob.land/Whitelist");
-      await wl.setURI("https://s3.mob.land/WHITE");
-      expect(await wl.uri(0)).equal("https://s3.mob.land/WHITE");
+      await wl.setURI("https://s3.mob.land/Whitelist/{id}");
+      expect(await wl.uri(0)).equal("https://s3.mob.land/Whitelist/{id}");
+      await wl.setURI("https://s3.mob.land/WHITE/{id}");
+      expect(await wl.uri(0)).equal("https://s3.mob.land/WHITE/{id}");
     });
 
     it("should batch mint", async function () {

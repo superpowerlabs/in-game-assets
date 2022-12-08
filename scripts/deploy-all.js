@@ -9,6 +9,7 @@ let deployUtils;
 
 async function main() {
   deployUtils = new DeployUtils(ethers);
+  require("./consoleLogAlert")();
 
   function pe(amount) {
     return ethers.utils.parseEther(amount.toString());
@@ -48,7 +49,8 @@ async function main() {
   // const busd = await deployUtils.attach("BUSDMock");
   // const factory = await deployUtils.attach("NftFactory");
 
-  const wl = await deployUtils.deploy("WhitelistSlot", factory.address);
+  const wl = await deployUtils.deploy("WhitelistSlot");
+  await wl.setBurner(factory.address);
   await wl.setURI("https://api.mob.land/meta/wl");
   for (let id = 1; id <= 2; id++) {
     let nft = id === 1 ? turf : farm;

@@ -59,8 +59,9 @@ describe("NftFactory", function () {
     await factory.setPaymentToken(seed.address, true);
     await factory.setPaymentToken(busd.address, true);
 
-    wl = await Whitelist.deploy(factory.address);
+    wl = await Whitelist.deploy();
     await wl.deployed();
+    await wl.setBurner(factory.address);
 
     await factory.setWl(wl.address);
 
@@ -123,6 +124,7 @@ describe("NftFactory", function () {
       await turf.setMaxSupply(1000);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
       const usdPrice = await factory.getPrice(1, busd.address);
+
       await busd.connect(whitelisted).approve(factory.address, usdPrice.mul(3));
 
       expect(await factory.connect(whitelisted).buyTokens(1, busd.address, 3))

@@ -19,8 +19,8 @@ contract WhitelistSlot is ERC1155, Ownable {
   address internal _burner;
 
   // solhint-disable-next-line
-  constructor(address burner) ERC1155("") {
-    setBurner(burner);
+  constructor() ERC1155("") {
+    //    setBurner(burner);
   }
 
   function setURI(string memory newUri) public onlyOwner {

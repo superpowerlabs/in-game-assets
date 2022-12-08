@@ -12,6 +12,7 @@ const turfAttributesJson = require("./lib/turfAttributes.json");
 
 async function main() {
   deployUtils = new DeployUtils(ethers);
+  require("./consoleLogAlert")();
 
   const chainId = await deployUtils.currentChainId();
   let [deployer, whitelisted] = await ethers.getSigners();
