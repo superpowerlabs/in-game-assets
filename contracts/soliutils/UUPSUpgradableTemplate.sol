@@ -2,6 +2,8 @@
 pragma solidity ^0.8.4;
 
 // Author: Francesco Sullo <francesco@sullo.co>
+// https://github.com/sullof/soliutils
+// Testing for this code is in the original repo.
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
