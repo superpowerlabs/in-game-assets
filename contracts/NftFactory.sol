@@ -7,13 +7,32 @@ pragma solidity 0.8.11;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "soliutils/contracts/UUPSUpgradableTemplate.sol";
+import "../soliutils/UUPSUpgradableTemplate.sol";
 
 import "./interfaces/ISuperpowerNFT.sol";
 import "../external-contracts/synr-seed/token/SeedToken.sol";
 import "./WhitelistSlot.sol";
 
-//import "hardhat/console.sol";
+/*
+About ownership and upgradeability
+
+There is a strategy for it. Following OpenZeppelin best practices, we will deploy
+the contracts and then transfer the ownership of the proxy-contract to a
+Gnosis safe multi-sig wallet. Any subsequent upgrades will be performed
+according to this process. Here is the guide we will follow to transfer ownership
+to the multi-sig wallet and later deploy new implementations:
+https://docs.openzeppelin.com/defender/guide-upgrades
+
+To split the risks, a few more multi-sign wallets will become the owners of
+the contracts in this suite.
+
+Regarding the time lock, we are not implementing an explicit process because when
+a bug is discovered (which is the primary reason why we are using upgradeable
+contracts), the speed of response is crucial to avoid disaster.
+For example, the recent crash of the UST could have been mitigated if they
+did not have to wait for the fixed lockup time before intervening.
+
+*/
 
 contract NftFactory is UUPSUpgradableTemplate {
   using AddressUpgradeable for address;

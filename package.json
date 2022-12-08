@@ -18,11 +18,6 @@
   "license": "MIT",
   "devDependencies": {
     "@ethersproject/contracts": "^5.6.2",
-    "@ndujalabs/attributable": "^0.0.3",
-    "@ndujalabs/erc721playable": "0.6.1",
-    "@ndujalabs/lockable": "^0.0.2",
-    "@ndujalabs/wormhole-tunnel": "0.4.0",
-    "@ndujalabs/wormhole721": "^0.5.3",
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-etherscan": "^2.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
@@ -52,7 +47,6 @@
     "require-or-mock": "^0.2.1",
     "solhint": "^3.3.6",
     "solidity-coverage": "^0.7.21",
-    "soliutils": "0.0.6",
     "typescript": "^4.7.3"
   },
   "lint-staged": {

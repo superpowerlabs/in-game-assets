@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 // Author: Francesco Sullo <francesco@superpower.io>
 
-import "@ndujalabs/lockable/contracts/ILockable.sol";
+import "./ILockable.sol";
 
 interface ISuperpowerNFTBase is ILockable {
   event GameSet(address game);

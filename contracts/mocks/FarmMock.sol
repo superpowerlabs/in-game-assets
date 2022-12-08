@@ -6,8 +6,6 @@ pragma solidity 0.8.11;
 
 import "../interfaces/ISuperpowerNFT.sol";
 
-//import "hardhat/console.sol";
-
 contract FarmMock {
   ISuperpowerNFT public nft;
 

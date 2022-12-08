@@ -3,8 +3,6 @@ pragma solidity 0.8.11;
 
 import "../WhitelistSlot.sol";
 
-//import "hardhat/console.sol";
-
 contract BurnerMock {
   WhitelistSlot public whitelist;
 

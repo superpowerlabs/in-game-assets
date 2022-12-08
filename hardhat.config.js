@@ -111,7 +111,7 @@ module.exports = {
     },
   },
   etherscan: {
-    // apiKey: env.bscscanKey
+    apiKey: process.env.BSCSCAN_KEY,
   },
   gasReporter: {
     currency: "USD",

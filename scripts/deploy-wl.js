@@ -2,9 +2,6 @@ require("dotenv").config();
 const hre = require("hardhat");
 const ethers = hre.ethers;
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
-const {wl: turfWl} = require("./data/wlTurfWinners.json");
-const {wl: farmWl} = require("./data/wlFarmWinners.json");
-
 const DeployUtils = require("./lib/DeployUtils");
 let deployUtils;
 
@@ -20,10 +17,9 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address, "to", network);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
+  // const wl = await deployUtils.attach("WhitelistSlot");
   const wl = await deployUtils.deploy("WhitelistSlot");
   await wl.setURI("https://api.mob.land/wl/{id}");
-
-  // await wl.mintBatch(deployer.address, [1, 2], [10, 10]);
 }
 
 main()

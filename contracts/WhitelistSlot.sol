@@ -7,8 +7,6 @@ import "@openzeppelin/contracts/utils/Address.sol";
 
 import "./SuperpowerNFT.sol";
 
-//import "hardhat/console.sol";
-
 contract WhitelistSlot is ERC1155, Ownable {
   using Address for address;
 

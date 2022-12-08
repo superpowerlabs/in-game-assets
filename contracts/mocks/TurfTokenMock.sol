@@ -6,8 +6,6 @@ pragma solidity 0.8.11;
 
 import "../tokens/Turf.sol";
 
-//import "hardhat/console.sol";
-
 contract TurfTokenMock is Turf {
   function setGame(address game_) external virtual override onlyOwner {
     game = game_;

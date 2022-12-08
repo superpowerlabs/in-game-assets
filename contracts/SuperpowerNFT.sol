@@ -9,8 +9,6 @@ import "./SuperpowerNFTBase.sol";
 import "./interfaces/ISuperpowerNFT.sol";
 import "./WhitelistSlot.sol";
 
-import "hardhat/console.sol";
-
 abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   error Forbidden();
   error CannotMint();

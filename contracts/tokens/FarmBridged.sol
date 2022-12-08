@@ -6,8 +6,6 @@ pragma solidity 0.8.11;
 
 import "../SuperpowerNFTBase.sol";
 
-//import "hardhat/console.sol";
-
 contract FarmBridged is SuperpowerNFTBase {
   function initialize(string memory tokenUri) public initializer {
     __SuperpowerNFTBase_init("MOBLAND Farm", "mFARM", tokenUri);
