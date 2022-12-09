@@ -1,4 +1,6 @@
 require("dotenv").config();
+const path = require("path");
+const fs = require("fs-extra");
 const hre = require("hardhat");
 const ethers = hre.ethers;
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
@@ -28,9 +30,13 @@ async function main() {
     let ids = [];
     let amounts = [];
     for (let wallet of list) {
+      if (chainId === 56 && wallet[2]) {
+        continue;
+      }
       wallets.push(wallet[0]);
       ids.push([wlId]);
       amounts.push([wallet[1]]);
+      wallet[2] = true;
       i++;
       if (i === 10) {
         await deployUtils.Tx(
@@ -44,8 +50,14 @@ async function main() {
                 }
               : {}
           ),
-          "Airdropping " + wallets.length + " wl for " + (wlId === 1 ? "turf" : "farm") + "To \n" + wallets.join("\n") + "\n"
+          "Airdropping " + +wallets.length + " wl for " + (wlId === 1 ? "turf" : "farm") + " to \n" + wallets.join("\n") + "\n"
         );
+        if (chainId === 56) {
+          await fs.writeFile(
+            path.resolve(__dirname, "data/wl" + (wlId ? "Turf" : "Farm") + "Winners.json"),
+            JSON.stringify(list)
+          );
+        }
         i = 0;
         wallets = [];
         ids = [];
@@ -57,8 +69,14 @@ async function main() {
         wl.mintMany(wallets, ids, amounts, {
           gasLimit: 750000,
         }),
-        "Airdropping " + wallets.length + " wl for " + wlId
+        "Airdropping " + +wallets.length + " wl for " + (wlId === 1 ? "turf" : "farm") + " to \n" + wallets.join("\n") + "\n"
       );
+      if (chainId === 56) {
+        await fs.writeFile(
+          path.resolve(__dirname, "data/wl" + (wlId ? "Turf" : "Farm") + "Winners.json"),
+          JSON.stringify(list)
+        );
+      }
     }
   }
 
