@@ -60,6 +60,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   error NotEnoughTokenForSale();
   error NotEnoughWLSlots();
   error InconsistentArrays();
+  error RepeatedAcceptedToken();
 
   struct Sale {
     uint16 amountForSale;
@@ -138,8 +139,13 @@ contract NftFactory is UUPSUpgradableTemplate {
   ) external onlyOwner {
     if (sales[nftId].amountForSale != sales[nftId].soldTokens) revert ASaleIsActiveForThisNFT();
     if (acceptedTokens.length != wlPrices.length || wlPrices.length != prices.length) revert InconsistentArrays();
+
     for (uint256 i = 0; i < acceptedTokens; i++) {
       if (!paymentTokens[acceptedTokens[i]]) revert InvalidPaymentToken();
+      for (uint256 j = 0; j < acceptedTokens; j++) {
+        if (j == i) continue;
+        if (acceptedTokens[i] == acceptedTokens[j]) revert RepeatedAcceptedToken();
+      }
     }
     sales[nftId] = Sale({
       amountForSale: amountForSale,
