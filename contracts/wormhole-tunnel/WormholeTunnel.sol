@@ -10,8 +10,6 @@ import "./libraries/BytesLib.sol";
 import "./WormholeCommon.sol";
 import "./interfaces/IWormholeTunnel.sol";
 
-import "hardhat/console.sol";
-
 abstract contract WormholeTunnel is IWormholeTunnel, WormholeCommon, Ownable, Pausable, ERC165 {
   using BytesLib for bytes;
 

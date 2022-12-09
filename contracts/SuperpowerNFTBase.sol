@@ -125,6 +125,8 @@ abstract contract SuperpowerNFTBase is
     emit AttributesInitializedFor(_id, game);
   }
 
+  // Attributable implementation
+
   function attributesOf(
     uint256 _id,
     address _player,
@@ -196,7 +198,12 @@ abstract contract SuperpowerNFTBase is
     emit GameSet(game_);
   }
 
-  // locks
+  // ILockable
+  //
+  // When a contract is locked, only the locker is approved
+  // The advantage of locking an NFT instead of staking is that
+  // The owner keeps the ownership of it and can use that, for example,
+  // to access services on Discord via Collab.land verification.
 
   function isLocked(uint256 tokenId) public view override returns (bool) {
     return _lockedBy[tokenId] != address(0);
@@ -266,7 +273,13 @@ abstract contract SuperpowerNFTBase is
     emit ForcefullyUnlocked(tokenId);
   }
 
-  // manage approval
+  // To obtain the lockability, the standard approval and transfer
+  // functions of an ERC721 must be overridden, taking in consideration
+  // the locking status of the NFT.
+
+  // The _beforeTokenTransfer hook is enough to guarantee that a locked
+  // NFT cannot be transferred. Overriding the approval functions, following
+  // OpenZeppelin best practices, avoid the user to spend useless gas.
 
   function approve(address to, uint256 tokenId) public override {
     if (isLocked(tokenId)) {
