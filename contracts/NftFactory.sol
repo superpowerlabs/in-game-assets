@@ -117,7 +117,6 @@ contract NftFactory is UUPSUpgradableTemplate {
   /// @param acceptedTokens an array of tokens accepted to buy the NFT
   /// @param wlPrices an array of whitelisted prices (one for each accepted tokens)
   /// @param prices an array of prices (one for each accepted tokens)
-  /// @return none
   function newSale(
     uint8 nftId,
     uint16 amountForSale,
@@ -145,13 +144,23 @@ contract NftFactory is UUPSUpgradableTemplate {
     emit NewSale(nftId, amountForSale);
   }
 
+  /// @notice Ends (removes) an existing Sale
+  /// @dev this function emits an "EndSale" event for the NFT
+  /// @param nftId the token of the Sale
   function endSale(uint8 nftId) external onlyOwner {
+    // TODO [YB] what happens if the nft id not found? Shouldn't we log an error?
     if (sales[nftId].amountForSale > 0) {
       delete sales[nftId];
       emit EndSale(nftId);
     }
   }
 
+  /// @notice Updates the prices of an existing running  Sale
+  /// @dev this function emits a "NewPriceFor" event for the NFT
+  /// @param nftId the token of the Sale
+  /// @param paymentToken the token to update the price for
+  /// @param wlPrice whitelisted price
+  /// @param price price
   function updatePrice(
     uint8 nftId,
     address paymentToken,
@@ -171,10 +180,17 @@ contract NftFactory is UUPSUpgradableTemplate {
     }
   }
 
+  /// @notice Gets an NFT Sale
+  /// @param nftId the token of the Sale
+  /// @return The struct for the sale of the NFT
   function getSale(uint8 nftId) external view returns (Sale memory) {
     return sales[nftId];
   }
 
+  /// @notice Gets an NFT sale's price
+  /// @param nftId the token of the Sale
+  /// @param paymentToken the payment token the we want the price for
+  /// @return The price of the NFT with this token
   function getPrice(uint8 nftId, address paymentToken) public view returns (uint256) {
     for (uint256 i = 0; i < sales[nftId].acceptedTokens.length; i++) {
       if (sales[nftId].acceptedTokens[i] == paymentToken) {
@@ -184,6 +200,10 @@ contract NftFactory is UUPSUpgradableTemplate {
     revert NFTNotFound();
   }
 
+  /// @notice Gets an NFT sale's price
+  /// @param nftId the token of the Sale
+  /// @param paymentToken the payment token the we want the price for
+  /// @return The whitelistsd price of the NFT with this token
   function getWlPrice(uint8 nftId, address paymentToken) public view returns (uint256) {
     for (uint256 i = 0; i < sales[nftId].acceptedTokens.length; i++) {
       if (sales[nftId].acceptedTokens[i] == paymentToken) {
