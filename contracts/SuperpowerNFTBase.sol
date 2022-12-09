@@ -201,7 +201,7 @@ abstract contract SuperpowerNFTBase is
   // ILockable
   //
   // When a contract is locked, only the locker is approved
-  // Then advantage of locking an NFT instead of staking is that
+  // The advantage of locking an NFT instead of staking is that
   // The owner keeps the ownership of it and can use that, for example,
   // to access services on Discord via Collab.land verification.
 
@@ -273,7 +273,7 @@ abstract contract SuperpowerNFTBase is
     emit ForcefullyUnlocked(tokenId);
   }
 
-  // TO obtain the lockability, the standard approval and transfer
+  // To obtain the lockability, the standard approval and transfer
   // functions of an ERC721 must be overridden, taking in consideration
   // the locking status of the NFT.
 
