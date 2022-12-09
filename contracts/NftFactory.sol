@@ -107,6 +107,17 @@ contract NftFactory is UUPSUpgradableTemplate {
     return SeedToken(paymentToken).symbol();
   }
 
+  /// @notice Creates a new Sale for an NFT
+  /// @dev this function emits a "NewSale" event for the NFT
+  /// @param nftId the token to be sold
+  /// @param amountForSale the amount of token to be sold
+  /// @param startAt the timestamp the sale starts
+  /// @param whitelistUntil the timestamp the sale ends
+  /// @param whitelistedId whitelist slot Id
+  /// @param acceptedTokens an array of tokens accepted to buy the NFT
+  /// @param wlPrices an array of whitelisted prices (one for each accepted tokens)
+  /// @param prices an array of prices (one for each accepted tokens)
+  /// @return none
   function newSale(
     uint8 nftId,
     uint16 amountForSale,
@@ -117,7 +128,9 @@ contract NftFactory is UUPSUpgradableTemplate {
     uint256[] memory wlPrices,
     uint256[] memory prices
   ) external onlyOwner {
+    // reverts if a sale is already active for this NFT
     if (sales[nftId].amountForSale != sales[nftId].soldTokens) revert ASaleIsActiveForThisNFT();
+    // reverts if inconsistencies are detected in price and whitelisted price definition
     if (acceptedTokens.length != wlPrices.length || wlPrices.length != prices.length) revert InconsistentArrays();
     sales[nftId] = Sale({
       amountForSale: amountForSale,
