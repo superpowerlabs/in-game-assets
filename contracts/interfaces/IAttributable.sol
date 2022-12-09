@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 // Author:
 // Francesco Sullo <francesco@sullo.co>
 // Taken from https://github.com/ndujaLabs/attributable
+//import "hardhat/console.sol";
 
 /**
    @title IAttributable Cross-player On-chain Attributes

@@ -32,15 +32,23 @@ async function main() {
       ids.push([wlId]);
       amounts.push([wallet[1]]);
       i++;
-      if (i === 20) {
+      if (i === 10) {
         await deployUtils.Tx(
-          wl.mintMany(wallets, ids, amounts, {
-            gasLimit: 750000,
-          }),
-          "Airdropping " + wallets.length + " wl for " + (wlId === 1 ? "turf" : "farm")
+          wl.mintMany(
+            wallets,
+            ids,
+            amounts,
+            chainId !== 1337
+              ? {
+                  gasLimit: 400000,
+                }
+              : {}
+          ),
+          "Airdropping " + wallets.length + " wl for " + (wlId === 1 ? "turf" : "farm") + "To \n" + wallets.join("\n") + "\n"
         );
         i = 0;
         wallets = [];
+        ids = [];
         amounts = [];
       }
     }
