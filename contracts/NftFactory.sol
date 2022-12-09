@@ -138,6 +138,9 @@ contract NftFactory is UUPSUpgradableTemplate {
   ) external onlyOwner {
     if (sales[nftId].amountForSale != sales[nftId].soldTokens) revert ASaleIsActiveForThisNFT();
     if (acceptedTokens.length != wlPrices.length || wlPrices.length != prices.length) revert InconsistentArrays();
+    for (uint256 i = 0; i < acceptedTokens; i++) {
+      if (!paymentTokens[acceptedTokens[i]]) revert InvalidPaymentToken();
+    }
     sales[nftId] = Sale({
       amountForSale: amountForSale,
       soldTokens: 0,
