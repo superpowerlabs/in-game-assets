@@ -74,9 +74,9 @@ contract NftFactory is UUPSUpgradableTemplate {
   }
 
   /// @notice Activate or disactivate a payment token
-  /// @dev activates payment token if "active" is true, removes it from the paymentTokens if "active" is false
+  /// @dev activates payment token or removes it from the paymentTokens if "active" is false
   /// @param paymentToken address of the payment token
-  /// @param active
+  /// @param active activate or disactivate a payment token
   function setPaymentToken(address paymentToken, bool active) external onlyOwner {
     if (active) {
       if (!paymentToken.isContract()) revert NotAContract();
