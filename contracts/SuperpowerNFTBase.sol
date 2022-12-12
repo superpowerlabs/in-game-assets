@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.11;
+pragma solidity 0.8.17;
 
 // The staking part is taken from Everdragons2GenesisV2 contract
 // https://github.com/ndujaLabs/everdragons2-core/blob/main/contracts/Everdragons2GenesisV2.sol
@@ -281,28 +281,33 @@ abstract contract SuperpowerNFTBase is
   // NFT cannot be transferred. Overriding the approval functions, following
   // OpenZeppelin best practices, avoid the user to spend useless gas.
 
-  function approve(address to, uint256 tokenId) public override {
+  function approve(address to, uint256 tokenId) public override(IERC721Upgradeable, ERC721Upgradeable) {
     if (isLocked(tokenId)) {
       revert LockedAsset();
     }
     super.approve(to, tokenId);
   }
 
-  function getApproved(uint256 tokenId) public view override returns (address) {
+  function getApproved(uint256 tokenId) public view override(IERC721Upgradeable, ERC721Upgradeable) returns (address) {
     if (isLocked(tokenId)) {
       return address(0);
     }
     return super.getApproved(tokenId);
   }
 
-  function setApprovalForAll(address operator, bool approved) public override {
+  function setApprovalForAll(address operator, bool approved) public override(IERC721Upgradeable, ERC721Upgradeable) {
     if (approved && hasLocks(_msgSender())) {
       revert AtLeastOneLockedAsset();
     }
     super.setApprovalForAll(operator, approved);
   }
 
-  function isApprovedForAll(address owner, address operator) public view override returns (bool) {
+  function isApprovedForAll(address owner, address operator)
+    public
+    view
+    override(IERC721Upgradeable, ERC721Upgradeable)
+    returns (bool)
+  {
     if (hasLocks(owner)) {
       return false;
     }

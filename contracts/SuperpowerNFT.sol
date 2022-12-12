@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.11;
+pragma solidity 0.8.17;
 
 // Inspired by Everdragons2 NFTs, https://everdragons2.com
 // Authors: Francesco Sullo <francesco@superpower.io>
