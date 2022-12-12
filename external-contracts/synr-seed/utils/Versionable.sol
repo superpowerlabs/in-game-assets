@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.11;
+pragma solidity 0.8.17;
 
 // Author: Francesco Sullo <francesco@sullo.co>
 // (c) 2022+ SuperPower Labs Inc.
