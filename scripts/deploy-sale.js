@@ -33,32 +33,16 @@ async function main() {
 
   const factory = await deployUtils.attach("NftFactory");
 
-  const now = (await provider.getBlock()).timestamp;
+  // 2022-12-14T17:30:00.000Z
+  const startAt = 1671039000;
+  const wlEndAt = startAt + 3600 * 24 * 5;
 
   await deployUtils.Tx(
-    factory.newSale(
-      1,
-      135,
-      now,
-      now + 3600 * 72,
-      1,
-      [busd.address, seed.address],
-      [pe(419), pe(220500)],
-      [pe(599), pe(295000)]
-    ),
+    factory.newSale(1, 135, startAt, wlEndAt, 1, [busd.address, seed.address], [pe(420), pe(220500)], [pe(599), pe(295000)]),
     "Setting sale for turf"
   );
   await deployUtils.Tx(
-    factory.newSale(
-      2,
-      1250,
-      now,
-      now + 3600 * 72,
-      2,
-      [busd.address, seed.address],
-      [pe(209), pe(110000)],
-      [pe(299), pe(147500)]
-    ),
+    factory.newSale(2, 1250, startAt, wlEndAt, 2, [busd.address, seed.address], [pe(215), pe(110000)], [pe(299), pe(147500)]),
     "Setting sale for farm"
   );
 }
