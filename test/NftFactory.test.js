@@ -91,16 +91,19 @@ describe("NftFactory", function () {
         [pe("100"), pe("10000")],
         [pe("130"), pe("13000")]
       );
+      // new sale and update
+      // TODO test it separately
       await factory.newSale(
         2,
-        300,
+        100,
         ts,
-        ts + 1000,
+        ts + 200,
         2,
         [busd.address, seed.address],
-        [pe("100"), pe("10000")],
-        [pe("130"), pe("13000")]
+        [pe("90"), pe("9000")],
+        [pe("100"), pe("10000")]
       );
+      await factory.updateSale(2, 300, ts + 1000, [pe("100"), pe("10000")], [pe("130"), pe("13000")]);
     }
   }
 
