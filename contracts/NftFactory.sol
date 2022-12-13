@@ -226,6 +226,8 @@ contract NftFactory is UUPSUpgradableTemplate {
         sales[nftId].prices = prices;
       }
       emit SaleUpdated(nftId);
+    } else {
+      revert SaleNotFoundMaybeEnded();
     }
   }
 
@@ -236,6 +238,8 @@ contract NftFactory is UUPSUpgradableTemplate {
     if (sales[nftId].amountForSale > 0) {
       delete sales[nftId];
       emit EndSale(nftId);
+    } else {
+      revert SaleNotFoundMaybeEnded();
     }
   }
 
