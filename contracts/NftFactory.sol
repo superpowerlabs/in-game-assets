@@ -45,6 +45,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   event NftRemovedFromSale(uint8 nftId, address nft);
   event NewSale(uint8 nftId, uint16 amountForSale);
   event EndSale(uint8 nftId);
+  event SaleUpdated(uint8 nftId);
 
   error NotAFactoryForThisNFT(uint256 id);
   error NotAContract();
@@ -61,6 +62,8 @@ contract NftFactory is UUPSUpgradableTemplate {
   error NotEnoughWLSlots();
   error InconsistentArrays();
   error RepeatedAcceptedToken();
+  error InvalidAmountForSale();
+  error OnlyOneTokeForTransactionInPublicSale();
 
   struct Sale {
     uint16 amountForSale;
@@ -168,6 +171,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   ) external onlyOwner {
     // reverts if a sale is already active for this NFT
     if (sales[nftId].amountForSale != sales[nftId].soldTokens) revert ASaleIsActiveForThisNFT();
+    if (amountForSale == 0) revert InvalidAmountForSale();
     // reverts if inconsistencies are detected in price and whitelisted price definition
     if (acceptedTokens.length != wlPrices.length || wlPrices.length != prices.length) revert InconsistentArrays();
     for (uint256 i = 0; i < acceptedTokens.length; i++) {
@@ -176,6 +180,10 @@ contract NftFactory is UUPSUpgradableTemplate {
         if (j == i) continue;
         if (acceptedTokens[i] == acceptedTokens[j]) revert RepeatedAcceptedToken();
       }
+    }
+    if (whitelistUntil == 0) {
+      // no whitelist round
+      whitelistUntil = startAt;
     }
     sales[nftId] = Sale({
       amountForSale: amountForSale,
@@ -190,14 +198,49 @@ contract NftFactory is UUPSUpgradableTemplate {
     emit NewSale(nftId, amountForSale);
   }
 
+  /// @notice Update an existing Sale
+  /// @dev this function emits an "SaleUpdated" event for the NFT
+  /// @param nftId the token of the Sale
+  /// @param amountForSale a larger amount for sale
+  /// @param whitelistUntil a new end of the WL period, to anticipate or delay it
+  /// @param wlPrices updated prices for WL
+  /// @param prices updated prices for not-WL
+  function updateSale(
+    uint8 nftId,
+    uint16 amountForSale,
+    uint32 whitelistUntil,
+    uint256[] memory wlPrices,
+    uint256[] memory prices
+  ) external onlyOwner {
+    if (sales[nftId].amountForSale > 0) {
+      if (amountForSale > sales[nftId].amountForSale) {
+        sales[nftId].amountForSale = amountForSale;
+      }
+      if (whitelistUntil != 0) {
+        sales[nftId].whitelistUntil = whitelistUntil;
+      }
+      // an empty array is ignored
+      if (wlPrices.length == sales[nftId].wlPrices.length) {
+        sales[nftId].wlPrices = wlPrices;
+      }
+      if (prices.length == sales[nftId].prices.length) {
+        sales[nftId].prices = prices;
+      }
+      emit SaleUpdated(nftId);
+    } else {
+      revert SaleNotFoundMaybeEnded();
+    }
+  }
+
   /// @notice Ends (removes) an existing Sale
   /// @dev this function emits an "EndSale" event for the NFT
   /// @param nftId the token of the Sale
   function endSale(uint8 nftId) external onlyOwner {
-    // TODO [YB] what happens if the nft id not found? Shouldn't we log an error?
     if (sales[nftId].amountForSale > 0) {
       delete sales[nftId];
       emit EndSale(nftId);
+    } else {
+      revert SaleNotFoundMaybeEnded();
     }
   }
 
@@ -281,6 +324,7 @@ contract NftFactory is UUPSUpgradableTemplate {
       if (_wl.balanceOf(_msgSender(), sales[nftId].whitelistedId) < amount) revert NotEnoughWLSlots();
       tokenAmount = getWlPrice(nftId, paymentToken);
     } else {
+      if (amount > 1) revert OnlyOneTokeForTransactionInPublicSale();
       tokenAmount = getPrice(nftId, paymentToken);
     }
     proceedsBalances[paymentToken] += tokenAmount;

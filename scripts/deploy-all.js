@@ -25,11 +25,13 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const turf = await deployUtils.deployProxy("Turf", "https://api.mob.land/meta/turfs/");
-  const farm = await deployUtils.deployProxy("Farm", "https://api.mob.land/meta/farms/");
+  const turf = await deployUtils.deployProxy("Turf", "https://meta.mob.land/turf/");
+  const farm = await deployUtils.deployProxy("Farm", "https://meta.mob.land/farm/");
 
   const seed = chainId === 56 ? await deployUtils.attach("SeedToken") : await deployUtils.deployProxy("SeedTokenMock");
-  const busd = chainId === 56 ? "0xe9e7cea3dedca5984780bafc599bd69add087d56" : await deployUtils.deployProxy("BUSDMock");
+  const busd =
+    chainId === 56 ? {address: "0xe9e7cea3dedca5984780bafc599bd69add087d56"} : await deployUtils.deployProxy("BUSDMock");
+  // : await deployUtils.attach("BUSDMock");
 
   const factory = await deployUtils.deployProxy("NftFactory");
   await factory.setPaymentToken(seed.address, true);
@@ -39,8 +41,8 @@ async function main() {
   await farm.setMaxSupply(1250);
 
   await deployUtils.Tx(
-    turf.mint(process.env.TURF_OWNER || deployer.address, 15, {gasLimit: 2000000}),
-    "Minting turf 1-15 to " + (process.env.TURF_OWNER || deployer.address)
+    turf.mint(process.env.TURF_OWNER, 15, {gasLimit: 2000000}),
+    "Minting turf 1-15 to " + process.env.TURF_OWNER
   );
 
   // const turf = await deployUtils.attach("Turf");
@@ -49,9 +51,9 @@ async function main() {
   // const busd = await deployUtils.attach("BUSDMock");
   // const factory = await deployUtils.attach("NftFactory");
 
-  const wl = await deployUtils.deploy("WhitelistSlot");
+  // const wl = await deployUtils.deploy("WhitelistSlot");
+  const wl = await deployUtils.attach("WhitelistSlot");
   await wl.setBurner(factory.address);
-  await wl.setURI("https://api.mob.land/meta/wl");
   for (let id = 1; id <= 2; id++) {
     let nft = id === 1 ? turf : farm;
     await nft.setFactory(factory.address, true);
@@ -60,36 +62,36 @@ async function main() {
 
   await factory.setWl(wl.address);
 
-  await wl.mintBatch(deployer.address, [1, 2], [10, 10]);
+  // await wl.mintBatch(deployer.address, [1, 2], [10, 10]);
 
-  const now = (await provider.getBlock()).timestamp;
+  // const now = (await provider.getBlock()).timestamp;
 
-  await deployUtils.Tx(
-    factory.newSale(
-      1,
-      135,
-      now,
-      now + 3600 * 72,
-      1,
-      [busd.address, seed.address],
-      [pe(419), pe(220500)],
-      [pe(599), pe(295000)]
-    ),
-    "Setting sale for turf"
-  );
-  await deployUtils.Tx(
-    factory.newSale(
-      2,
-      1250,
-      now,
-      now + 3600 * 72,
-      2,
-      [busd.address, seed.address],
-      [pe(209), pe(110000)],
-      [pe(299), pe(147500)]
-    ),
-    "Setting sale for farm"
-  );
+  // await deployUtils.Tx(
+  //   factory.newSale(
+  //     1,
+  //     135,
+  //     now,
+  //     now + 3600 * 72,
+  //     1,
+  //     [busd.address, seed.address],
+  //     [pe(419), pe(220500)],
+  //     [pe(599), pe(295000)]
+  //   ),
+  //   "Setting sale for turf"
+  // );
+  // await deployUtils.Tx(
+  //   factory.newSale(
+  //     2,
+  //     1250,
+  //     now,
+  //     now + 3600 * 72,
+  //     2,
+  //     [busd.address, seed.address],
+  //     [pe(209), pe(110000)],
+  //     [pe(299), pe(147500)]
+  //   ),
+  //   "Setting sale for farm"
+  // );
 }
 
 main()
