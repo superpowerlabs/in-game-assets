@@ -23,15 +23,6 @@ async function main() {
   const turf = await deployUtils.deployProxy("Turf", "https://meta.mob.land/turf/");
   const farm = await deployUtils.deployProxy("Farm", "https://meta.mob.land/farm/");
 
-  const seed = chainId === 56 ? await deployUtils.attach("SeedToken") : await deployUtils.deployProxy("SeedTokenMock");
-  const busd =
-    chainId === 56 ? {address: "0xe9e7cea3dedca5984780bafc599bd69add087d56"} : await deployUtils.deployProxy("BUSDMock");
-  // : await deployUtils.attach("BUSDMock");
-
-  const factory = await deployUtils.deployProxy("NftFactory");
-  await factory.setPaymentToken(seed.address, true);
-  await factory.setPaymentToken(busd.address, true);
-
   await turf.setMaxSupply(150);
   await farm.setMaxSupply(1250);
 
@@ -39,16 +30,6 @@ async function main() {
     turf.mint(process.env.TURF_OWNER, 15, {gasLimit: 2000000}),
     "Minting turf 1-15 to " + process.env.TURF_OWNER
   );
-
-  // const turf = await deployUtils.attach("Turf");
-  // const farm = await deployUtils.attach("Farm");
-  // const seed = await deployUtils.attach("SeedTokenMock");
-  // const busd = await deployUtils.attach("BUSDMock");
-  // const factory = await deployUtils.attach("NftFactory");
-
-  // const wl = await deployUtils.deploy("WhitelistSlot");
-  const wl = await deployUtils.attach("WhitelistSlot");
-  await deployUtils.Tx(wl.setBurner(factory.address), "Set burner in WL");
 }
 
 main()

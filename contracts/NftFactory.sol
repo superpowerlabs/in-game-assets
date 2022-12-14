@@ -13,6 +13,8 @@ import "./interfaces/ISuperpowerNFT.sol";
 import "./soliutils/UUPSUpgradableTemplate.sol";
 import "./WhitelistSlot.sol";
 
+import "hardhat/console.sol";
+
 /*
 About ownership and upgradeability
 
@@ -318,20 +320,20 @@ contract NftFactory is UUPSUpgradableTemplate {
     if (sales[nftId].amountForSale == 0) revert SaleNotFound();
     if (sales[nftId].soldTokens == sales[nftId].amountForSale) revert SaleEnded();
     if (amount > sales[nftId].amountForSale - sales[nftId].soldTokens) revert NotEnoughTokenForSale();
-    uint256 tokenAmount;
+    uint256 payment;
 
     // solhint-disable-next-line not-rely-on-time
     bool isWl = block.timestamp < sales[nftId].whitelistUntil;
     if (isWl) {
       if (_wl.balanceOf(_msgSender(), sales[nftId].whitelistedId) < amount) revert NotEnoughWLSlots();
-      tokenAmount = getWlPrice(nftId, paymentToken);
+      payment = getWlPrice(nftId, paymentToken).mul(amount);
     } else {
       if (amount > 1) revert OnlyOneTokenForTransactionInPublicSale();
-      tokenAmount = getPrice(nftId, paymentToken);
+      payment = getPrice(nftId, paymentToken);
     }
-    proceedsBalances[paymentToken] += tokenAmount;
+    proceedsBalances[paymentToken] += payment;
     sales[nftId].soldTokens += uint16(amount);
-    SideToken(paymentToken).transferFrom(_msgSender(), address(this), tokenAmount);
+    SideToken(paymentToken).transferFrom(_msgSender(), address(this), payment);
     _nfts[nftId].mint(_msgSender(), amount);
     if (isWl) {
       _wl.burn(_msgSender(), sales[nftId].whitelistedId, amount);
@@ -353,6 +355,6 @@ contract NftFactory is UUPSUpgradableTemplate {
     }
     if (amount > proceedsBalances[paymentToken]) revert InsufficientFunds();
     proceedsBalances[paymentToken] -= amount;
-    SideToken(paymentToken).transferFrom(address(this), beneficiary, amount);
+    SideToken(paymentToken).transfer(beneficiary, amount);
   }
 }

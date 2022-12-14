@@ -27,8 +27,14 @@ async function main() {
   const seed = chainId === 56 ? await deployUtils.attach("SeedToken") : await deployUtils.attach("SeedTokenMock");
   const busd = chainId === 56 ? {address: "0xe9e7cea3dedca5984780bafc599bd69add087d56"} : await deployUtils.attach("BUSDMock");
 
-  const factory = await deployUtils.attach("NftFactory");
   const wl = await deployUtils.attach("WhitelistSlot");
+  const factory = await deployUtils.deployProxy("NftFactory");
+
+  await factory.setPaymentToken(seed.address, true);
+  await factory.setPaymentToken(busd.address, true);
+
+  await deployUtils.Tx(wl.setBurner(factory.address), "Set burner in WL");
+
   const turf = await deployUtils.attach("Turf");
   const farm = await deployUtils.attach("Farm");
 
