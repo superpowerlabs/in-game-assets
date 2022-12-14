@@ -238,11 +238,17 @@ describe("NftFactory", function () {
 
       await increaseBlockTimestampBy((await getCurrentTimestamp()) + 1e4 + 10);
 
-      expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 3))
+      await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 3)).revertedWith(
+        "OnlyOneTokeForTransactionInPublicSale()"
+      );
+
+      expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 1)
+        .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 1);
+      expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 2)
+        .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 2);
+      expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 3);
 

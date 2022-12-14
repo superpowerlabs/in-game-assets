@@ -63,6 +63,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   error InconsistentArrays();
   error RepeatedAcceptedToken();
   error InvalidAmountForSale();
+  error OnlyOneTokeForTransactionInPublicSale();
 
   struct Sale {
     uint16 amountForSale;
@@ -323,6 +324,7 @@ contract NftFactory is UUPSUpgradableTemplate {
       if (_wl.balanceOf(_msgSender(), sales[nftId].whitelistedId) < amount) revert NotEnoughWLSlots();
       tokenAmount = getWlPrice(nftId, paymentToken);
     } else {
+      if (amount > 1) revert OnlyOneTokeForTransactionInPublicSale();
       tokenAmount = getPrice(nftId, paymentToken);
     }
     proceedsBalances[paymentToken] += tokenAmount;
