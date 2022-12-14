@@ -2,17 +2,12 @@ lockfileVersion: 5.4
 
 specifiers:
   '@ethersproject/contracts': ^5.6.2
-  '@ndujalabs/attributable': ^0.0.3
-  '@ndujalabs/erc721playable': 0.6.1
-  '@ndujalabs/lockable': ^0.0.2
-  '@ndujalabs/wormhole-tunnel': 0.4.0
-  '@ndujalabs/wormhole721': ^0.5.3
   '@nomiclabs/hardhat-ethers': ^2.0.3
   '@nomiclabs/hardhat-etherscan': ^2.1.8
   '@nomiclabs/hardhat-waffle': ^2.0.1
   '@openzeppelin/contracts': ^4.5.0
   '@openzeppelin/contracts-upgradeable': ^4.5.0
-  '@openzeppelin/hardhat-upgrades': ^1.12.0
+  '@openzeppelin/hardhat-upgrades': ^1.21.0
   '@poanet/solidity-flattener': ^3.0.6
   chai: ^4.3.4
   cryptoenv: ^0.2.0
@@ -36,22 +31,16 @@ specifiers:
   require-or-mock: ^0.2.1
   solhint: ^3.3.6
   solidity-coverage: ^0.7.21
-  soliutils: 0.0.6
   typescript: ^4.7.3
 
 devDependencies:
   '@ethersproject/contracts': 5.6.2
-  '@ndujalabs/attributable': 0.0.3
-  '@ndujalabs/erc721playable': 0.6.1
-  '@ndujalabs/lockable': 0.0.2
-  '@ndujalabs/wormhole-tunnel': 0.4.0
-  '@ndujalabs/wormhole721': 0.5.3
   '@nomiclabs/hardhat-ethers': 2.0.4_ethers@5.5.4+hardhat@2.8.3
   '@nomiclabs/hardhat-etherscan': 2.1.8_hardhat@2.8.3
   '@nomiclabs/hardhat-waffle': 2.0.2_6oy2mnnnyf6xpql55mxsdlbst4
   '@openzeppelin/contracts': 4.5.0
   '@openzeppelin/contracts-upgradeable': 4.5.0
-  '@openzeppelin/hardhat-upgrades': 1.14.0_obecqhgvcrl56ghqkup63xikwu
+  '@openzeppelin/hardhat-upgrades': 1.21.0_kt2bb34tk6drucgqtuhpnmxvru
   '@poanet/solidity-flattener': 3.0.6_glob@7.2.0
   chai: 4.3.6
   cryptoenv: 0.2.0
@@ -75,7 +64,6 @@ devDependencies:
   require-or-mock: 0.2.1
   solhint: 3.3.7
   solidity-coverage: 0.7.21
-  soliutils: 0.0.6
   typescript: 4.7.3
 
 packages:
@@ -776,36 +764,6 @@ packages:
     resolution: {integrity: sha512-eMk0b9ReBbV23xXU693TAIrLyeO5iTgBZGSJfpqriG8UkYvr/hC9u9pyMlAakDNHWmbhMZCDs6KQO0jzKD8OTw==}
     dev: true
 
-  /@ndujalabs/attributable/0.0.3:
-    resolution: {integrity: sha512-gubxCQ+j9n3kdG4InaA6qbGI9Qs/MQxRn7qzRq2OI7u7DDPwp5K3hh2Lf45IoryTeQObyVeBqymb2JKQQcbtIw==}
-    dev: true
-
-  /@ndujalabs/erc721playable/0.6.1:
-    resolution: {integrity: sha512-UCUzwJnqOj9guarHQNpJ+xrvwQU/iDiwgLWrJuTTnQR+C4a3dy5rp1Mk190ia9ZVujCDTkfEz/pDb8cNH7aP+w==}
-    dependencies:
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
-    dev: true
-
-  /@ndujalabs/lockable/0.0.2:
-    resolution: {integrity: sha512-gck3BN+ul4aalrM8srCpdkyLKUID4JelJ0R6Sr6zfTqUaEIgyJvf8rwwyyYv637mJPcNJbdIvlH2YbDl28aYwQ==}
-    dev: true
-
-  /@ndujalabs/wormhole-tunnel/0.4.0:
-    resolution: {integrity: sha512-OpmaD2vRzkpcyUgKuE9Uc2oFs9gt0AWGyHMjrmNRb6sNt/DyZzwH/rXyVxYBEaLbjqb/3V8F05vpbWzyTgkmFA==}
-    dependencies:
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
-    dev: true
-
-  /@ndujalabs/wormhole721/0.5.3:
-    resolution: {integrity: sha512-JvNr10alOFqxOWC9UICXpQvKaY+zkYNnTtJy1BvJWBGSLy7Nv25NgPhRhVq1dpdSmXpkctjlvG/YVAZqePlHnA==}
-    dependencies:
-      '@ndujalabs/wormhole-tunnel': 0.4.0
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
-    dev: true
-
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -879,28 +837,37 @@ packages:
     resolution: {integrity: sha512-fdkzKPYMjrRiPK6K4y64e6GzULR7R7RwxSigHS8DDp7aWDeoReqsQI+cxHV1UuhAqX69L1lAaWDxenfP+xiqzA==}
     dev: true
 
-  /@openzeppelin/hardhat-upgrades/1.14.0_obecqhgvcrl56ghqkup63xikwu:
-    resolution: {integrity: sha512-dWLC+cgawHcZ5AbEblA3nTrBpcG9J7Z7J5UmM7qdsc/Yc97USJjXfcD6uYOQ+PhyFVBY0Ni83WGVll48d4QRWQ==}
+  /@openzeppelin/hardhat-upgrades/1.21.0_kt2bb34tk6drucgqtuhpnmxvru:
+    resolution: {integrity: sha512-Kwl7IN0Hlhj4HluMTTl0DrtU90OI/Q6rG3sAyd2pv3fababe9EuZqs9DydOlkWM45JwTzC+eBzX3TgHsqI13eA==}
     hasBin: true
     peerDependencies:
       '@nomiclabs/hardhat-ethers': ^2.0.0
+      '@nomiclabs/hardhat-etherscan': ^3.1.0
+      '@nomiclabs/harhdat-etherscan': '*'
+      ethers: ^5.0.5
       hardhat: ^2.0.2
+    peerDependenciesMeta:
+      '@nomiclabs/harhdat-etherscan':
+        optional: true
     dependencies:
       '@nomiclabs/hardhat-ethers': 2.0.4_ethers@5.5.4+hardhat@2.8.3
-      '@openzeppelin/upgrades-core': 1.12.0
+      '@nomiclabs/hardhat-etherscan': 2.1.8_hardhat@2.8.3
+      '@openzeppelin/upgrades-core': 1.20.5
       chalk: 4.1.2
+      debug: 4.3.3
+      ethers: 5.5.4
       hardhat: 2.8.3
+      proper-lockfile: 4.1.2
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@openzeppelin/upgrades-core/1.12.0:
-    resolution: {integrity: sha512-gu/ijQW+RJqGlniNkpNmiwBus3R1cuJNT0/MEJASWRFNr4Qvn0d7LZONaAkhnvlBpxdiiPenMcFIrRlwvZL4iw==}
+  /@openzeppelin/upgrades-core/1.20.5:
+    resolution: {integrity: sha512-Wp4uUov9/8cY0H4xHYsGCkLh0EItrpusSdQPWOTI1Q/YDDfu4uTH3LYyTeVAavzEvkAuKCCuTOPnZBibLZGxSw==}
     dependencies:
-      bn.js: 5.2.0
       cbor: 8.1.0
       chalk: 4.1.2
-      compare-versions: 4.1.3
+      compare-versions: 5.0.3
       debug: 4.3.3
       ethereumjs-util: 7.1.4
       proper-lockfile: 4.1.2
@@ -2971,8 +2938,8 @@ packages:
     resolution: {integrity: sha512-Gar0ASD4BDyKC4hl4DwHqDrmvjoxWKZigVnAbn5H1owvm4CxCPdb0HQDehwNYMJpla5+M2tPmPARzhtYuwpHow==}
     dev: true
 
-  /compare-versions/4.1.3:
-    resolution: {integrity: sha512-WQfnbDcrYnGr55UwbxKiQKASnTtNnaAWVi8jZyy8NTpVAXWACSne8lMD1iaIo9AiU6mnuLvSVshCzewVuWxHUg==}
+  /compare-versions/5.0.3:
+    resolution: {integrity: sha512-4UZlZP8Z99MGEY+Ovg/uJxJuvoXuN4M6B3hKaiackiHrgzQFEe3diJi1mf1PNHbFujM7FvLrK2bpgIaImbtZ1A==}
     dev: true
 
   /component-emitter/1.3.0:
@@ -4176,7 +4143,7 @@ packages:
     engines: {node: '>=10.0.0'}
     dependencies:
       '@types/bn.js': 5.1.0
-      bn.js: 5.2.0
+      bn.js: 5.2.1
       create-hash: 1.2.0
       ethereum-cryptography: 0.1.3
       rlp: 2.2.7
@@ -8602,7 +8569,7 @@ packages:
     dev: true
 
   /retry/0.12.0:
-    resolution: {integrity: sha1-G0KmJmoh8HQh0bC1S33BZ7AcATs=}
+    resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
     engines: {node: '>= 4'}
     dev: true
 
@@ -8644,7 +8611,7 @@ packages:
     resolution: {integrity: sha512-d5gdPmgQ0Z+AklL2NVXr/IoSjNZFfTVvQWzL/AM2AOcSzYP2xjlb0AC8YyCLc41MSNf6P6QVtjgPdmVtzb+4lQ==}
     hasBin: true
     dependencies:
-      bn.js: 5.2.0
+      bn.js: 5.2.1
     dev: true
 
   /run-async/2.4.1:
@@ -9137,13 +9104,6 @@ packages:
       - utf-8-validate
     dev: true
 
-  /soliutils/0.0.6:
-    resolution: {integrity: sha512-2JNbZ3K0D9WUkauhaRIp1m5AoPbOw2VFoDWipyrF8JpjvmCs1ZEd7n6u4SeUR4/skd8o5dTY/guW6O9j0EBzVw==}
-    dependencies:
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
-    dev: true
-
   /source-map-resolve/0.5.3:
     resolution: {integrity: sha512-Htz+RnsXWk5+P2slx5Jh3Q66vhQj1Cllm0zvnaY98+NFx+Dv2CF/f5O/t8x+KaNdrdIAsruNzoh/KpialbqAnw==}
     deprecated: See https://github.com/lydell/source-map-resolve#deprecated
@@ -9354,7 +9314,7 @@ packages:
     dev: true
 
   /string_decoder/0.10.31:
-    resolution: {integrity: sha1-YuIDvEF2bGwoyfyEMB2rHFMQ+pQ=}
+    resolution: {integrity: sha512-ev2QzSzWPYmy9GuqfIVildA4OdcGLeFZQrq5ys6RtiuF+RQQiZWr8TZNyAcuVXyQRYfEO+MsoB/1BuQVhOJuoQ==}
     dev: true
 
   /string_decoder/1.1.1:
@@ -9983,7 +9943,7 @@ packages:
     dev: true
 
   /util-deprecate/1.0.2:
-    resolution: {integrity: sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=}
+    resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
 
   /util.promisify/1.1.1:

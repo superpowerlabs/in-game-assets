@@ -13,7 +13,7 @@ import "./interfaces/ISuperpowerNFT.sol";
 import "./soliutils/UUPSUpgradableTemplate.sol";
 import "./WhitelistSlot.sol";
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 /*
 About ownership and upgradeability
