@@ -44,7 +44,7 @@ describe("NftFactory", function () {
 
     await farm.mint(owner.address, 3);
 
-    busd = await deployUtils.deployProxy("SeedTokenMock");
+    busd = await deployUtils.deployProxy("BUSDMock");
     await busd.deployed();
     await busd.mint(whitelisted.address, usdAmount);
     await busd.mint(notWhitelisted.address, usdAmount);
@@ -150,6 +150,11 @@ describe("NftFactory", function () {
         .withArgs(whitelisted.address, notWhitelisted.address, 1);
     });
 
+    it("should get symbols of payment token", async function () {
+      expect(await factory.getPaymentTokenSymbol(seed.address)).equal("SEED");
+      expect(await factory.getPaymentTokenSymbol(busd.address)).equal("BUSD");
+    });
+
     it("should get info about the tokens for sale", async function () {
       expect(await factory.getNftAddressById(1)).equal(turf.address);
       expect(await factory.getNftAddressById(2)).equal(farm.address);
@@ -239,7 +244,7 @@ describe("NftFactory", function () {
       await increaseBlockTimestampBy((await getCurrentTimestamp()) + 1e4 + 10);
 
       await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 3)).revertedWith(
-        "OnlyOneTokeForTransactionInPublicSale()"
+        "OnlyOneTokenForTransactionInPublicSale()"
       );
 
       expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
