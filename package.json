@@ -51,5 +51,8 @@
   },
   "lint-staged": {
     "*.js": "prettier --write"
+  },
+  "dependencies": {
+    "@ndujalabs/attributable": "^0.0.4"
   }
 }

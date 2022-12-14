@@ -2,11 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@ethersproject/contracts': ^5.6.2
-  '@ndujalabs/attributable': ^0.0.3
-  '@ndujalabs/erc721playable': 0.6.1
-  '@ndujalabs/lockable': ^0.0.2
-  '@ndujalabs/wormhole-tunnel': 0.4.0
-  '@ndujalabs/wormhole721': ^0.5.3
+  '@ndujalabs/attributable': ^0.0.4
   '@nomiclabs/hardhat-ethers': ^2.0.3
   '@nomiclabs/hardhat-etherscan': ^2.1.8
   '@nomiclabs/hardhat-waffle': ^2.0.1
@@ -36,16 +32,13 @@ specifiers:
   require-or-mock: ^0.2.1
   solhint: ^3.3.6
   solidity-coverage: ^0.7.21
-  soliutils: 0.0.6
   typescript: ^4.7.3
+
+dependencies:
+  '@ndujalabs/attributable': 0.0.4
 
 devDependencies:
   '@ethersproject/contracts': 5.6.2
-  '@ndujalabs/attributable': 0.0.3
-  '@ndujalabs/erc721playable': 0.6.1
-  '@ndujalabs/lockable': 0.0.2
-  '@ndujalabs/wormhole-tunnel': 0.4.0
-  '@ndujalabs/wormhole721': 0.5.3
   '@nomiclabs/hardhat-ethers': 2.0.4_ethers@5.5.4+hardhat@2.8.3
   '@nomiclabs/hardhat-etherscan': 2.1.8_hardhat@2.8.3
   '@nomiclabs/hardhat-waffle': 2.0.2_6oy2mnnnyf6xpql55mxsdlbst4
@@ -75,7 +68,6 @@ devDependencies:
   require-or-mock: 0.2.1
   solhint: 3.3.7
   solidity-coverage: 0.7.21
-  soliutils: 0.0.6
   typescript: 4.7.3
 
 packages:
@@ -776,35 +768,9 @@ packages:
     resolution: {integrity: sha512-eMk0b9ReBbV23xXU693TAIrLyeO5iTgBZGSJfpqriG8UkYvr/hC9u9pyMlAakDNHWmbhMZCDs6KQO0jzKD8OTw==}
     dev: true
 
-  /@ndujalabs/attributable/0.0.3:
-    resolution: {integrity: sha512-gubxCQ+j9n3kdG4InaA6qbGI9Qs/MQxRn7qzRq2OI7u7DDPwp5K3hh2Lf45IoryTeQObyVeBqymb2JKQQcbtIw==}
-    dev: true
-
-  /@ndujalabs/erc721playable/0.6.1:
-    resolution: {integrity: sha512-UCUzwJnqOj9guarHQNpJ+xrvwQU/iDiwgLWrJuTTnQR+C4a3dy5rp1Mk190ia9ZVujCDTkfEz/pDb8cNH7aP+w==}
-    dependencies:
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
-    dev: true
-
-  /@ndujalabs/lockable/0.0.2:
-    resolution: {integrity: sha512-gck3BN+ul4aalrM8srCpdkyLKUID4JelJ0R6Sr6zfTqUaEIgyJvf8rwwyyYv637mJPcNJbdIvlH2YbDl28aYwQ==}
-    dev: true
-
-  /@ndujalabs/wormhole-tunnel/0.4.0:
-    resolution: {integrity: sha512-OpmaD2vRzkpcyUgKuE9Uc2oFs9gt0AWGyHMjrmNRb6sNt/DyZzwH/rXyVxYBEaLbjqb/3V8F05vpbWzyTgkmFA==}
-    dependencies:
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
-    dev: true
-
-  /@ndujalabs/wormhole721/0.5.3:
-    resolution: {integrity: sha512-JvNr10alOFqxOWC9UICXpQvKaY+zkYNnTtJy1BvJWBGSLy7Nv25NgPhRhVq1dpdSmXpkctjlvG/YVAZqePlHnA==}
-    dependencies:
-      '@ndujalabs/wormhole-tunnel': 0.4.0
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
-    dev: true
+  /@ndujalabs/attributable/0.0.4:
+    resolution: {integrity: sha512-XsRV36KGIc9e9XVSGoaxHsKRoS7RIyS4WD31Srv0hA9G5ocMgZO3kTUodcUOfoL/oGHaJuv2ks24ByC/Rpmfmg==}
+    dev: false
 
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -9135,13 +9101,6 @@ packages:
       - bufferutil
       - supports-color
       - utf-8-validate
-    dev: true
-
-  /soliutils/0.0.6:
-    resolution: {integrity: sha512-2JNbZ3K0D9WUkauhaRIp1m5AoPbOw2VFoDWipyrF8JpjvmCs1ZEd7n6u4SeUR4/skd8o5dTY/guW6O9j0EBzVw==}
-    dependencies:
-      '@openzeppelin/contracts': 4.5.0
-      '@openzeppelin/contracts-upgradeable': 4.5.0
     dev: true
 
   /source-map-resolve/0.5.3:
