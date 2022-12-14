@@ -3,8 +3,8 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@ndujalabs/attributable/contracts/IAttributable.sol";
-import "@ndujalabs/attributable/contracts/IAttributablePlayer.sol";
+import "../interfaces/IAttributable.sol";
+import "../interfaces/IAttributablePlayer.sol";
 
 contract PlayerMock is IAttributablePlayer, Ownable {
   address internal _operator;
