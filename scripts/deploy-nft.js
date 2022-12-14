@@ -23,8 +23,8 @@ async function main() {
   const turf = await deployUtils.deployProxy("Turf", "https://meta.mob.land/turf/");
   const farm = await deployUtils.deployProxy("Farm", "https://meta.mob.land/farm/");
 
-  await turf.setMaxSupply(150);
-  await farm.setMaxSupply(1250);
+  await turf.setMaxSupply(600);
+  await farm.setMaxSupply(5000);
 
   await deployUtils.Tx(
     turf.mint(process.env.TURF_OWNER, 15, {gasLimit: 2000000}),
