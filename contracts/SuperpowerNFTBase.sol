@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./wormhole721/Wormhole721Upgradeable.sol";
+import "./wormhole-tunnel/WormholeTunnelUpgradeable.sol";
 
 import "./interfaces/IAttributable.sol";
 import "./interfaces/ISuperpowerNFTBase.sol";
@@ -44,7 +44,7 @@ abstract contract SuperpowerNFTBase is
   Initializable,
   ERC721Upgradeable,
   ERC721EnumerableUpgradeable,
-  Wormhole721Upgradeable
+  WormholeTunnelUpgradeable
 {
   using AddressUpgradeable for address;
 
@@ -100,7 +100,8 @@ abstract contract SuperpowerNFTBase is
     string memory symbol,
     string memory tokenUri
   ) internal initializer {
-    __Wormhole721_init(name, symbol);
+    __WormholeTunnel_init();
+    __ERC721_init(name, symbol);
     __ERC721Enumerable_init();
     __Ownable_init();
     _baseTokenURI = tokenUri;
@@ -162,7 +163,7 @@ abstract contract SuperpowerNFTBase is
   function supportsInterface(bytes4 interfaceId)
     public
     view
-    override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable)
+    override(WormholeTunnelUpgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable)
     returns (bool)
   {
     return super.supportsInterface(interfaceId);
@@ -312,6 +313,25 @@ abstract contract SuperpowerNFTBase is
       return false;
     }
     return super.isApprovedForAll(owner, operator);
+  }
+
+  function wormholeTransfer(
+    uint256 tokenID,
+    uint16 recipientChain,
+    bytes32 recipient,
+    uint32 nonce
+  ) public payable override onlyOwner returns (uint64 sequence) {
+    if (isLocked(tokenID)) {
+      revert LockedAsset();
+    }
+    _burn(tokenID);
+    return _wormholeTransferWithValue(tokenID, recipientChain, recipient, nonce, msg.value);
+  }
+
+  // Complete a transfer from Wormhole
+  function wormholeCompleteTransfer(bytes memory encodedVm) public override {
+    (address to, uint256 tokenId) = _wormholeCompleteTransfer(encodedVm);
+    _safeMint(to, tokenId);
   }
 
   uint256[49] private __gap;
