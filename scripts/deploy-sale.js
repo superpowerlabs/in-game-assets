@@ -24,17 +24,25 @@ async function main() {
   console.log("Setting the sale with the account:", deployer.address, "to", network);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const seed = chainId === 56 ? await deployUtils.attach("SeedToken") : await deployUtils.deployProxy("SeedTokenMock");
-  const busd =
-    chainId === 56
-      ? {address: "0xe9e7cea3dedca5984780bafc599bd69add087d56"}
-      : // : await deployUtils.deployProxy("BUSDMock");
-        await deployUtils.attach("BUSDMock");
+  const seed = chainId === 56 ? await deployUtils.attach("SeedToken") : await deployUtils.attach("SeedTokenMock");
+  const busd = chainId === 56 ? {address: "0xe9e7cea3dedca5984780bafc599bd69add087d56"} : await deployUtils.attach("BUSDMock");
 
   const factory = await deployUtils.attach("NftFactory");
+  const wl = await deployUtils.attach("WhitelistSlot");
+  const turf = await deployUtils.attach("Turf");
+  const farm = await deployUtils.attach("Farm");
 
-  // 2022-12-14T17:30:00.000Z
-  const startAt = 1671039000;
+  // set up the nft in
+  for (let id = 1; id <= 2; id++) {
+    let nft = id === 1 ? turf : farm;
+    await deployUtils.Tx(nft.setFactory(factory.address, true), "Set factory in " + (id === 1 ? "turf" : "farm"));
+    await deployUtils.Tx(factory.setNewNft(nft.address), "Set nft in factory");
+  }
+
+  await deployUtils.Tx(factory.setWl(wl.address), "Set WL in factory");
+
+  const startDate = new Date("2022-12-15T17:30:00.000Z");
+  const startAt = parseInt(startDate.getTime() / 1000);
   const wlEndAt = startAt + 3600 * 24 * 5;
 
   await deployUtils.Tx(

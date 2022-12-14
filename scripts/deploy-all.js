@@ -11,13 +11,8 @@ async function main() {
   deployUtils = new DeployUtils(ethers);
   require("./consoleLogAlert")();
 
-  function pe(amount) {
-    return ethers.utils.parseEther(amount.toString());
-  }
-
   const chainId = await deployUtils.currentChainId();
   let [deployer] = await ethers.getSigners();
-  const provider = this.ethers.provider;
 
   const network = chainId === 56 ? "bsc" : chainId === 44787 ? "alfajores" : "localhost";
 
@@ -53,45 +48,7 @@ async function main() {
 
   // const wl = await deployUtils.deploy("WhitelistSlot");
   const wl = await deployUtils.attach("WhitelistSlot");
-  await wl.setBurner(factory.address);
-  for (let id = 1; id <= 2; id++) {
-    let nft = id === 1 ? turf : farm;
-    await nft.setFactory(factory.address, true);
-    await factory.setNewNft(nft.address);
-  }
-
-  await factory.setWl(wl.address);
-
-  // await wl.mintBatch(deployer.address, [1, 2], [10, 10]);
-
-  // const now = (await provider.getBlock()).timestamp;
-
-  // await deployUtils.Tx(
-  //   factory.newSale(
-  //     1,
-  //     135,
-  //     now,
-  //     now + 3600 * 72,
-  //     1,
-  //     [busd.address, seed.address],
-  //     [pe(419), pe(220500)],
-  //     [pe(599), pe(295000)]
-  //   ),
-  //   "Setting sale for turf"
-  // );
-  // await deployUtils.Tx(
-  //   factory.newSale(
-  //     2,
-  //     1250,
-  //     now,
-  //     now + 3600 * 72,
-  //     2,
-  //     [busd.address, seed.address],
-  //     [pe(209), pe(110000)],
-  //     [pe(299), pe(147500)]
-  //   ),
-  //   "Setting sale for farm"
-  // );
+  await deployUtils.Tx(wl.setBurner(factory.address), "Set burner in WL");
 }
 
 main()

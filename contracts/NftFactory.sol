@@ -58,6 +58,8 @@ contract NftFactory is UUPSUpgradableTemplate {
   error InvalidPaymentToken();
   error ASaleIsActiveForThisNFT();
   error SaleNotFoundMaybeEnded();
+  error SaleNotFound();
+  error SaleEnded();
   error NotEnoughTokenForSale();
   error NotEnoughWLSlots();
   error InconsistentArrays();
@@ -313,8 +315,8 @@ contract NftFactory is UUPSUpgradableTemplate {
     uint256 amount
   ) external payable {
     if (!paymentTokens[paymentToken]) revert InvalidPaymentToken();
-    if (sales[nftId].amountForSale == 0) revert SaleNotFoundMaybeEnded();
-    if (sales[nftId].soldTokens == sales[nftId].amountForSale) revert SaleNotFoundMaybeEnded();
+    if (sales[nftId].amountForSale == 0) revert SaleNotFound();
+    if (sales[nftId].soldTokens == sales[nftId].amountForSale) revert SaleEnded();
     if (amount > sales[nftId].amountForSale - sales[nftId].soldTokens) revert NotEnoughTokenForSale();
     uint256 tokenAmount;
 
