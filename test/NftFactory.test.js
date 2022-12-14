@@ -44,7 +44,7 @@ describe("NftFactory", function () {
 
     await farm.mint(owner.address, 3);
 
-    busd = await deployUtils.deployProxy("SeedTokenMock");
+    busd = await deployUtils.deployProxy("BUSDMock");
     await busd.deployed();
     await busd.mint(whitelisted.address, usdAmount);
     await busd.mint(notWhitelisted.address, usdAmount);
@@ -148,6 +148,11 @@ describe("NftFactory", function () {
       )
         .to.emit(turf, "Transfer")
         .withArgs(whitelisted.address, notWhitelisted.address, 1);
+    });
+
+    it("should get symbols of payment token", async function () {
+      expect(await factory.getPaymentTokenSymbol(seed.address)).equal("SEED");
+      expect(await factory.getPaymentTokenSymbol(busd.address)).equal("BUSD");
     });
 
     it("should get info about the tokens for sale", async function () {
