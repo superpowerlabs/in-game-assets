@@ -244,7 +244,7 @@ describe("NftFactory", function () {
       await increaseBlockTimestampBy((await getCurrentTimestamp()) + 1e4 + 10);
 
       await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 3)).revertedWith(
-        "OnlyOneTokeForTransactionInPublicSale()"
+        "OnlyOneTokenForTransactionInPublicSale()"
       );
 
       expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
