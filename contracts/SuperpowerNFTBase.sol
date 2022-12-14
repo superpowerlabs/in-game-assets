@@ -314,5 +314,15 @@ abstract contract SuperpowerNFTBase is
     return super.isApprovedForAll(owner, operator);
   }
 
+  function wormholeTransfer(
+    uint256 tokenID,
+    uint16 recipientChain,
+    bytes32 recipient,
+    uint32 nonce
+  ) public payable override returns (uint64 sequence) {
+    if (isLocked(tokenID)) revert LockedAsset();
+    return super.wormholeTransfer(tokenID, recipientChain, recipient, nonce);
+  }
+
   uint256[49] private __gap;
 }
