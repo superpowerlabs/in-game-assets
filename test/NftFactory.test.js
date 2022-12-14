@@ -1,13 +1,12 @@
 const {expect, assert} = require("chai");
 
-const {initEthers, increaseBlockTimestampBy, cleanStruct} = require("./helpers");
-const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
+const {initEthers, increaseBlockTimestampBy, cleanStruct, getTimestamp} = require("./helpers");
 const DeployUtils = require("../scripts/lib/DeployUtils");
 
 // tests to be fixed
 
 describe("NftFactory", function () {
-  let owner, whitelisted, notWhitelisted;
+  let owner, whitelisted, notWhitelisted, beneficiary;
   let Whitelist, wl;
   let TurfToken, turf;
   let FarmToken, farm;
@@ -22,7 +21,7 @@ describe("NftFactory", function () {
   }
 
   before(async function () {
-    [owner, whitelisted, notWhitelisted] = await ethers.getSigners();
+    [owner, whitelisted, notWhitelisted, beneficiary] = await ethers.getSigners();
     Whitelist = await ethers.getContractFactory("WhitelistSlot");
     TurfToken = await ethers.getContractFactory("Turf");
     FarmToken = await ethers.getContractFactory("Farm");
@@ -77,7 +76,7 @@ describe("NftFactory", function () {
     await factory.setNewNft(farm.address);
 
     if (configure) {
-      const ts = await getCurrentTimestamp();
+      const ts = await getTimestamp();
       startsAt = ts;
       endsAt = ts + 1000;
 
@@ -160,7 +159,7 @@ describe("NftFactory", function () {
     it("should buy tokens in SEED", async function () {
       await turf.setMaxSupply(1000);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(5);
-      const seedPrice = await factory.getPrice(1, seed.address);
+      const seedPrice = await factory.getWlPrice(1, seed.address);
       await seed.connect(whitelisted).approve(factory.address, seedPrice.mul(3));
 
       expect(await factory.connect(whitelisted).buyTokens(1, seed.address, 3))
@@ -236,23 +235,47 @@ describe("NftFactory", function () {
       const usdPrice = await factory.getPrice(1, busd.address);
       await busd.connect(notWhitelisted).approve(factory.address, usdPrice.mul(3));
 
-      await increaseBlockTimestampBy((await getCurrentTimestamp()) + 1e4 + 10);
+      await increaseBlockTimestampBy(1e4);
 
       await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 3)).revertedWith(
-        "OnlyOneTokeForTransactionInPublicSale()"
+        "OnlyOneTokenForTransactionInPublicSale()"
       );
 
-      expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
+      await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 1);
-      expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
+      await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 2);
-      expect(await factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
+      await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
         .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 3);
-
       expect(await turf.nextTokenId()).equal(4);
+    });
+  });
+
+  describe("Withdraw proceeds", async function () {
+    beforeEach(async function () {
+      await initAndDeploy(true);
+    });
+
+    it("should withdraw amount", async function () {
+      const seedPrice = await factory.getPrice(1, seed.address);
+      const actualSeedPrice = await factory.getWlPrice(1, seed.address);
+      await seed.connect(whitelisted).approve(factory.address, seedPrice.mul(3));
+      await factory.connect(whitelisted).buyTokens(1, seed.address, 3);
+      expect(await seed.balanceOf(beneficiary.address)).equal(0);
+      expect(await factory.withdrawProceeds(beneficiary.address, seed.address, seedPrice)).emit(seed, "Transfer");
+      expect(await seed.balanceOf(beneficiary.address)).equal(seedPrice);
+      expect(await factory.withdrawProceeds(beneficiary.address, seed.address, 0)).emit(seed, "Transfer");
+      expect(await seed.balanceOf(beneficiary.address)).equal(actualSeedPrice.mul(3));
+    });
+
+    it("should fail to withdraw because of insufficient funds", async function () {
+      const usdPrice = await factory.getPrice(1, busd.address);
+      await expect(factory.withdrawProceeds(beneficiary.address, busd.address, usdPrice.mul(1))).revertedWith(
+        "InsufficientFunds()"
+      );
     });
   });
 });
