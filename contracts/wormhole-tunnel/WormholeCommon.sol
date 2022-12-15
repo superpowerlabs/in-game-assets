@@ -26,6 +26,7 @@ contract WormholeCommon {
     mapping(uint16 => bytes32) contractsByChainId;
   }
 
+  // solhint-disable-next-line state-visibility
   State _wormholeState;
 
   function isTransferCompleted(bytes32 hash) public view returns (bool) {

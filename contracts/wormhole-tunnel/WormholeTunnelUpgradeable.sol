@@ -20,6 +20,7 @@ abstract contract WormholeTunnelUpgradeable is
   ERC165Upgradeable
 {
   using BytesLib for bytes;
+  event ImplementationUpgraded(address newImplementation);
 
   // solhint-disable-next-line func-name-mixedcase
   function __WormholeTunnel_init() internal virtual initializer {
@@ -28,7 +29,9 @@ abstract contract WormholeTunnelUpgradeable is
     __UUPSUpgradeable_init();
   }
 
-  function _authorizeUpgrade(address newImplementation) internal virtual override onlyOwner {}
+  function _authorizeUpgrade(address newImplementation) internal virtual override onlyOwner {
+    emit ImplementationUpgraded(newImplementation);
+  }
 
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return interfaceId == type(IWormholeTunnel).interfaceId || super.supportsInterface(interfaceId);

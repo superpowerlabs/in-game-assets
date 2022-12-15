@@ -21,7 +21,7 @@ async function main() {
 
   const network = chainId === 56 ? "bsc" : chainId === 44787 ? "alfajores" : "localhost";
 
-  console.log("Setting the sale with the account:", deployer.address, "to", network);
+  console.log("Deploy the factory with the account:", deployer.address, "to", network);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const seed = chainId === 56 ? await deployUtils.attach("SeedToken") : await deployUtils.attach("SeedTokenMock");
@@ -30,8 +30,8 @@ async function main() {
   const wl = await deployUtils.attach("WhitelistSlot");
   const factory = await deployUtils.deployProxy("NftFactory");
 
-  await factory.setPaymentToken(seed.address, true);
-  await factory.setPaymentToken(busd.address, true);
+  await deployUtils.Tx(factory.setPaymentToken(seed.address, true), "Set SEED as a payment token");
+  await deployUtils.Tx(factory.setPaymentToken(busd.address, true), "Set BUSD as a payment token");
 
   await deployUtils.Tx(wl.setBurner(factory.address), "Set burner in WL");
 
@@ -49,7 +49,7 @@ async function main() {
 
   const startDate = new Date("2022-12-15T17:30:00.000Z");
   const startAt = parseInt(startDate.getTime() / 1000);
-  const wlEndAt = startAt + 3600 * 24 * 5;
+  const wlEndAt = startAt + 3600 * 24 * 4;
 
   await deployUtils.Tx(
     factory.newSale(1, 135, startAt, wlEndAt, 1, [busd.address, seed.address], [pe(420), pe(220500)], [pe(599), pe(295000)]),

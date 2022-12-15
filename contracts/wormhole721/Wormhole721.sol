@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../wormhole-tunnel/WormholeTunnel.sol";
 
 contract Wormhole721 is ERC721, WormholeTunnel {
+  // solhint-disable-next-line
   constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
   function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, WormholeTunnel) returns (bool) {
@@ -17,7 +18,7 @@ contract Wormhole721 is ERC721, WormholeTunnel {
     bytes32 recipient,
     uint32 nonce
   ) public payable virtual override returns (uint64 sequence) {
-    require(_isApprovedOrOwner(_msgSender(), tokenID), "ERC721: transfer caller is not owner nor approved");
+    require(_isApprovedOrOwner(_msgSender(), tokenID), "ERC721: not owner nor approved");
     _burn(tokenID);
     return _wormholeTransferWithValue(tokenID, recipientChain, recipient, nonce, msg.value);
   }

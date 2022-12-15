@@ -8,18 +8,16 @@ let deployedJson = require("../../export/deployed.json");
 
 const oZChainName = {
   1: "mainnet",
-  3: "ropsten",
   5: "goerli",
-  56: "bsc",
+  43113: "avalanche-fuji",
+  80001: "polygon-mumbai",
 };
 
 const chainName = {
   1: "mainnet",
-  3: "ropsten",
   5: "goerli",
   56: "bsc",
   97: "bsc_testnet",
-  42: "kovan",
   1337: "localhost",
   31337: "hardhat",
   80001: "mumbai",
@@ -31,7 +29,6 @@ const chainName = {
 const scanner = {
   1337: "localhost",
   1: "etherscan.io",
-  3: "ropsten.etherscan.io",
   5: "goerli.etherscan.io",
   56: "bscscan.com",
   97: "testnet.bscscan.com",

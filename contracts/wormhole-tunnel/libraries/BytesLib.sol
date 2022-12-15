@@ -12,6 +12,7 @@ library BytesLib {
   function concat(bytes memory _preBytes, bytes memory _postBytes) internal pure returns (bytes memory) {
     bytes memory tempBytes;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       // Get a location of some free memory and store it in tempBytes as
       // Solidity does for memory variables.
@@ -84,6 +85,7 @@ library BytesLib {
   }
 
   function concatStorage(bytes storage _preBytes, bytes memory _postBytes) internal {
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       // Read the first 32 bytes of _preBytes storage, which is the length
       // of the array. (We don't need to use the offset into the slot
@@ -221,6 +223,7 @@ library BytesLib {
 
     bytes memory tempBytes;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       switch iszero(_length)
       case 0 {
@@ -280,6 +283,7 @@ library BytesLib {
     require(_bytes.length >= _start + 20, "toAddress_outOfBounds");
     address tempAddress;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempAddress := div(mload(add(add(_bytes, 0x20), _start)), 0x1000000000000000000000000)
     }
@@ -291,6 +295,7 @@ library BytesLib {
     require(_bytes.length >= _start + 1, "toUint8_outOfBounds");
     uint8 tempUint;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempUint := mload(add(add(_bytes, 0x1), _start))
     }
@@ -302,6 +307,7 @@ library BytesLib {
     require(_bytes.length >= _start + 2, "toUint16_outOfBounds");
     uint16 tempUint;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempUint := mload(add(add(_bytes, 0x2), _start))
     }
@@ -313,6 +319,7 @@ library BytesLib {
     require(_bytes.length >= _start + 4, "toUint32_outOfBounds");
     uint32 tempUint;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempUint := mload(add(add(_bytes, 0x4), _start))
     }
@@ -324,6 +331,7 @@ library BytesLib {
     require(_bytes.length >= _start + 8, "toUint64_outOfBounds");
     uint64 tempUint;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempUint := mload(add(add(_bytes, 0x8), _start))
     }
@@ -335,6 +343,7 @@ library BytesLib {
     require(_bytes.length >= _start + 12, "toUint96_outOfBounds");
     uint96 tempUint;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempUint := mload(add(add(_bytes, 0xc), _start))
     }
@@ -346,6 +355,7 @@ library BytesLib {
     require(_bytes.length >= _start + 16, "toUint128_outOfBounds");
     uint128 tempUint;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempUint := mload(add(add(_bytes, 0x10), _start))
     }
@@ -357,6 +367,7 @@ library BytesLib {
     require(_bytes.length >= _start + 32, "toUint256_outOfBounds");
     uint256 tempUint;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempUint := mload(add(add(_bytes, 0x20), _start))
     }
@@ -368,6 +379,7 @@ library BytesLib {
     require(_bytes.length >= _start + 32, "toBytes32_outOfBounds");
     bytes32 tempBytes32;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       tempBytes32 := mload(add(add(_bytes, 0x20), _start))
     }
@@ -378,6 +390,7 @@ library BytesLib {
   function equal(bytes memory _preBytes, bytes memory _postBytes) internal pure returns (bool) {
     bool success = true;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       let length := mload(_preBytes)
 
@@ -421,6 +434,7 @@ library BytesLib {
   function equalStorage(bytes storage _preBytes, bytes memory _postBytes) internal view returns (bool) {
     bool success = true;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       // we know _preBytes_offset is 0
       let fslot := sload(_preBytes.slot)
@@ -461,6 +475,7 @@ library BytesLib {
 
             // the next line is the loop condition:
             // while(uint256(mc < end) + cb == 2)
+            // solhint-disable-next-line no-empty-blocks
             for {
 
             } eq(add(lt(mc, end), cb), 2) {

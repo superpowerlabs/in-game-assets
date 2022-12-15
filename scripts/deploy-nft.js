@@ -22,17 +22,16 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const turf = await deployUtils.deployProxy("Turf", "https://meta.mob.land/turf/");
+  const turf = await deployUtils.attach("Turf", "https://meta.mob.land/turf/");
 
   const farm = await deployUtils.deployProxy("Farm", "https://meta.mob.land/farm/");
 
   await turf.setMaxSupply(600);
   await farm.setMaxSupply(5000);
 
-  await deployUtils.Tx(
-    turf.mint(chainId === 56 ? process.env.TURF_OWNER : deployer.address, 15, {gasLimit: 2000000}),
-    "Minting turf 1-15 to " + process.env.TURF_ONER
-  );
+  const turfAuctioner = chainId === 56 ? process.env.TURF_OWNER : deployer.address;
+
+  await deployUtils.Tx(turf.mint(turfAuctioner, 15, {gasLimit: 2000000}), "Minting turf 1-15 to " + turfAuctioner);
 }
 
 main()
