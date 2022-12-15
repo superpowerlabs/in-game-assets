@@ -1,4 +1,6 @@
 require("dotenv").config();
+const path = require("path");
+const fs = require("fs-extra");
 const hre = require("hardhat");
 const ethers = hre.ethers;
 const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
@@ -14,21 +16,22 @@ async function main() {
   const chainId = await deployUtils.currentChainId();
   let [deployer] = await ethers.getSigners();
 
-  const network = chainId === 56 ? "bsc" : chainId === 44787 ? "alfajores" : "localhost";
+  const network = chainId === 56 ? "bsc" : chainId === 44787 ? "alfajores" : chainId === 43113 ? "fuji" : "localhost";
 
   console.log("Deploying contracts with the account:", deployer.address, "to", network);
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const turf = await deployUtils.deployProxy("Turf", "https://meta.mob.land/turf/");
+
   const farm = await deployUtils.deployProxy("Farm", "https://meta.mob.land/farm/");
 
   await turf.setMaxSupply(600);
   await farm.setMaxSupply(5000);
 
   await deployUtils.Tx(
-    turf.mint(process.env.TURF_OWNER, 15, {gasLimit: 2000000}),
-    "Minting turf 1-15 to " + process.env.TURF_OWNER
+    turf.mint(chainId === 56 ? process.env.TURF_OWNER : deployer.address, 15, {gasLimit: 2000000}),
+    "Minting turf 1-15 to " + process.env.TURF_ONER
   );
 }
 

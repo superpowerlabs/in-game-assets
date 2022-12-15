@@ -7,7 +7,7 @@ pragma solidity 0.8.17;
 
 import "./SuperpowerNFTBase.sol";
 import "./interfaces/ISuperpowerNFT.sol";
-import "./WhitelistSlot.sol";
+import "./interfaces/IWhitelistSlot.sol";
 
 abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   error Forbidden();
