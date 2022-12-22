@@ -80,8 +80,10 @@ async function main() {
     }
   }
 
-  await airdrop(turfWl, 1);
-  await airdrop(farmWl, 2);
+  await wl.mintBatch("0xA32912c58298f49a99B9eA3084721056F5d22FF1", [1, 2], [4, 4]);
+
+  // await airdrop(turfWl, 1);
+  // await airdrop(farmWl, 2);
 }
 
 main()

@@ -47,9 +47,12 @@ async function main() {
 
   await deployUtils.Tx(factory.setWl(wl.address), "Set WL in factory");
 
-  const startDate = new Date("2022-12-15T17:30:00.000Z");
-  const startAt = parseInt(startDate.getTime() / 1000);
-  const wlEndAt = startAt + 3600 * 24 * 4;
+  let startDate = new Date("2022-12-15T17:30:00.000Z");
+  if (chainId !== 56) {
+    startDate = new Date();
+  }
+  const startAt = parseInt(startDate.getTime() / 1000) + 60;
+  const wlEndAt = startAt + 3600 * 24;
 
   await deployUtils.Tx(
     factory.newSale(1, 135, startAt, wlEndAt, 1, [busd.address, seed.address], [pe(420), pe(220500)], [pe(599), pe(295000)]),

@@ -278,4 +278,25 @@ describe("NftFactory", function () {
       );
     });
   });
+
+  describe.only("Airdrop if no factory", async function () {
+    beforeEach(async function () {
+      await initAndDeploy(true);
+    });
+
+    it("should work if no factory is set up", async function () {
+      await farm.setFactory(factory.address, false);
+      await expect(farm.mint(beneficiary.address, 3))
+        .to.emit(farm, "Transfer")
+        .withArgs(ethers.constants.AddressZero, beneficiary.address, 1)
+        .to.emit(farm, "Transfer")
+        .withArgs(ethers.constants.AddressZero, beneficiary.address, 2)
+        .to.emit(farm, "Transfer")
+        .withArgs(ethers.constants.AddressZero, beneficiary.address, 3);
+    });
+
+    it("should fail if at least one factory is set up", async function () {
+      await expect(farm.mint(beneficiary.address, 4)).revertedWith("Forbidden()");
+    });
+  });
 });
