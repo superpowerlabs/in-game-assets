@@ -302,5 +302,13 @@ describe("NftFactory", function () {
     it("should fail if at least one factory is set up", async function () {
       await expect(farm.mint(beneficiary.address, 4)).revertedWith("Forbidden()");
     });
+
+    it("should unset and set again a factory", async function () {
+      await expect(farm.mint(beneficiary.address, 4)).revertedWith("Forbidden()");
+      await farm.setFactory(factory.address, false);
+      await expect(farm.mint(beneficiary.address, 1)).to.emit(farm, "Transfer").withArgs(AddressZero, beneficiary.address, 1);
+      await farm.setFactory(factory.address, true);
+      await expect(farm.mint(beneficiary.address, 1)).revertedWith("Forbidden()");
+    });
   });
 });

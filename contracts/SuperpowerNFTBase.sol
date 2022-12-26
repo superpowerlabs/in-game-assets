@@ -165,7 +165,10 @@ abstract contract SuperpowerNFTBase is
     override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable)
     returns (bool)
   {
-    return super.supportsInterface(interfaceId);
+    return
+      interfaceId == type(IAttributable).interfaceId ||
+      interfaceId == type(ILockable).interfaceId ||
+      super.supportsInterface(interfaceId);
   }
 
   function _baseURI() internal view virtual override returns (string memory) {
