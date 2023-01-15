@@ -14,7 +14,7 @@ interface ILockable {
   event Unlocked(uint256 tokendId);
 
   // tells if a token is locked
-  function isLocked(uint256 tokenID) external view returns (bool);
+  function locked(uint256 tokenID) external view returns (bool);
 
   // tells the address of the contract which is locking a token
   function lockerOf(uint256 tokenID) external view returns (address);
