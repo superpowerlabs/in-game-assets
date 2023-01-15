@@ -53,6 +53,7 @@ abstract contract SuperpowerNFTBase is
   error AssetDoesNotExist();
   error AlreadyInitiated();
   error NotTheAssetOwner();
+  error NotTheAssetOwnerNorTheGame();
   error PlayerAlreadyAuthorized();
   error PlayerNotAuthorized();
   error FrozenTokenURI();
@@ -136,8 +137,8 @@ abstract contract SuperpowerNFTBase is
   }
 
   function initializeAttributesFor(uint256 _id, address _player) external override {
-    if (ownerOf(_id) != _msgSender()) {
-      revert NotTheAssetOwner();
+    if (ownerOf(_id) != _msgSender() && game != _msgSender()) {
+      revert NotTheAssetOwnerNorTheGame();
     }
     if (_tokenAttributes[_id][_player][0] > 0) {
       revert PlayerAlreadyAuthorized();
