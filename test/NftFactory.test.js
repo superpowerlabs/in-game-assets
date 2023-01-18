@@ -14,6 +14,8 @@ describe("NftFactory", function () {
   let seed, busd;
   let startsAt, endsAt;
 
+  const {AddressZero} = ethers.constants;
+
   const deployUtils = new DeployUtils(ethers);
 
   function pe(amount) {
@@ -41,7 +43,7 @@ describe("NftFactory", function () {
     await farm.deployed();
     await farm.setMaxSupply(5000);
 
-    await farm.mint(owner.address, 3);
+    // await farm.mint(owner.address, 3);
 
     busd = await deployUtils.deployProxy("SeedTokenMock");
     await busd.deployed();
@@ -131,11 +133,11 @@ describe("NftFactory", function () {
 
       expect(await factory.connect(whitelisted).buyTokens(1, busd.address, 3))
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
+        .withArgs(AddressZero, whitelisted.address, 1)
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, whitelisted.address, 2)
+        .withArgs(AddressZero, whitelisted.address, 2)
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, whitelisted.address, 3);
+        .withArgs(AddressZero, whitelisted.address, 3);
 
       expect(await turf.nextTokenId()).equal(4);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(2);
@@ -164,11 +166,11 @@ describe("NftFactory", function () {
 
       expect(await factory.connect(whitelisted).buyTokens(1, seed.address, 3))
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, whitelisted.address, 1)
+        .withArgs(AddressZero, whitelisted.address, 1)
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, whitelisted.address, 2)
+        .withArgs(AddressZero, whitelisted.address, 2)
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, whitelisted.address, 3);
+        .withArgs(AddressZero, whitelisted.address, 3);
 
       expect(await turf.nextTokenId()).equal(4);
       expect(await wl.balanceOf(whitelisted.address, 1)).equal(2);
@@ -243,13 +245,13 @@ describe("NftFactory", function () {
 
       await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 1);
+        .withArgs(AddressZero, notWhitelisted.address, 1);
       await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 2);
+        .withArgs(AddressZero, notWhitelisted.address, 2);
       await expect(factory.connect(notWhitelisted).buyTokens(1, busd.address, 1))
         .to.emit(turf, "Transfer")
-        .withArgs(ethers.constants.AddressZero, notWhitelisted.address, 3);
+        .withArgs(AddressZero, notWhitelisted.address, 3);
       expect(await turf.nextTokenId()).equal(4);
     });
   });
@@ -276,6 +278,37 @@ describe("NftFactory", function () {
       await expect(factory.withdrawProceeds(beneficiary.address, busd.address, usdPrice.mul(1))).revertedWith(
         "InsufficientFunds()"
       );
+    });
+  });
+
+  describe("Airdrop if no factory", async function () {
+    beforeEach(async function () {
+      await initAndDeploy(true);
+    });
+
+    it("should work if no factory is set up", async function () {
+      expect(await farm.hasFactories()).equal(true);
+      await farm.setFactory(factory.address, false);
+      expect(await farm.hasFactories()).equal(false);
+      await expect(farm.mint(beneficiary.address, 3))
+        .to.emit(farm, "Transfer")
+        .withArgs(AddressZero, beneficiary.address, 1)
+        .to.emit(farm, "Transfer")
+        .withArgs(AddressZero, beneficiary.address, 2)
+        .to.emit(farm, "Transfer")
+        .withArgs(AddressZero, beneficiary.address, 3);
+    });
+
+    it("should fail if at least one factory is set up", async function () {
+      await expect(farm.mint(beneficiary.address, 4)).revertedWith("Forbidden()");
+    });
+
+    it("should unset and set again a factory", async function () {
+      await expect(farm.mint(beneficiary.address, 4)).revertedWith("Forbidden()");
+      await farm.setFactory(factory.address, false);
+      await expect(farm.mint(beneficiary.address, 1)).to.emit(farm, "Transfer").withArgs(AddressZero, beneficiary.address, 1);
+      await farm.setFactory(factory.address, true);
+      await expect(farm.mint(beneficiary.address, 1)).revertedWith("Forbidden()");
     });
   });
 });

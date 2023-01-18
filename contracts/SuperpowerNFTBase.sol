@@ -53,6 +53,7 @@ abstract contract SuperpowerNFTBase is
   error AssetDoesNotExist();
   error AlreadyInitiated();
   error NotTheAssetOwner();
+  error NotTheAssetOwnerNorTheGame();
   error PlayerAlreadyAuthorized();
   error PlayerNotAuthorized();
   error FrozenTokenURI();
@@ -111,7 +112,7 @@ abstract contract SuperpowerNFTBase is
     address to,
     uint256 tokenId
   ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
-    if (isLocked(tokenId)) {
+    if (locked(tokenId)) {
       revert LockedAsset();
     }
     super._beforeTokenTransfer(from, to, tokenId);
@@ -136,8 +137,8 @@ abstract contract SuperpowerNFTBase is
   }
 
   function initializeAttributesFor(uint256 _id, address _player) external override {
-    if (ownerOf(_id) != _msgSender()) {
-      revert NotTheAssetOwner();
+    if (ownerOf(_id) != _msgSender() && game != _msgSender()) {
+      revert NotTheAssetOwnerNorTheGame();
     }
     if (_tokenAttributes[_id][_player][0] > 0) {
       revert PlayerAlreadyAuthorized();
@@ -165,7 +166,10 @@ abstract contract SuperpowerNFTBase is
     override(Wormhole721Upgradeable, ERC721Upgradeable, ERC721EnumerableUpgradeable)
     returns (bool)
   {
-    return super.supportsInterface(interfaceId);
+    return
+      interfaceId == type(IAttributable).interfaceId ||
+      interfaceId == type(ILockable).interfaceId ||
+      super.supportsInterface(interfaceId);
   }
 
   function _baseURI() internal view virtual override returns (string memory) {
@@ -205,7 +209,7 @@ abstract contract SuperpowerNFTBase is
   // The owner keeps the ownership of it and can use that, for example,
   // to access services on Discord via Collab.land verification.
 
-  function isLocked(uint256 tokenId) public view override returns (bool) {
+  function locked(uint256 tokenId) public view override returns (bool) {
     return _lockedBy[tokenId] != address(0);
   }
 
@@ -237,7 +241,7 @@ abstract contract SuperpowerNFTBase is
     uint256 balance = balanceOf(owner);
     for (uint256 i = 0; i < balance; i++) {
       uint256 id = tokenOfOwnerByIndex(owner, i);
-      if (isLocked(id)) {
+      if (locked(id)) {
         return true;
       }
     }
@@ -263,7 +267,7 @@ abstract contract SuperpowerNFTBase is
 
   // emergency function in case a compromised locker is removed
   function unlockIfRemovedLocker(uint256 tokenId) external override onlyOwner {
-    if (!isLocked(tokenId)) {
+    if (!locked(tokenId)) {
       revert NotLockedAsset();
     }
     if (_lockers[_lockedBy[tokenId]]) {
@@ -282,14 +286,14 @@ abstract contract SuperpowerNFTBase is
   // OpenZeppelin best practices, avoid the user to spend useless gas.
 
   function approve(address to, uint256 tokenId) public override(IERC721Upgradeable, ERC721Upgradeable) {
-    if (isLocked(tokenId)) {
+    if (locked(tokenId)) {
       revert LockedAsset();
     }
     super.approve(to, tokenId);
   }
 
   function getApproved(uint256 tokenId) public view override(IERC721Upgradeable, ERC721Upgradeable) returns (address) {
-    if (isLocked(tokenId)) {
+    if (locked(tokenId)) {
       return address(0);
     }
     return super.getApproved(tokenId);
@@ -320,7 +324,7 @@ abstract contract SuperpowerNFTBase is
     bytes32 recipient,
     uint32 nonce
   ) public payable override returns (uint64 sequence) {
-    if (isLocked(tokenID)) revert LockedAsset();
+    if (locked(tokenID)) revert LockedAsset();
     return super.wormholeTransfer(tokenID, recipientChain, recipient, nonce);
   }
 

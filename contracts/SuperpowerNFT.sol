@@ -102,6 +102,7 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   }
 
   function endMinting() external override onlyOwner {
+    maxSupply = nextTokenId - 1;
     _mintEnded = true;
   }
 

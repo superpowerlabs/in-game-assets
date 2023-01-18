@@ -2,8 +2,6 @@ const path = require("path");
 const fs = require("fs-extra");
 const {Contract} = require("@ethersproject/contracts");
 const abi = require("ethereumjs-abi");
-const {deployProxyImpl} = require("@openzeppelin/hardhat-upgrades/dist/utils");
-
 let deployedJson = require("../../export/deployed.json");
 
 const oZChainName = {
@@ -178,12 +176,12 @@ class DeployUtils {
 
       const deployedFilename = process.env.NODE_ENV === "test" ? "deployedForTest" : "deployed";
 
-      const deployedJson = path.resolve(__dirname, `../../export/${deployedFilename}.json`);
-      if (!(await fs.pathExists(deployedJson))) {
-        await fs.ensureDir(path.dirname(deployedJson));
-        await fs.writeFile(deployedJson, "{}");
+      const deployedJsonPath = path.resolve(__dirname, `../../export/${deployedFilename}.json`);
+      if (!(await fs.pathExists(deployedJsonPath))) {
+        await fs.ensureDir(path.dirname(deployedJsonPath));
+        await fs.writeFile(deployedJsonPath, "{}");
       }
-      const deployed = JSON.parse(await fs.readFile(deployedJson, "utf8"));
+      const deployed = JSON.parse(await fs.readFile(deployedJsonPath, "utf8"));
       if (!deployed[chainId]) {
         deployed[chainId] = {};
       }
@@ -204,7 +202,7 @@ class DeployUtils {
         deployed.extras[chainId] = Object.assign(deployed.extras[chainId], extras);
       }
       // console.log(deployed)
-      await fs.writeFile(deployedJson, JSON.stringify(deployed, null, 2));
+      await fs.writeFile(deployedJsonPath, JSON.stringify(deployed, null, 2));
     }
   }
 
