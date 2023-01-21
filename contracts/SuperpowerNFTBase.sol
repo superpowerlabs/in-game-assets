@@ -64,6 +64,7 @@ abstract contract SuperpowerNFTBase is
   error LockedAsset();
   error AtLeastOneLockedAsset();
   error LockerNotApproved();
+  error ZeroAddress();
 
   string private _baseTokenURI;
   bool private _baseTokenURIFrozen;
@@ -97,11 +98,11 @@ abstract contract SuperpowerNFTBase is
 
   // solhint-disable-next-line
   function __SuperpowerNFTBase_init(
-    string memory name,
-    string memory symbol,
+    string memory name_,
+    string memory symbol_,
     string memory tokenUri
   ) internal initializer {
-    __Wormhole721_init(name, symbol);
+    __Wormhole721_init(name_, symbol_);
     __ERC721Enumerable_init();
     __Ownable_init();
     _baseTokenURI = tokenUri;
@@ -195,9 +196,8 @@ abstract contract SuperpowerNFTBase is
   }
 
   function setGame(address game_) external virtual onlyOwner {
-    if (!game_.isContract()) {
-      revert NotAContract();
-    }
+    if (game != address(0)) revert ZeroAddress();
+    if (!game_.isContract()) revert NotAContract();
     game = game_;
     emit GameSet(game_);
   }
@@ -237,10 +237,10 @@ abstract contract SuperpowerNFTBase is
     emit LockerRemoved(locker);
   }
 
-  function hasLocks(address owner) public view override returns (bool) {
-    uint256 balance = balanceOf(owner);
+  function hasLocks(address owner_) public view override returns (bool) {
+    uint256 balance = balanceOf(owner_);
     for (uint256 i = 0; i < balance; i++) {
-      uint256 id = tokenOfOwnerByIndex(owner, i);
+      uint256 id = tokenOfOwnerByIndex(owner_, i);
       if (locked(id)) {
         return true;
       }
@@ -306,16 +306,16 @@ abstract contract SuperpowerNFTBase is
     super.setApprovalForAll(operator, approved);
   }
 
-  function isApprovedForAll(address owner, address operator)
+  function isApprovedForAll(address owner_, address operator)
     public
     view
     override(IERC721Upgradeable, ERC721Upgradeable)
     returns (bool)
   {
-    if (hasLocks(owner)) {
+    if (hasLocks(owner_)) {
       return false;
     }
-    return super.isApprovedForAll(owner, operator);
+    return super.isApprovedForAll(owner_, operator);
   }
 
   function wormholeTransfer(
