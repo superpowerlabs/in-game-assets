@@ -5,7 +5,7 @@ import "../../../contracts/soliutils/UUPSUpgradableTemplate.sol";
 import "./SideToken.sol";
 
 contract SeedToken is SideToken, UUPSUpgradableTemplate {
-  function initialize() public initializer {
+  function initialize() public initializer onlyProxy {
     __UUPSUpgradableTemplate_init();
     __SideToken_init("Mobland Seed Token", "SEED");
   }
