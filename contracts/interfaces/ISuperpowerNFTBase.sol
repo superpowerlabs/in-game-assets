@@ -16,5 +16,5 @@ interface ISuperpowerNFTBase is ILockable {
 
   function contractURI() external view returns (string memory);
 
-  function preInitializeAttributesFor(uint256 _id, uint256 _attributes0) external;
+  //  function preInitializeAttributesFor(uint256 _id, uint256 _attributes0) external;
 }
