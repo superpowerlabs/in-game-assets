@@ -119,12 +119,13 @@ abstract contract SuperpowerNFTBase is
     super._beforeTokenTransfer(from, to, tokenId);
   }
 
-  function preInitializeAttributesFor(uint256 _id, uint256 _attributes0) external override onlyOwner tokenExists(_id) {
-    if (_tokenAttributes[_id][game][0] > 0) {
-      revert AlreadyInitiated();
+  function preInitializeAttributesFor(uint256 _id, uint256 _attributes0) external override onlyGame tokenExists(_id) {
+    // to avoid blocking the execution by the game, it does not revert
+    // if the attributes are already initialized
+    if (_tokenAttributes[_id][game][0] == 0) {
+      _tokenAttributes[_id][game][0] = _attributes0;
+      emit AttributesInitializedFor(_id, game);
     }
-    _tokenAttributes[_id][game][0] = _attributes0;
-    emit AttributesInitializedFor(_id, game);
   }
 
   // Attributable implementation
