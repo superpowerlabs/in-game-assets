@@ -50,10 +50,10 @@ abstract contract SuperpowerNFTBase is
 
   error NotALocker();
   error NotTheGame();
+  error NotTheAssetOwnerNorTheGame();
   error AssetDoesNotExist();
   error AlreadyInitiated();
   error NotTheAssetOwner();
-  error NotTheAssetOwnerNorTheGame();
   error PlayerAlreadyAuthorized();
   error PlayerNotAuthorized();
   error FrozenTokenURI();
@@ -64,6 +64,7 @@ abstract contract SuperpowerNFTBase is
   error LockedAsset();
   error AtLeastOneLockedAsset();
   error LockerNotApproved();
+  error ZeroAddress();
 
   string private _baseTokenURI;
   bool private _baseTokenURIFrozen;
@@ -97,11 +98,11 @@ abstract contract SuperpowerNFTBase is
 
   // solhint-disable-next-line
   function __SuperpowerNFTBase_init(
-    string memory name,
-    string memory symbol,
+    string memory name_,
+    string memory symbol_,
     string memory tokenUri
   ) internal initializer {
-    __Wormhole721_init(name, symbol);
+    __Wormhole721_init(name_, symbol_);
     __ERC721Enumerable_init();
     __Ownable_init();
     _baseTokenURI = tokenUri;
@@ -119,11 +120,12 @@ abstract contract SuperpowerNFTBase is
   }
 
   function preInitializeAttributesFor(uint256 _id, uint256 _attributes0) external override onlyOwner tokenExists(_id) {
-    if (_tokenAttributes[_id][game][0] > 0) {
-      revert AlreadyInitiated();
+    // we do not revert if already initialized because this is a
+    // convenience function called by the owner to initialize the tokens
+    if (_tokenAttributes[_id][game][0] == 0) {
+      _tokenAttributes[_id][game][0] = _attributes0;
+      emit AttributesInitializedFor(_id, game);
     }
-    _tokenAttributes[_id][game][0] = _attributes0;
-    emit AttributesInitializedFor(_id, game);
   }
 
   // Attributable implementation
@@ -137,14 +139,16 @@ abstract contract SuperpowerNFTBase is
   }
 
   function initializeAttributesFor(uint256 _id, address _player) external override {
-    if (ownerOf(_id) != _msgSender() && game != _msgSender()) {
-      revert NotTheAssetOwnerNorTheGame();
-    }
-    if (_tokenAttributes[_id][_player][0] > 0) {
-      revert PlayerAlreadyAuthorized();
-    }
-    _tokenAttributes[_id][_player][0] = 1;
-    emit AttributesInitializedFor(_id, _player);
+    if (
+      _msgSender() == ownerOf(_id) || // owner of the NFT
+      (_msgSender() == game && _player == game) // the game itself
+    ) {
+      if (_tokenAttributes[_id][_player][0] > 0) {
+        revert PlayerAlreadyAuthorized();
+      }
+      _tokenAttributes[_id][_player][0] = 1;
+      emit AttributesInitializedFor(_id, _player);
+    } else revert NotTheAssetOwnerNorTheGame();
   }
 
   function updateAttributes(
@@ -195,9 +199,8 @@ abstract contract SuperpowerNFTBase is
   }
 
   function setGame(address game_) external virtual onlyOwner {
-    if (!game_.isContract()) {
-      revert NotAContract();
-    }
+    if (game != address(0)) revert ZeroAddress();
+    if (!game_.isContract()) revert NotAContract();
     game = game_;
     emit GameSet(game_);
   }
@@ -237,10 +240,10 @@ abstract contract SuperpowerNFTBase is
     emit LockerRemoved(locker);
   }
 
-  function hasLocks(address owner) public view override returns (bool) {
-    uint256 balance = balanceOf(owner);
+  function hasLocks(address owner_) public view override returns (bool) {
+    uint256 balance = balanceOf(owner_);
     for (uint256 i = 0; i < balance; i++) {
-      uint256 id = tokenOfOwnerByIndex(owner, i);
+      uint256 id = tokenOfOwnerByIndex(owner_, i);
       if (locked(id)) {
         return true;
       }
@@ -306,16 +309,16 @@ abstract contract SuperpowerNFTBase is
     super.setApprovalForAll(operator, approved);
   }
 
-  function isApprovedForAll(address owner, address operator)
+  function isApprovedForAll(address owner_, address operator)
     public
     view
     override(IERC721Upgradeable, ERC721Upgradeable)
     returns (bool)
   {
-    if (hasLocks(owner)) {
+    if (hasLocks(owner_)) {
       return false;
     }
-    return super.isApprovedForAll(owner, operator);
+    return super.isApprovedForAll(owner_, operator);
   }
 
   function wormholeTransfer(

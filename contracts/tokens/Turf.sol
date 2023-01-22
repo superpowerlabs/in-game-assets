@@ -7,7 +7,7 @@ pragma solidity 0.8.17;
 import "../SuperpowerNFT.sol";
 
 contract Turf is SuperpowerNFT {
-  function initialize(string memory tokenUri) public initializer {
+  function initialize(string memory tokenUri) public initializer onlyProxy {
     __SuperpowerNFTBase_init("MOBLAND Turf", "mTURF", tokenUri);
   }
 }

@@ -5,7 +5,7 @@ import "../soliutils/UUPSUpgradableTemplate.sol";
 import "./SideTokenMock.sol";
 
 contract BUSDMock is SideTokenMock, UUPSUpgradableTemplate {
-  function initialize() public initializer {
+  function initialize() public initializer onlyProxy {
     __UUPSUpgradableTemplate_init();
     __SideToken_init("Binance USD", "BUSD");
   }

@@ -88,7 +88,13 @@ contract NftFactory is UUPSUpgradableTemplate {
   mapping(uint8 => Sale) public sales;
   WhitelistSlot private _wl;
 
-  function initialize() public initializer {
+  // The modifier onlyProxy is unnecessary. Was put there
+  // to avoid a security alert produced by slither and
+  // prove that that is a false positive
+  function initialize()
+    public
+    initializer // onlyProxy
+  {
     __UUPSUpgradableTemplate_init();
   }
 
@@ -333,7 +339,7 @@ contract NftFactory is UUPSUpgradableTemplate {
     }
     proceedsBalances[paymentToken] += payment;
     sales[nftId].soldTokens += uint16(amount);
-    SideToken(paymentToken).transferFrom(_msgSender(), address(this), payment);
+    if (!SideToken(paymentToken).transferFrom(_msgSender(), address(this), payment)) revert TransferFailed();
     _nfts[nftId].mint(_msgSender(), amount);
     if (isWl) {
       _wl.burn(_msgSender(), sales[nftId].whitelistedId, amount);
@@ -355,6 +361,6 @@ contract NftFactory is UUPSUpgradableTemplate {
     }
     if (amount > proceedsBalances[paymentToken]) revert InsufficientFunds();
     proceedsBalances[paymentToken] -= amount;
-    SideToken(paymentToken).transfer(beneficiary, amount);
+    if (!SideToken(paymentToken).transfer(beneficiary, amount)) revert TransferFailed();
   }
 }

@@ -12,7 +12,6 @@ import "./interfaces/IWhitelistSlot.sol";
 abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   error Forbidden();
   error CannotMint();
-  error ZeroAddress();
   error InvalidSupply();
   error NotEnoughWLSlots();
   error InvalidDeadline();
