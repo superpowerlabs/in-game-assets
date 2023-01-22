@@ -50,10 +50,10 @@ abstract contract SuperpowerNFTBase is
 
   error NotALocker();
   error NotTheGame();
+  error NotTheAssetOwnerNorTheGame();
   error AssetDoesNotExist();
   error AlreadyInitiated();
   error NotTheAssetOwner();
-  error NotTheAssetOwnerNorTheGame();
   error PlayerAlreadyAuthorized();
   error PlayerNotAuthorized();
   error FrozenTokenURI();
@@ -139,14 +139,16 @@ abstract contract SuperpowerNFTBase is
   }
 
   function initializeAttributesFor(uint256 _id, address _player) external override {
-    if (ownerOf(_id) != _msgSender()) {
-      revert NotTheAssetOwnerNorTheGame();
-    }
-    if (_tokenAttributes[_id][_player][0] > 0) {
-      revert PlayerAlreadyAuthorized();
-    }
-    _tokenAttributes[_id][_player][0] = 1;
-    emit AttributesInitializedFor(_id, _player);
+    if (
+      _msgSender() == ownerOf(_id) || // owner of the NFT
+      (_msgSender() == game && _player == game) // the game itself
+    ) {
+      if (_tokenAttributes[_id][_player][0] > 0) {
+        revert PlayerAlreadyAuthorized();
+      }
+      _tokenAttributes[_id][_player][0] = 1;
+      emit AttributesInitializedFor(_id, _player);
+    } else revert NotTheAssetOwnerNorTheGame();
   }
 
   function updateAttributes(
