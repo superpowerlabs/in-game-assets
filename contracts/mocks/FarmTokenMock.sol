@@ -17,4 +17,17 @@ contract FarmTokenMock is Farm {
       _safeMint(to, _nextTokenId++);
     }
   }
+
+  function initializeAttributesFor(uint256 _id, address _player) external override {
+    if (
+      _msgSender() == ownerOf(_id) || // owner of the NFT
+      (_msgSender() == game && _player == game) // the game itself
+    ) {
+      if (_tokenAttributes[_id][_player][0] > 0) {
+        revert PlayerAlreadyAuthorized();
+      }
+      _tokenAttributes[_id][_player][0] = 1;
+      emit AttributesInitializedFor(_id, _player);
+    } else revert NotTheAssetOwnerNorTheGame();
+  }
 }

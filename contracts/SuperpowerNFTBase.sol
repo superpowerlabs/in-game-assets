@@ -13,8 +13,10 @@ import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./wormhole721/Wormhole721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol";
 
 import "./interfaces/IAttributable.sol";
+import "./interfaces/IAttributablePlayer.sol";
 import "./interfaces/ISuperpowerNFTBase.sol";
 
 /*
@@ -65,6 +67,7 @@ abstract contract SuperpowerNFTBase is
   error AtLeastOneLockedAsset();
   error LockerNotApproved();
   error ZeroAddress();
+  error NotAnAttributablePlayer();
 
   string private _baseTokenURI;
   bool private _baseTokenURIFrozen;
@@ -138,11 +141,16 @@ abstract contract SuperpowerNFTBase is
     return _tokenAttributes[_id][_player][_index];
   }
 
-  function initializeAttributesFor(uint256 _id, address _player) external override {
+  function initializeAttributesFor(uint256 _id, address _player) external virtual override {
     if (
       _msgSender() == ownerOf(_id) || // owner of the NFT
       (_msgSender() == game && _player == game) // the game itself
     ) {
+      if (_msgSender() != game) {
+        if (!_player.isContract()) revert NotAContract();
+        if (IERC165Upgradeable(_player).supportsInterface(type(IAttributablePlayer).interfaceId))
+          revert NotAnAttributablePlayer();
+      }
       if (_tokenAttributes[_id][_player][0] > 0) {
         revert PlayerAlreadyAuthorized();
       }
