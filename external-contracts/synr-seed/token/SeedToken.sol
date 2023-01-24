@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "../../../contracts/soliutils/UUPSUpgradableTemplate.sol";
+import "../../../contracts/utils/UUPSUpgradableTemplate.sol";
 import "./SideToken.sol";
 
 contract SeedToken is SideToken, UUPSUpgradableTemplate {
