@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "../soliutils/UUPSUpgradableTemplate.sol";
+import "../utils/UUPSUpgradableTemplate.sol";
 import "./SideTokenMock.sol";
 
 contract BUSDMock is SideTokenMock, UUPSUpgradableTemplate {
