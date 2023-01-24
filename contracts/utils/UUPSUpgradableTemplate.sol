@@ -16,5 +16,6 @@ abstract contract UUPSUpgradableTemplate is Initializable, OwnableUpgradeable, U
     __UUPSUpgradeable_init();
   }
 
+  // solhint-disable-next-line no-empty-blocks
   function _authorizeUpgrade(address newImplementation) internal virtual override onlyOwner {}
 }
