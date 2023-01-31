@@ -77,6 +77,10 @@ const Helpers = {
     // eslint-disable-next-line no-undef
     return new Promise((resolve) => setTimeout(resolve, millis));
   },
+
+  randomNonce() {
+    return Math.random().toString().split(".")[1];
+  },
 };
 
 module.exports = Helpers;

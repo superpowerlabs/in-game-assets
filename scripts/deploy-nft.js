@@ -22,16 +22,30 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const turf = await deployUtils.attach("Turf", "https://meta.mob.land/turf/");
+  const turf = await deployUtils.deployProxy("Turf", "https://meta.mob.land/turf/");
 
   const farm = await deployUtils.deployProxy("Farm", "https://meta.mob.land/farm/");
 
   await turf.setMaxSupply(600);
   await farm.setMaxSupply(5000);
 
-  const turfAuctioner = chainId === 56 ? process.env.TURF_OWNER : deployer.address;
+  const recipients = {
+    Zhimin: "0x4ec0655C4A6db5A0515bCF111C7202b845fd329D",
+    Zhimin2: "0x4ec0655C4A6db5A0515bCF111C7202b845fd329D",
+    Zhimin3: "0x4ec0655C4A6db5A0515bCF111C7202b845fd329D",
+    Zhimin4: "0x4ec0655C4A6db5A0515bCF111C7202b845fd329D",
+    Stella: "0x3E4276Eb950C7a8aF7A1B4d03BDDF02e34A503f7",
+    Tim: "0xB664130222198dBE922C20C912d9847Bd87E31b1",
+    Dev1: "0x5e7E3a602bBE9987BD653379bBA7Bf478D0570f5",
+    Dev2: "0x781e24d233758D949e161f944C3b577Ab49fe192",
+    Devansh: "0x5e7E3a602bBE9987BD653379bBA7Bf478D0570f5",
+  };
 
-  await deployUtils.Tx(turf.mint(turfAuctioner, 15, {gasLimit: 2000000}), "Minting turf 1-15 to " + turfAuctioner);
+  for (let user in recipients) {
+    const address = recipients[user];
+    await deployUtils.Tx(turf.mint(address, 10, {gasLimit: 2000000}), "Minting turfs to " + address);
+    await deployUtils.Tx(farm.mint(address, 30, {gasLimit: 4000000}), "Minting farms to " + address);
+  }
 }
 
 main()

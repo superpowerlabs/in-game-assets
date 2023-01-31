@@ -1,0 +1,32 @@
+[
+  {
+    "cfgId": 101,
+    "size": "4x4",
+    "stakeProfit": 960,
+    "farmStakeBonus": 1000
+  },
+  {
+    "cfgId": 201,
+    "size": "6x6",
+    "stakeProfit": 2200,
+    "farmStakeBonus": 1500
+  },
+  {
+    "cfgId": 301,
+    "size": "8x8",
+    "stakeProfit": 3940,
+    "farmStakeBonus": 2000
+  },
+  {
+    "cfgId": 401,
+    "size": "10x10",
+    "stakeProfit": 6200,
+    "farmStakeBonus": 2500
+  },
+  {
+    "cfgId": 501,
+    "size": "12x12",
+    "stakeProfit": 9000,
+    "farmStakeBonus": 3000
+  }
+]

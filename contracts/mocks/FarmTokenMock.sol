@@ -12,9 +12,17 @@ contract FarmTokenMock is Farm {
     emit GameSet(game_);
   }
 
-  function mint(address to, uint256 amount) external override {
+  function mint(address to, uint256 amount) external override onlyOwner {
     for (uint256 i = 0; i < amount; i++) {
       _safeMint(to, _nextTokenId++);
+    }
+  }
+
+  function batchMint(address[] memory to, uint256[] memory amount) external onlyOwner {
+    for (uint256 j = 0; j < to.length; j++) {
+      for (uint256 i = 0; i < amount[j]; i++) {
+        _safeMint(to[j], _nextTokenId++);
+      }
     }
   }
 
