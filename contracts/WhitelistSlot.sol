@@ -46,6 +46,10 @@ contract WhitelistSlot is ERC1155, Ownable {
     uint256[][] memory amounts
   ) public onlyOwner {
     if (to.length != ids.length || ids.length != amounts.length) revert InconsistentArrays();
+    // NOTE
+    // This is in theory risky because the contract can go out of cash. In reality it is a
+    // calculated risk because this function is called by a script that manages the airdrop
+    // of the tokens and takes care of the gas cost and the number of tokens that can be safely minted.
     for (uint256 i = 0; i < ids.length; i++) {
       _mintBatch(to[i], ids[i], amounts[i], "");
     }
