@@ -184,6 +184,10 @@ contract NftFactory is UUPSUpgradableTemplate {
     if (amountForSale == 0) revert InvalidAmountForSale();
     // reverts if inconsistencies are detected in price and whitelisted price definition
     if (acceptedTokens.length != wlPrices.length || wlPrices.length != prices.length) revert InconsistentArrays();
+    // NOTE
+    // In general, looping on an Array is dangerous because it can cause the contract to run out of gas.
+    // In this specific case it is convenient and no risky because we sold Turf and Farm in the NFTFactory
+    // accepting only 2 tokens for the payment (SEED and USDC), so the length of the array is 2 at most.
     for (uint256 i = 0; i < acceptedTokens.length; i++) {
       if (!paymentTokens[acceptedTokens[i]]) revert InvalidPaymentToken();
       for (uint256 j = 0; j < acceptedTokens.length; j++) {
