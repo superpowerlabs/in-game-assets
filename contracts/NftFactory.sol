@@ -41,20 +41,15 @@ contract NftFactory is UUPSUpgradableTemplate {
   using SafeMathUpgradeable for uint256;
 
   event NewPriceFor(uint8 nftId, address paymentToken, uint256 whitelistPrice, uint256 price);
-  event FactorySetFor(uint8 nftId, address factory);
-  event FactoryRemovedFor(uint8 nftId, address factory);
   event NewNftForSale(uint8 nftId, address nft);
   event NftRemovedFromSale(uint8 nftId, address nft);
   event NewSale(uint8 nftId, uint16 amountForSale);
   event EndSale(uint8 nftId);
   event SaleUpdated(uint8 nftId);
 
-  error NotAFactoryForThisNFT(uint256 id);
   error NotAContract();
   error NFTAlreadySet();
   error NFTNotFound();
-  error FactoryNotFound();
-  error InsufficientPayment();
   error InsufficientFunds();
   error TransferFailed();
   error InvalidPaymentToken();
