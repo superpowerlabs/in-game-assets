@@ -54,8 +54,6 @@ abstract contract SuperpowerNFTBase is
   error NotTheGame();
   error NotTheAssetOwnerNorTheGame();
   error AssetDoesNotExist();
-  error AlreadyInitiated();
-  error NotTheAssetOwner();
   error PlayerAlreadyAuthorized();
   error PlayerNotAuthorized();
   error FrozenTokenURI();
@@ -81,13 +79,6 @@ abstract contract SuperpowerNFTBase is
   modifier onlyLocker() {
     if (!_lockers[_msgSender()]) {
       revert NotALocker();
-    }
-    _;
-  }
-
-  modifier onlyGame() {
-    if (game == address(0) || _msgSender() != game) {
-      revert NotTheGame();
     }
     _;
   }
