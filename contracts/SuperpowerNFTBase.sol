@@ -277,12 +277,15 @@ abstract contract SuperpowerNFTBase is
   }
 
   // emergency function in case a compromised locker is removed
-  function unlockIfRemovedLocker(uint256 tokenId) external override onlyOwner {
+  function unlockIfRemovedLocker(uint256 tokenId) external override {
     if (!locked(tokenId)) {
       revert NotLockedAsset();
     }
     if (_lockers[_lockedBy[tokenId]]) {
       revert NotADeactivatedLocker();
+    }
+    if (ownerOf(tokenId) != _msgSender()) {
+      revert NotTheAssetOwner();
     }
     delete _lockedBy[tokenId];
     emit ForcefullyUnlocked(tokenId);
