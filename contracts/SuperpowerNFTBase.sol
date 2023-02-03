@@ -58,7 +58,6 @@ abstract contract SuperpowerNFTBase is
   error PlayerNotAuthorized();
   error FrozenTokenURI();
   error NotAContract();
-  error NotTheAssetOwner();
   error NotADeactivatedLocker();
   error WrongLocker();
   error NotLockedAsset();
