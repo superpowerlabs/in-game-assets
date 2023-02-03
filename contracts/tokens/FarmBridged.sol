@@ -10,6 +10,4 @@ contract FarmBridged is SuperpowerNFTBase {
   function initialize(string memory tokenUri) public initializer onlyProxy {
     __SuperpowerNFTBase_init("MOBLAND Farm", "mFARM", tokenUri);
   }
-
-  function _authorizeUpgrade(address newImplementation) internal virtual override onlyOwner {}
 }

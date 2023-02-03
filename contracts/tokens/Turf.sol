@@ -10,6 +10,4 @@ contract Turf is SuperpowerNFT {
   function initialize(string memory tokenUri) public initializer onlyProxy {
     __SuperpowerNFTBase_init("MOBLAND Turf", "mTURF", tokenUri);
   }
-
-  function _authorizeUpgrade(address newImplementation) internal virtual override onlyOwner {}
 }
