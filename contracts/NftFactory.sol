@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 
-import "../external-contracts/synr-seed/token/SeedToken.sol";
+import "./external-contracts/synr-seed/token/SeedToken.sol";
 import "./interfaces/ISuperpowerNFT.sol";
 import "./utils/UUPSUpgradableTemplate.sol";
 import "./WhitelistSlot.sol";

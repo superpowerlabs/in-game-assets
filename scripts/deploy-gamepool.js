@@ -12,6 +12,9 @@ async function main() {
   const chainId = await deployUtils.currentChainId();
   let [deployer] = await ethers.getSigners();
 
+  const VALIDATOR1 = process.env.VALIDATOR1 || VALIDATOR;
+  const VALIDATOR2 = process.env.VALIDATOR2 || VALIDATOR;
+
   const network = chainId === 56 ? "bsc" : chainId === 97 ? "bsc_testnet" : chainId === 43113 ? "fuji" : "localhost";
 
   console.log("Deploying contracts with the account:", deployer.address, "to", network);
@@ -33,20 +36,20 @@ async function main() {
 
   console.log("To verify GamePool flatten the code and submit it for the implementation");
 
-  await deployUtils.saveDeployed(chainId, ["GameToken"], [gamePool.address]);
+  // await deployUtils.saveDeployed(chainId, ["GameToken"], [gamePool.address]);
 
   await deployUtils.Tx(turfToken.setGame(gamePool.address), "set game in turf");
-  await deployUtils.Tx(turfToken.setDefaultPlayer(gamePool.address), "set default player in turf");
+  // await deployUtils.Tx(turfToken.setDefaultPlayer(gamePool.address), "set default player in turf");
   await deployUtils.Tx(turfToken.setLocker(gamePool.address), "set locker in turf");
 
   await deployUtils.Tx(farmToken.setGame(gamePool.address), "set game in farm");
-  await deployUtils.Tx(farmToken.setDefaultPlayer(gamePool.address), "set default player in farm");
+  // await deployUtils.Tx(farmToken.setDefaultPlayer(gamePool.address), "set default player in farm");
   await deployUtils.Tx(farmToken.setLocker(gamePool.address), "set locker in farm");
 
-  await deployUtils.Tx(gamePool.setValidator(0, VALIDATOR), "set validator in pool");
-  await deployUtils.Tx(gamePool.setValidator(1, VALIDATOR), "set validator in pool");
+  await deployUtils.Tx(gamePool.setValidator(0, VALIDATOR1), "set validator in pool");
+  await deployUtils.Tx(gamePool.setValidator(1, VALIDATOR2), "set validator in pool");
 
-  await deployUtils.Tx(budToken.unpauseAllowance(), "unpause allowance in bud token");
+  // await deployUtils.Tx(budToken.unpauseAllowance(), "unpause allowance in bud token");
   await deployUtils.Tx(budToken.setMinter(gamePool.address, true), "set the pool as minter of bud tokens");
 }
 
