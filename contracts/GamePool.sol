@@ -135,9 +135,9 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     bytes calldata signature1
   ) external override {
     if (tokenType != TURF && tokenType != FARM) revert invalidTokenType();
-    if (!isSignedByValidator(0, hashUnstake(tokenType, tokenId, stakeIndex, randomNonce), signature0))
+    if (!isSignedByAValidator(0, 2, hashUnstake(tokenType, tokenId, stakeIndex, randomNonce), signature0))
       revert invalidPrimarySignature();
-    if (!isSignedByValidator(1, hashUnstake(tokenType, tokenId, stakeIndex, randomNonce), signature1))
+    if (!isSignedByAValidator(1, 3, hashUnstake(tokenType, tokenId, stakeIndex, randomNonce), signature1))
       revert invalidSecondarySignature();
     _saveSignatureAsUsed(signature0);
     _saveSignatureAsUsed(signature1);
@@ -255,7 +255,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     uint256 randomNonce,
     bytes calldata signature0
   ) external override {
-    if (!isSignedByValidator(0, hashDeposit(_msgSender(), amount, depositId, randomNonce), signature0))
+    if (!isSignedByAValidator(0, 2, hashDeposit(_msgSender(), amount, depositId, randomNonce), signature0))
       revert invalidPrimarySignature();
     _saveSignatureAsUsed(signature0);
     _depositFT(SEED, amount, depositId, _msgSender());
@@ -272,7 +272,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     uint256 randomNonce,
     bytes calldata signature0
   ) external override {
-    if (!isSignedByValidator(0, hashDeposit(_msgSender(), amount, depositId, randomNonce), signature0))
+    if (!isSignedByAValidator(0, 2, hashDeposit(_msgSender(), amount, depositId, randomNonce), signature0))
       revert invalidPrimarySignature();
     _saveSignatureAsUsed(signature0);
     _depositFT(BUD, amount, depositId, _msgSender());
@@ -393,9 +393,9 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     bytes calldata signature1
   ) external override {
     if (deadline <= block.timestamp) revert harvestingExpired();
-    if (!isSignedByValidator(0, hashHarvesting(_msgSender(), amount, deadline, randomNonce, opId), signature0))
+    if (!isSignedByAValidator(0, 2, hashHarvesting(_msgSender(), amount, deadline, randomNonce, opId), signature0))
       revert invalidPrimarySignature();
-    if (!isSignedByValidator(1, hashHarvesting(_msgSender(), amount, deadline, randomNonce, opId), signature1))
+    if (!isSignedByAValidator(1, 3, hashHarvesting(_msgSender(), amount, deadline, randomNonce, opId), signature1))
       revert invalidSecondarySignature();
     _saveSignatureAsUsed(signature0);
     _saveSignatureAsUsed(signature1);
@@ -469,9 +469,9 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     bytes calldata signature0,
     bytes calldata signature1
   ) external override {
-    if (!isSignedByValidator(0, hashTurfAttributes(tokenId, attributes, randomNonce), signature0))
+    if (!isSignedByAValidator(0, 2, hashTurfAttributes(tokenId, attributes, randomNonce), signature0))
       revert invalidPrimarySignature();
-    if (!isSignedByValidator(1, hashTurfAttributes(tokenId, attributes, randomNonce), signature1))
+    if (!isSignedByAValidator(1, 3, hashTurfAttributes(tokenId, attributes, randomNonce), signature1))
       revert invalidSecondarySignature();
     _saveSignatureAsUsed(signature0);
     _saveSignatureAsUsed(signature1);
@@ -513,9 +513,9 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     bytes calldata signature0,
     bytes calldata signature1
   ) external {
-    if (!isSignedByValidator(0, hashFarmAttributes(tokenId, attributes, randomNonce), signature0))
+    if (!isSignedByAValidator(0, 2, hashFarmAttributes(tokenId, attributes, randomNonce), signature0))
       revert invalidPrimarySignature();
-    if (!isSignedByValidator(1, hashFarmAttributes(tokenId, attributes, randomNonce), signature1))
+    if (!isSignedByAValidator(1, 3, hashFarmAttributes(tokenId, attributes, randomNonce), signature1))
       revert invalidSecondarySignature();
     _saveSignatureAsUsed(signature0);
     _saveSignatureAsUsed(signature1);

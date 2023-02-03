@@ -66,6 +66,7 @@ abstract contract SuperpowerNFTBase is
   error LockerNotApproved();
   error ZeroAddress();
   error NotAnAttributablePlayer();
+  error NotTheAssetOwner();
 
   string private _baseTokenURI;
   bool private _baseTokenURIFrozen;

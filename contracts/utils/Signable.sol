@@ -14,7 +14,7 @@ contract Signable is Initializable, OwnableUpgradeable {
 
   event ValidatorSet(uint256 id, address validator);
 
-  mapping(uint256 => address) public validators;
+  mapping(uint256 => address) private _validators;
 
   // solhint-disable-next-line
   function __Signable_init() internal initializer {
@@ -23,8 +23,21 @@ contract Signable is Initializable, OwnableUpgradeable {
 
   function setValidator(uint256 id, address validator) external onlyOwner {
     require(validator != address(0), "Signable: address zero not allowed");
-    validators[id] = validator;
+    _validators[id] = validator;
     emit ValidatorSet(id, validator);
+  }
+
+  function getValidator(uint256 id) external view returns (address) {
+    return _validators[id];
+  }
+
+  function isValidator(address validator, uint256 maxId) external view returns (bool) {
+    for (uint256 i = 0; i <= maxId; i++) {
+      if (_validators[i] == validator) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /** @dev how to use it:
@@ -40,6 +53,15 @@ contract Signable is Initializable, OwnableUpgradeable {
     bytes32 hash,
     bytes memory signature
   ) public view returns (bool) {
-    return validators[id] != address(0) && validators[id] == hash.recover(signature);
+    return _validators[id] != address(0) && _validators[id] == hash.recover(signature);
+  }
+
+  function isSignedByAValidator(
+    uint256 id0,
+    uint256 id1,
+    bytes32 hash,
+    bytes memory signature
+  ) public view returns (bool) {
+    return isSignedByValidator(id0, hash, signature) || isSignedByValidator(id1, hash, signature);
   }
 }
