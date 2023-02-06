@@ -25,11 +25,14 @@ import "./utils/SignableStakes.sol";
 contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplate, IAttributablePlayer {
   using SafeMathUpgradeable for uint256;
 
+  event AssetStaked(address from, uint8 tokenType, uint16 tokenId);
+  event AssetUnstaked(address to, uint8 tokenType, uint16 tokenId);
+  event WithdrawnFT(uint8 tokenType, uint256 amount, address beneficiary);
+
   error turfNotERC721();
   error farmNotERC721();
   error seedNotSEED();
   error budNotBUD();
-  error onlyOnTestnet();
   error turfAlreadyLocked();
   error farmAlreadyLocked();
   error invalidTokenType();
@@ -54,6 +57,8 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
   IToken public seedToken;
   IToken public budToken;
 
+  // This is not used anymore but it cannot be removed because
+  // it would alter the storage and the contract would not be upgradable anymore
   mapping(uint8 => mapping(uint16 => TokenData)) internal _stakedByTokenId;
 
   mapping(uint64 => DepositInfo) private _depositsById;
@@ -111,6 +116,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     }
     Stake memory stake = Stake({tokenId: uint16(tokenId), lockedAt: uint32(block.timestamp), unlockedAt: 0});
     _users[_msgSender()].stakes[tokenType].push(stake);
+    emit AssetStaked(_msgSender(), tokenType, tokenId);
   }
 
   /// @notice Unstakes a token of type TURF or FARM
@@ -154,6 +160,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
       conf.farmAmount--;
       farmToken.unlock(tokenId);
     }
+    emit AssetUnstaked(_msgSender(), tokenType, tokenId);
   }
 
   /// @notice Returns the state of a stake
@@ -441,6 +448,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
       budToken.burn(burned);
       budToken.transfer(beneficiary, amount.sub(burned));
     }
+    emit WithdrawnFT(tokenType, amount, beneficiary);
   }
 
   /// @notice Initializes the attributes of a turf token

@@ -50,6 +50,8 @@ abstract contract SuperpowerNFTBase is
 {
   using AddressUpgradeable for address;
 
+  event AttributesUpdated(uint256 _id, uint256 _index, uint256 _attributes);
+
   error NotALocker();
   error NotTheGame();
   error NotTheAssetOwnerNorTheGame();
@@ -162,6 +164,7 @@ abstract contract SuperpowerNFTBase is
     // notice that if the playes set the attributes to zero, it de-authorize itself
     // and not more changes will be allowed until the NFT owner authorize it again
     _tokenAttributes[_id][_msgSender()][_index] = _attributes;
+    emit AttributesUpdated(_id, _index, _attributes);
   }
 
   function supportsInterface(bytes4 interfaceId)
