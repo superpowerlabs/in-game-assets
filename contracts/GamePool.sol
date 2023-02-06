@@ -338,7 +338,14 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     address user
   ) internal {
     Deposit memory deposit = Deposit({tokenType: tokenType, amount: amount, depositedAt: uint32(block.timestamp)});
+    /*
+       The following check has been added for clarity. In reality this cannot happen.
+       In fact, the game generates a unique depositId and hash it, with other parameters, to
+       generate the signature. Since the signature is saved as already used, the depositId cannot
+       be used again.
+    */
     if (_depositsById[depositId].user != address(0)) revert depositAlreadyExists();
+
     _depositsById[depositId] = DepositInfo({index: uint16(_users[user].deposits.length), user: user});
     _users[user].deposits.push(deposit);
     if (tokenType == SEED) {
