@@ -253,7 +253,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
   /// @dev This function revert with "signatureAlreadyUsed" in
   ///      _saveSignatureAsUsed if the signature was already used
   /// @param amount uint256 for the amount of SEEDs to deposit
-  /// @param depositId uint64 for the deposit id
+  /// @param depositId uint64 for the deposit id.
   /// @param randomNonce uint256 for the random nonce
   /// @param signature0 bytes for the signature of the validator
   function depositSeed(
@@ -324,7 +324,11 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
   ///      appends a Deposit to the user's deposits array _users[].deposits
   /// @param tokenType type of token to deposit
   /// @param amount amount of token to deposit
-  /// @param depositId the id of the deposit based on User.lastDepositId
+  /// @param depositId uint64 for the deposit id.
+  ///      The depositId is not managed in the contract, it comes
+  ///      from the game app and is used to prevent replay attacks,
+  ///      to identify the deposit in the game app, and manage the flow
+  ///      of the game app.
   /// @param user the address of the user
   function _depositFT(
     uint8 tokenType,
