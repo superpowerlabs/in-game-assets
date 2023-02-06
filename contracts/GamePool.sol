@@ -324,7 +324,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
   ///      appends a Deposit to the user's deposits array _users[].deposits
   /// @param tokenType type of token to deposit
   /// @param amount amount of token to deposit
-  /// @param depositId uint64 for the deposit id.
+  /// @param depositId uint64 for the deposit id
   ///      The depositId is not managed in the contract, it comes
   ///      from the game app and is used to prevent replay attacks,
   ///      to identify the deposit in the game app, and manage the flow
