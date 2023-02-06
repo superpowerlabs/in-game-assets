@@ -47,6 +47,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
   error harvestingExpired();
   error amountNotAvailable();
   error unsupportedNFT();
+  error depositAlreadyExists();
 
   Conf public conf;
   mapping(address => User) internal _users;
@@ -337,6 +338,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     address user
   ) internal {
     Deposit memory deposit = Deposit({tokenType: tokenType, amount: amount, depositedAt: uint32(block.timestamp)});
+    if (_depositsById[depositId].user != address(0)) revert depositAlreadyExists();
     _depositsById[depositId] = DepositInfo({index: uint16(_users[user].deposits.length), user: user});
     _users[user].deposits.push(deposit);
     if (tokenType == SEED) {
