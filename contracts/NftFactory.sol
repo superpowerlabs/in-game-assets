@@ -63,6 +63,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   error RepeatedAcceptedToken();
   error InvalidAmountForSale();
   error OnlyOneTokenForTransactionInPublicSale();
+  error NotAnERC721();
 
   struct Sale {
     uint16 amountForSale;
@@ -119,6 +120,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   /// @param nft the token
   function setNewNft(address nft) external onlyOwner {
     if (!nft.isContract()) revert NotAContract();
+    if (!IERC165Upgradeable(nft).supportsInterface(type(IERC721Upgradeable).interfaceId)) revert NotAnERC721();
     if (_nftsByAddress[nft] > 0) revert NFTAlreadySet();
     _nftsByAddress[nft] = ++_lastNft;
     _nfts[_lastNft] = ISuperpowerNFT(nft);
