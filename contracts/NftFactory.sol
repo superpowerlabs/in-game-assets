@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 
-import "../external-contracts/synr-seed/token/SeedToken.sol";
+import "./external-contracts/synr-seed/token/SeedToken.sol";
 import "./interfaces/ISuperpowerNFT.sol";
 import "./utils/UUPSUpgradableTemplate.sol";
 import "./WhitelistSlot.sol";
@@ -41,20 +41,15 @@ contract NftFactory is UUPSUpgradableTemplate {
   using SafeMathUpgradeable for uint256;
 
   event NewPriceFor(uint8 nftId, address paymentToken, uint256 whitelistPrice, uint256 price);
-  event FactorySetFor(uint8 nftId, address factory);
-  event FactoryRemovedFor(uint8 nftId, address factory);
   event NewNftForSale(uint8 nftId, address nft);
   event NftRemovedFromSale(uint8 nftId, address nft);
   event NewSale(uint8 nftId, uint16 amountForSale);
   event EndSale(uint8 nftId);
   event SaleUpdated(uint8 nftId);
 
-  error NotAFactoryForThisNFT(uint256 id);
   error NotAContract();
   error NFTAlreadySet();
   error NFTNotFound();
-  error FactoryNotFound();
-  error InsufficientPayment();
   error InsufficientFunds();
   error TransferFailed();
   error InvalidPaymentToken();
@@ -68,6 +63,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   error RepeatedAcceptedToken();
   error InvalidAmountForSale();
   error OnlyOneTokenForTransactionInPublicSale();
+  error NotAnERC721();
 
   struct Sale {
     uint16 amountForSale;
@@ -124,6 +120,7 @@ contract NftFactory is UUPSUpgradableTemplate {
   /// @param nft the token
   function setNewNft(address nft) external onlyOwner {
     if (!nft.isContract()) revert NotAContract();
+    if (!IERC165Upgradeable(nft).supportsInterface(type(IERC721Upgradeable).interfaceId)) revert NotAnERC721();
     if (_nftsByAddress[nft] > 0) revert NFTAlreadySet();
     _nftsByAddress[nft] = ++_lastNft;
     _nfts[_lastNft] = ISuperpowerNFT(nft);
@@ -184,6 +181,10 @@ contract NftFactory is UUPSUpgradableTemplate {
     if (amountForSale == 0) revert InvalidAmountForSale();
     // reverts if inconsistencies are detected in price and whitelisted price definition
     if (acceptedTokens.length != wlPrices.length || wlPrices.length != prices.length) revert InconsistentArrays();
+    // NOTE
+    // In general, looping on an Array is dangerous because it can cause the contract to run out of gas.
+    // In this specific case it is convenient and no risky because we sold Turf and Farm in the NFTFactory
+    // accepting only 2 tokens for the payment (SEED and USDC), so the length of the array is 2 at most.
     for (uint256 i = 0; i < acceptedTokens.length; i++) {
       if (!paymentTokens[acceptedTokens[i]]) revert InvalidPaymentToken();
       for (uint256 j = 0; j < acceptedTokens.length; j++) {

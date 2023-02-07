@@ -50,12 +50,12 @@ abstract contract SuperpowerNFTBase is
 {
   using AddressUpgradeable for address;
 
+  event AttributesUpdated(uint256 _id, uint256 _index, uint256 _attributes);
+
   error NotALocker();
   error NotTheGame();
   error NotTheAssetOwnerNorTheGame();
   error AssetDoesNotExist();
-  error AlreadyInitiated();
-  error NotTheAssetOwner();
   error PlayerAlreadyAuthorized();
   error PlayerNotAuthorized();
   error FrozenTokenURI();
@@ -68,6 +68,7 @@ abstract contract SuperpowerNFTBase is
   error LockerNotApproved();
   error ZeroAddress();
   error NotAnAttributablePlayer();
+  error NotTheAssetOwner();
 
   string private _baseTokenURI;
   bool private _baseTokenURIFrozen;
@@ -81,13 +82,6 @@ abstract contract SuperpowerNFTBase is
   modifier onlyLocker() {
     if (!_lockers[_msgSender()]) {
       revert NotALocker();
-    }
-    _;
-  }
-
-  modifier onlyGame() {
-    if (game == address(0) || _msgSender() != game) {
-      revert NotTheGame();
     }
     _;
   }
@@ -170,6 +164,7 @@ abstract contract SuperpowerNFTBase is
     // notice that if the playes set the attributes to zero, it de-authorize itself
     // and not more changes will be allowed until the NFT owner authorize it again
     _tokenAttributes[_id][_msgSender()][_index] = _attributes;
+    emit AttributesUpdated(_id, _index, _attributes);
   }
 
   function supportsInterface(bytes4 interfaceId)
@@ -277,12 +272,15 @@ abstract contract SuperpowerNFTBase is
   }
 
   // emergency function in case a compromised locker is removed
-  function unlockIfRemovedLocker(uint256 tokenId) external override onlyOwner {
+  function unlockIfRemovedLocker(uint256 tokenId) external override {
     if (!locked(tokenId)) {
       revert NotLockedAsset();
     }
     if (_lockers[_lockedBy[tokenId]]) {
       revert NotADeactivatedLocker();
+    }
+    if (ownerOf(tokenId) != _msgSender()) {
+      revert NotTheAssetOwner();
     }
     delete _lockedBy[tokenId];
     emit ForcefullyUnlocked(tokenId);

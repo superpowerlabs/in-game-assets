@@ -9,7 +9,7 @@ require("cryptoenv").parse(() => process.env.NODE_ENV !== "test");
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
 require("@openzeppelin/hardhat-upgrades");
-// require("hardhat-gas-reporter");
+require("hardhat-contract-sizer");
 require("solidity-coverage");
 const requireOrMock = require("require-or-mock");
 

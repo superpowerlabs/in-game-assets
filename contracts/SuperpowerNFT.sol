@@ -13,9 +13,6 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   error Forbidden();
   error CannotMint();
   error InvalidSupply();
-  error NotEnoughWLSlots();
-  error InvalidDeadline();
-  error WhitelistNotSetYet();
 
   using AddressUpgradeable for address;
   uint256 internal _nextTokenId;

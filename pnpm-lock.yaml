@@ -5,19 +5,20 @@ specifiers:
   '@nomiclabs/hardhat-ethers': ^2.0.3
   '@nomiclabs/hardhat-etherscan': ^2.1.8
   '@nomiclabs/hardhat-waffle': ^2.0.1
-  '@openzeppelin/contracts': ^4.5.0
-  '@openzeppelin/contracts-upgradeable': ^4.5.0
+  '@openzeppelin/contracts': 4.5.0
+  '@openzeppelin/contracts-upgradeable': 4.5.0
   '@openzeppelin/hardhat-upgrades': ^1.21.0
   '@poanet/solidity-flattener': ^3.0.6
   chai: ^4.3.4
   cryptoenv: ^0.2.0
+  csv-parse: ^5.3.3
   dotenv: ^11.0.0
   ethereum-waffle: ^3.4.0
   ethers: ^5.5.2
   fs-extra: ^10.0.0
   glob: '*'
   hardhat: ^2.7.1
-  hardhat-contract-sizer: ^2.1.1
+  hardhat-contract-sizer: ^2.4.0
   hardhat-gas-reporter: ^1.0.6
   husky: ^8.0.0
   ipfs-http-client: ^49.0.4
@@ -44,6 +45,7 @@ devDependencies:
   '@poanet/solidity-flattener': 3.0.6_glob@7.2.0
   chai: 4.3.6
   cryptoenv: 0.2.0
+  csv-parse: 5.3.3
   dotenv: 11.0.0
   ethereum-waffle: 3.4.0_typescript@4.7.3
   ethers: 5.5.4
@@ -3152,6 +3154,10 @@ packages:
 
   /csv-parse/4.16.3:
     resolution: {integrity: sha512-cO1I/zmz4w2dcKHVvpCr7JVRu8/FymG5OEpmvsZYlccYolPBLoVGKUHgNoc4ZGkFeFlWGEDmMyBM+TTqRdW/wg==}
+    dev: true
+
+  /csv-parse/5.3.3:
+    resolution: {integrity: sha512-kEWkAPleNEdhFNkHQpFHu9RYPogsFj3dx6bCxL847fsiLgidzWg0z/O0B1kVWMJUc5ky64zGp18LX2T3DQrOfw==}
     dev: true
 
   /d/1.0.1:
