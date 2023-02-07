@@ -29,7 +29,7 @@ contract SideToken is Versionable, Initializable, OwnableUpgradeable, ERC20Upgra
   }
 
   function setMinter(address minter, bool enabled) external virtual onlyOwner {
-    require(minter.isContract(), "SideToken: minter is not a contract");
+    require(minter.isContract(), "SideToken: not a contract");
     minters[minter] = enabled;
   }
 

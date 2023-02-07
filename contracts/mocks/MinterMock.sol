@@ -15,6 +15,7 @@ contract MinterMock is Ownable {
   Turf public turf;
   Farm public farm;
 
+  // solhint-disable-next-line func-visibility
   constructor(address turf_, address farm_) {
     require(turf_.code.length > 0, "Not a contract");
     turf = Turf(turf_);
