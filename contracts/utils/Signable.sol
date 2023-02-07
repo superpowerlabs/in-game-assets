@@ -22,7 +22,7 @@ contract Signable is Initializable, OwnableUpgradeable {
   }
 
   function setValidator(uint256 id, address validator) external onlyOwner {
-    require(validator != address(0), "Signable: address zero not allowed");
+    require(validator != address(0), "Signable: no address zero");
     _validators[id] = validator;
     emit ValidatorSet(id, validator);
   }

@@ -115,6 +115,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     } else {
       revert unsupportedNFT();
     }
+    // solhint-disable-next-line not-rely-on-time
     Stake memory stake = Stake({tokenId: uint16(tokenId), lockedAt: uint32(block.timestamp), unlockedAt: 0});
     _users[_msgSender()].stakes[tokenType].push(stake);
     emit AssetStaked(_msgSender(), tokenType, tokenId);
@@ -150,6 +151,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     _saveSignatureAsUsed(signature1);
     (uint256 index, bool found) = getStakeIndexByTokenId(_msgSender(), tokenType, tokenId, true);
     if (!found) revert assetNotFound();
+    // solhint-disable-next-line not-rely-on-time
     _users[_msgSender()].stakes[tokenType][index].unlockedAt = uint32(block.timestamp);
     if (tokenType == TURF) {
       if (!turfToken.locked(tokenId)) revert turfNotLocked();
@@ -337,6 +339,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     uint64 depositId,
     address user
   ) internal {
+    // solhint-disable-next-line not-rely-on-time
     Deposit memory deposit = Deposit({tokenType: tokenType, amount: amount, depositedAt: uint32(block.timestamp)});
     /*
        The following check has been added for clarity. In reality this cannot happen.
@@ -412,6 +415,7 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     bytes calldata signature0,
     bytes calldata signature1
   ) external override {
+    // solhint-disable-next-line not-rely-on-time
     if (deadline <= block.timestamp) revert harvestingExpired();
     if (!isSignedByAValidator(0, 2, hashHarvesting(_msgSender(), amount, deadline, randomNonce, opId), signature0))
       revert invalidPrimarySignature();
