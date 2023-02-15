@@ -50,26 +50,6 @@ abstract contract SuperpowerNFTBase is
 {
   using AddressUpgradeable for address;
 
-  event AttributesUpdated(uint256 _id, uint256 _index, uint256 _attributes);
-
-  error NotALocker();
-  error NotTheGame();
-  error NotTheAssetOwnerNorTheGame();
-  error AssetDoesNotExist();
-  error PlayerAlreadyAuthorized();
-  error PlayerNotAuthorized();
-  error FrozenTokenURI();
-  error NotAContract();
-  error NotADeactivatedLocker();
-  error WrongLocker();
-  error NotLockedAsset();
-  error LockedAsset();
-  error AtLeastOneLockedAsset();
-  error LockerNotApproved();
-  error ZeroAddress();
-  error NotAnAttributablePlayer();
-  error NotTheAssetOwner();
-
   string private _baseTokenURI;
   bool private _baseTokenURIFrozen;
 
@@ -110,7 +90,7 @@ abstract contract SuperpowerNFTBase is
     address to,
     uint256 tokenId
   ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
-    if (locked(tokenId)) {
+    if (from != address(0) && locked(tokenId)) {
       revert LockedAsset();
     }
     super._beforeTokenTransfer(from, to, tokenId);
@@ -174,6 +154,7 @@ abstract contract SuperpowerNFTBase is
     returns (bool)
   {
     return
+      interfaceId == type(IERC5192).interfaceId ||
       interfaceId == type(IAttributable).interfaceId ||
       interfaceId == type(ILockable).interfaceId ||
       super.supportsInterface(interfaceId);
@@ -216,6 +197,7 @@ abstract contract SuperpowerNFTBase is
   // to access services on Discord via Collab.land verification.
 
   function locked(uint256 tokenId) public view override returns (bool) {
+    if (!_exists(tokenId)) revert AssetDoesNotExist();
     return _lockedBy[tokenId] != address(0);
   }
 

@@ -10,11 +10,8 @@ import "./interfaces/ISuperpowerNFT.sol";
 import "./interfaces/IWhitelistSlot.sol";
 
 abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
-  error Forbidden();
-  error CannotMint();
-  error InvalidSupply();
-
   using AddressUpgradeable for address;
+
   uint256 internal _nextTokenId;
   uint256 internal _maxSupply;
   bool internal _mintEnded;
