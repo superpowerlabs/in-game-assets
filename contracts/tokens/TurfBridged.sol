@@ -4,10 +4,11 @@ pragma solidity 0.8.17;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc.
 
-import "./EventPatchBridged.sol";
+import "../SuperpowerNFTBase.sol";
 
-contract TurfBridged is EventPatchBridged {
+contract TurfBridged is SuperpowerNFTBase {
   function initialize(string memory tokenUri) public initializer onlyProxy {
     __SuperpowerNFTBase_init("MOBLAND Turf", "mTURF", tokenUri);
+    emit DefaultLocked(false);
   }
 }
