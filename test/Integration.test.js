@@ -6,6 +6,12 @@ const {initEthers, signPackedData, cleanStruct, randomNonce, getTimestamp} = req
 const turfAttributesJson = require("./fixtures/json/turfAttributes.json");
 const farmAttributesJson = require("./fixtures/json/farmAttributes.json");
 
+// Perform your tests
+// ...
+
+// Restore the original console.log function
+// console.log = console.log.bind(console);
+
 const DeployUtils = require("../scripts/lib/DeployUtils");
 
 describe("Integration test", function () {
@@ -144,8 +150,8 @@ describe("Integration test", function () {
     expect(await pool.getNumberOfStakes(buyer1.address, turfTokenType)).equal(0);
 
     expect(await pool.connect(buyer1).stakeAsset(turfTokenType, turfId))
-      .emit(turf, "Locked")
-      .withArgs(turfId);
+      .emit(turf, "Locked(uint256,bool)")
+      .withArgs(turfId, true);
 
     expect(await pool.getNumberOfStakes(buyer1.address, turfTokenType)).equal(1);
 
@@ -165,8 +171,8 @@ describe("Integration test", function () {
     let signature1 = getSignature(hash, validator1PK);
 
     expect(await pool.connect(buyer1).unstakeAsset(turfTokenType, turfId, stakeIndex, nonce, signature0, signature1))
-      .emit(turf, "Unlocked")
-      .withArgs(turfId);
+      .emit(turf, "Locked(uint256,bool)")
+      .withArgs(turfId, false);
 
     nonce = randomNonce();
     hash = await pool.hashUnstake(farmTokenType, farmId, stakeIndex, nonce);
@@ -174,8 +180,8 @@ describe("Integration test", function () {
     signature1 = getSignature(hash, validator1PK);
 
     expect(await pool.connect(buyer1).unstakeAsset(farmTokenType, farmId, stakeIndex, nonce, signature0, signature1))
-      .emit(farm, "Unlocked")
-      .withArgs(farmId);
+      .emit(farm, "Locked(uint256,bool)")
+      .withArgs(farmId, false);
 
     expect((await pool.getStakeByIndex(buyer1.address, turfTokenType, 0)).unlockedAt).greaterThan(0);
 

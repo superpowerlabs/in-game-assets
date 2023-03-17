@@ -154,7 +154,7 @@ abstract contract SuperpowerNFTBase is
     returns (bool)
   {
     return
-      interfaceId == type(IERC5192).interfaceId ||
+      interfaceId == type(IOldBrokenLockable).interfaceId ||
       interfaceId == type(IAttributable).interfaceId ||
       interfaceId == type(ILockable).interfaceId ||
       super.supportsInterface(interfaceId);
@@ -241,7 +241,7 @@ abstract contract SuperpowerNFTBase is
       revert LockerNotApproved();
     }
     _lockedBy[tokenId] = _msgSender();
-    emit Locked(tokenId);
+    emit Locked(tokenId, true);
   }
 
   function unlock(uint256 tokenId) external override onlyLocker {
@@ -250,7 +250,7 @@ abstract contract SuperpowerNFTBase is
       revert WrongLocker();
     }
     delete _lockedBy[tokenId];
-    emit Unlocked(tokenId);
+    emit Locked(tokenId, false);
   }
 
   // emergency function in case a compromised locker is removed

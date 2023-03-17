@@ -110,4 +110,6 @@ abstract contract SuperpowerNFT is ISuperpowerNFT, SuperpowerNFTBase {
   function nextTokenId() external view override returns (uint256) {
     return _nextTokenId;
   }
+
+  uint256[50] private __gap;
 }

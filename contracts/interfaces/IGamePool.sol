@@ -11,6 +11,30 @@ interface IGamePool is IUserSimplified {
   event Harvested(address user, uint256 amount, uint64 opId);
   event NewDepositAndPay(uint64 depositId, address user, address otherUser);
   event NewDeposit(uint64 depositId, address user, uint8 tokenType, uint256 amount);
+  event AssetStaked(address from, uint8 tokenType, uint16 tokenId);
+  event AssetUnstaked(address to, uint8 tokenType, uint16 tokenId);
+  event WithdrawnFT(uint8 tokenType, uint256 amount, address beneficiary);
+
+  error turfNotERC721();
+  error farmNotERC721();
+  error seedNotSEED();
+  error budNotBUD();
+  error turfAlreadyLocked();
+  error farmAlreadyLocked();
+  error invalidTokenType();
+  error invalidPrimarySignature();
+  error invalidSecondarySignature();
+  error assetNotFound();
+  error turfNotLocked();
+  error farmNotLocked();
+  error signatureAlreadyUsed();
+  error invalidRecipient();
+  error invalidNFT();
+  error harvestingExpired();
+  error amountNotAvailable();
+  error unsupportedNFT();
+  error depositAlreadyExists();
+
   /**
       @dev to have a quick vision of the TVL
     */

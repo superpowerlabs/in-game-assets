@@ -23,14 +23,13 @@
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "4.5.0",
     "@openzeppelin/contracts-upgradeable": "4.5.0",
-    "@openzeppelin/hardhat-upgrades": "^1.21.0",
+    "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "@poanet/solidity-flattener": "^3.0.6",
     "chai": "^4.3.4",
     "cryptoenv": "^0.2.0",
     "csv-parse": "^5.3.3",
     "dotenv": "^11.0.0",
     "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.5.2",
     "fs-extra": "^10.0.0",
     "glob": "*",
     "hardhat": "^2.7.1",
@@ -52,5 +51,8 @@
   },
   "lint-staged": {
     "*.js": "prettier --write"
+  },
+  "dependencies": {
+    "ethers": "5"
   }
 }

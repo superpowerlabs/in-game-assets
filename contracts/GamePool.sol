@@ -25,30 +25,6 @@ import "./utils/SignableStakes.sol";
 contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplate, IAttributablePlayer {
   using SafeMathUpgradeable for uint256;
 
-  event AssetStaked(address from, uint8 tokenType, uint16 tokenId);
-  event AssetUnstaked(address to, uint8 tokenType, uint16 tokenId);
-  event WithdrawnFT(uint8 tokenType, uint256 amount, address beneficiary);
-
-  error turfNotERC721();
-  error farmNotERC721();
-  error seedNotSEED();
-  error budNotBUD();
-  error turfAlreadyLocked();
-  error farmAlreadyLocked();
-  error invalidTokenType();
-  error invalidPrimarySignature();
-  error invalidSecondarySignature();
-  error assetNotFound();
-  error turfNotLocked();
-  error farmNotLocked();
-  error signatureAlreadyUsed();
-  error invalidRecipient();
-  error invalidNFT();
-  error harvestingExpired();
-  error amountNotAvailable();
-  error unsupportedNFT();
-  error depositAlreadyExists();
-
   Conf public conf;
   mapping(address => User) internal _users;
   mapping(bytes32 => bool) private _usedSignatures;
@@ -427,13 +403,12 @@ contract GamePool is IGamePool, SignableStakes, Constants, UUPSUpgradableTemplat
     emit Harvested(_msgSender(), amount, opId);
   }
 
-  // THIS IS NOT USED, can we remove it?
-  // /// @notice Returns true if the signature has been used before
-  // /// @param signature bytes for the signature
-  // function isSignatureUsed(bytes calldata signature) external view returns (bool) {
-  //   bytes32 key = bytes32(keccak256(abi.encodePacked(signature)));
-  //   return _usedSignatures[key];
-  // }
+  /// @notice Returns true if the signature has been used before
+  /// @param signature bytes for the signature
+  function isSignatureUsed(bytes calldata signature) external view returns (bool) {
+    bytes32 key = bytes32(keccak256(abi.encodePacked(signature)));
+    return _usedSignatures[key];
+  }
 
   /// @notice Withdraws an amount of funds in SEEDS or BUDS, or all of them if amount is 0
   /// @dev The token emits a Transfer event with the pool as the sender,

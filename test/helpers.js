@@ -1,5 +1,13 @@
 const {assert} = require("chai");
 
+const log = (msg) => {
+  if (/Duplicate definition of/.test(msg)) {
+    return;
+  }
+  console.log(msg);
+};
+console.log = log;
+
 const Helpers = {
   initEthers(ethers) {
     this.ethers = ethers;
