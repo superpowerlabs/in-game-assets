@@ -9,8 +9,8 @@ import "../SuperpowerNFT.sol";
 // Intermediate contract to fix a typo in the Locked and Unlocked events
 
 contract EventPatch is SuperpowerNFT {
-  // Unfortunately, there was a typo in the parameter tokenId of the events
-  // Locked and Unlocked, where it was spelled "tokendId".
+  // Unfortunately, there was a typo in the parameter "tokenId" of the events
+  // Locked and Unlocked, and it was spelled as "tokendId".
   // This patch fixes the typo and emits new events with the correct parameter name.
 
   bool public defaultLockedEmitted;
@@ -23,7 +23,7 @@ contract EventPatch is SuperpowerNFT {
     }
   }
 
-  function emitNewLockedEvent() public onlyOwner {
+  function emitNewLockedEvent() public {
     uint256 fromId = lastCheckedId + 1;
     for (uint256 i = fromId; i < _nextTokenId; i++) {
       if (locked(i)) {
