@@ -27,6 +27,7 @@ describe("Attributable", function () {
 
   it("should verify the flow", async function () {
     await myToken.mint(holder.address, 1);
+    // console.log("owner", await myToken.ownerOf(tokenId));
     expect(await myToken.ownerOf(tokenId)).to.equal(holder.address);
     let attributes = await myToken.attributesOf(tokenId, myPlayer.address, 0);
     expect(attributes).to.equal(0);
