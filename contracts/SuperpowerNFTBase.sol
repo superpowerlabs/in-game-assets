@@ -154,7 +154,6 @@ abstract contract SuperpowerNFTBase is
     returns (bool)
   {
     return
-      interfaceId == type(IOldBrokenLockable).interfaceId ||
       interfaceId == type(IAttributable).interfaceId ||
       interfaceId == type(ILockable).interfaceId ||
       super.supportsInterface(interfaceId);

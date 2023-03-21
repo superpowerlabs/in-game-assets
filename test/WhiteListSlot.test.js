@@ -1,6 +1,6 @@
 const {expect, assert} = require("chai");
 
-const {initEthers} = require("./helpers");
+const {initEthers, overrideConsoleLog, restoreConsoleLog} = require("./helpers");
 
 // tests to be fixed
 
@@ -15,6 +15,11 @@ describe("WhiteList", function () {
     BurnerMock = await ethers.getContractFactory("BurnerMock");
 
     initEthers(ethers);
+    overrideConsoleLog();
+  });
+
+  after(async function () {
+    restoreConsoleLog();
   });
 
   async function initAndDeploy() {

@@ -4,7 +4,9 @@ pragma solidity 0.8.17;
 // Authors: Francesco Sullo <francesco@superpower.io>
 // (c) Superpower Labs Inc
 
-interface ISuperpowerNFT {
+import "./ISuperpowerNFTBase.sol";
+
+interface ISuperpowerNFT is ISuperpowerNFTBase {
   error Forbidden();
   error CannotMint();
   error InvalidSupply();

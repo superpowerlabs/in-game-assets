@@ -18,4 +18,8 @@ contract FarmMock {
   function mintTokens(address to, uint256 amount) external {
     nft.mint(to, amount);
   }
+
+  function lockToken(uint256 tokenId) external {
+    nft.lock(tokenId);
+  }
 }

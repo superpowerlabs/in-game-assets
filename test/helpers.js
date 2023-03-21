@@ -1,16 +1,26 @@
 const {assert} = require("chai");
 
-const log = (msg) => {
-  if (/Duplicate definition of/.test(msg)) {
-    return;
-  }
-  console.log(msg);
-};
-console.log = log;
+let originalConsoleLog;
 
 const Helpers = {
   initEthers(ethers) {
     this.ethers = ethers;
+  },
+
+  overrideConsoleLog() {
+    originalConsoleLog = console.log;
+
+    const log = (msg) => {
+      if (/Duplicate definition of/.test(msg)) {
+        return;
+      }
+      originalConsoleLog(msg);
+    };
+    console.log = log;
+  },
+
+  restoreConsoleLog() {
+    console.log = originalConsoleLog;
   },
 
   async assertThrowsMessage(promise, message) {

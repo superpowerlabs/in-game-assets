@@ -6,6 +6,7 @@ pragma solidity 0.8.17;
 
 import "../SuperpowerNFT.sol";
 
+//import "hardhat/console.sol";
 // Intermediate contract to fix a typo in the Locked and Unlocked events
 
 contract EventPatch is SuperpowerNFT {
@@ -15,6 +16,7 @@ contract EventPatch is SuperpowerNFT {
 
   bool public defaultLockedEmitted;
   uint256 public lastCheckedId;
+  bool public allNewLockedEmitted;
 
   function emitDefaultLockedEvent() public onlyOwner {
     if (!defaultLockedEmitted) {
@@ -24,17 +26,23 @@ contract EventPatch is SuperpowerNFT {
   }
 
   function emitNewLockedEvent() public {
+    if (allNewLockedEmitted) {
+      return;
+    }
     uint256 fromId = lastCheckedId + 1;
     for (uint256 i = fromId; i < _nextTokenId; i++) {
       if (locked(i)) {
         emit Locked(i, true);
       }
-      if (gasleft() < 40000) {
+      if (gasleft() < 30000 || i == totalSupply()) {
         lastCheckedId = i;
-        return;
+        if (i == totalSupply()) {
+          allNewLockedEmitted = true;
+        }
+        break;
       }
     }
   }
 
-  uint256[50] private __gap;
+  uint256[49] private __gap;
 }

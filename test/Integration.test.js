@@ -2,7 +2,15 @@ process.env.NODE_ENV = "test";
 const {expect, assert} = require("chai");
 const _ = require("lodash");
 
-const {initEthers, signPackedData, cleanStruct, randomNonce, getTimestamp} = require("./helpers");
+const {
+  initEthers,
+  signPackedData,
+  cleanStruct,
+  randomNonce,
+  getTimestamp,
+  overrideConsoleLog,
+  restoreConsoleLog,
+} = require("./helpers");
 const turfAttributesJson = require("./fixtures/json/turfAttributes.json");
 const farmAttributesJson = require("./fixtures/json/farmAttributes.json");
 
@@ -33,6 +41,11 @@ describe("Integration test", function () {
   before(async function () {
     [owner, holder, renter, buyer1, validator0, validator1, buyer2, buyer3, buyer4, buyer5] = await ethers.getSigners();
     initEthers(ethers);
+    overrideConsoleLog();
+  });
+
+  after(async function () {
+    restoreConsoleLog();
   });
 
   async function getSignature(hash, privateKey) {

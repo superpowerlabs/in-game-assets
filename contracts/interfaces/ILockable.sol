@@ -5,11 +5,10 @@ pragma solidity ^0.8.4;
 // Francesco Sullo <francesco@sullo.co>
 // Taken from https://github.com/ndujaLabs/lockable
 
-import "./IOldBrokenLockable.sol";
 import "./IERC721DefaultLockable.sol";
 
 // ERC165 interface id is 0xd8e4c296
-interface ILockable is IOldBrokenLockable, IERC721DefaultLockable {
+interface ILockable is IERC721DefaultLockable {
   event LockerSet(address locker);
   event LockerRemoved(address locker);
   event ForcefullyUnlocked(uint256 tokenId);

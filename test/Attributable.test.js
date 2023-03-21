@@ -1,5 +1,5 @@
 const {expect, assert} = require("chai");
-const {deployContract, deployContractUpgradeable} = require("./helpers");
+const {deployContract, deployContractUpgradeable, overrideConsoleLog, restoreConsoleLog} = require("./helpers");
 
 describe("Attributable", function () {
   let myPlayer;
@@ -17,6 +17,11 @@ describe("Attributable", function () {
 
   before(async function () {
     [owner, holder] = await ethers.getSigners();
+    overrideConsoleLog();
+  });
+
+  after(async function () {
+    restoreConsoleLog();
   });
 
   beforeEach(async function () {
