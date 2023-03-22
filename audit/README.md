@@ -1,6 +1,6 @@
 # Audit report
 
-The code has been audited by EtherAuthority and you can find the report [here](https://etherauthority.io/mobland-protocol-smart-contract-audit/). Also, in this folder there is a Pdf version of the report.
+The code in this repo — specifically the commit at https://github.com/superpowerlabs/in-game-assets/tree/b17e7203ab2853d7dad037b7f48257fef9932b43 — has been audited by EtherAuthority and you can find the report [here](https://etherauthority.io/mobland-protocol-smart-contract-audit/). Also, in this folder there is a Pdf version of the report.
 
 ## Misevaluated vulnerabilities
 
