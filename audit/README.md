@@ -1,16 +1,14 @@
-# Audit report
+# Audit Report Summary
 
-The code in this repo — specifically the commit at https://github.com/superpowerlabs/in-game-assets/tree/b17e7203ab2853d7dad037b7f48257fef9932b43 — has been audited by EtherAuthority and you can find the report [here](https://etherauthority.io/mobland-protocol-smart-contract-audit/). Also, in this folder there is a Pdf version of the report.
+This repository contains the code audited by EtherAuthority, specifically the commit at https://github.com/superpowerlabs/in-game-assets/tree/b17e7203ab2853d7dad037b7f48257fef9932b43. The full audit report can be found [here](https://etherauthority.io/mobland-protocol-smart-contract-audit/), and a PDF version is also available in this folder.
 
-## Misevaluated vulnerabilities
+We appreciate the professionalism and thoroughness of the audit conducted by EtherAuthority. However, we would like to address some of the issues mentioned in the report.
 
-#### Page 21 — Deposit id override by any depositor: GamePool.sol: \_depositFT()
+## Deposit ID Override Concern: GamePool.sol: \_depositFT()
 
-This is not a vulnerability.
+This issue is not a vulnerability. The depositId is generated off-chain by the Game App and passed to the functions depositBud and depositSeed along with a signature to guarantee the correctness of the parameters passed to the contract.
 
-The `depositId` is generated, off-chain, by the Game App and passed to the functions `depositBud` and `depositSeed` with a signature that guarantees the correctness of the parameters passed to the contract.
-
-Look, for example, at the function depositSeed
+For example, the depositSeed function is shown below:
 
 ```solidity
 function depositSeed(
@@ -27,25 +25,25 @@ function depositSeed(
 
 ```
 
-The uniqueness of the `depositId` is guaranteed by the Game dApp, which also generates the signature, and by the fact that the signature is saved as used with `_saveSignatureAsUsed(signature0)` and cannot be used again.
+The uniqueness of the depositId is ensured by the Game dApp, which also generates the signature, and by the fact that the signature is saved as used with \_saveSignatureAsUsed(signature0) and cannot be used again.
 
-Since the smart contract is not aware of the correctness of the `depositId` and must trust the signature coming with the request, checking for its uniqueness is only a waste of gas.
+Since the smart contract must trust the signature accompanying the request, checking for the uniqueness of the depositId would only waste gas.
 
-#### Page 25 — Infinite loops possibility: NftFactory.sol: newSale()
+## Infinite Loops Possibility: NftFactory.sol: newSale()
 
-There is no risk of infinite loop. In fact, we built the factory as a generic factory to have more flexibility, but we used it only to sell 2 NFTs — Turf and Farm tokens — using only two payment tokens — SEED and USDC.
+There is no risk of infinite loops. The factory was designed as a generic factory for flexibility, but it was only used to sell two NFTs—Turf and Farm tokens—using two payment tokens—SEED and USDC.
 
-That is why we didn't check the gasleft() in the loop to be sure that the transaction will not run out of gas.
+As a result, we did not check the gasleft() in the loop to ensure the transaction would not run out of gas.
 
-#### Page 69 - Solhint warnings
+## Solhint Warnings
 
-We used to launch Solhint to check for lint warnings and errors. After the report, we integrated it in the pre-commit process, to allow commits only if Solhint does not return any warning and all tests pass. Regardless, we did not have any of those issues.
+We initially used Solhint to check for lint warnings and errors. After the audit report, we integrated it into the pre-commit process, allowing commits only if Solhint returns no warnings and all tests pass. In both scenarios, we did not encounter any of the issues mentioned in the report.
 
-BTW, most of those issues look like false positives to me because they are errors like
+Many of these issues appear to be false positives, as they involve errors such as:
 
 ```
 NftFactory.sol:3565:64: Error: Parse error: mismatched input '('
 expecting {';', '='}
 ```
 
-But a missing `;` would be a compilation error.
+A missing `;` would result in a compilation error, not a warning. And we would not be able to deploy the contracts and make the sale.
