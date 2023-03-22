@@ -39,7 +39,7 @@ That is why we didn't check the gasleft() in the loop to be sure that the transa
 
 #### Page 69 - Solhint warnings
 
-We use Solhint in this repo, in the pre-commit process, to allow commits only if Solhint does not return any warning and all tests pass. I don't know which version of Solhint has been used to generate the report, but we do not have any of those issues.
+We used to launch Solhint to check for lint warnings and errors. After the report, we integrated it in the pre-commit process, to allow commits only if Solhint does not return any warning and all tests pass. Regardless, we did not have any of those issues.
 
 BTW, most of those issues look like false positives to me because they are errors like
 
