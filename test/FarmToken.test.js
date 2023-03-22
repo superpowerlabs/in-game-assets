@@ -28,8 +28,6 @@ describe("FarmToken", function () {
     await nft.setMaxSupply(5000);
     // this cannot be put in the initializer because we are testing a version
     // of a contract that has been already deployed in production
-    await expect(nft.emitDefaultLockedEvent()).to.emit(nft, "DefaultLocked");
-
     farm = await FarmMock.deploy(nft.address);
     await farm.deployed();
     await nft.setFactory(farm.address, true);
@@ -57,6 +55,7 @@ describe("FarmToken", function () {
       await expect(nft.emitNewLockedEvent(), {
         gasLimit: 300000,
       })
+        .to.emit(nft, "DefaultLocked")
         .to.emit(nft, "Locked")
         .withArgs(1, true)
         .to.emit(nft, "Locked")
@@ -77,21 +76,20 @@ describe("FarmToken", function () {
       });
       await tx.wait();
       let events = await nft.queryFilter(nft.filters.Locked(), tx.blockNumber);
-      expect(events.length).equal(15);
+      expect(events.length).equal(14);
 
       tx = await nft.emitNewLockedEvent({
         gasLimit: 1000000,
       });
       await tx.wait();
       events = await nft.queryFilter(nft.filters.Locked(), tx.blockNumber);
-      expect(events.length).equal(19);
+      expect(events.length).equal(20);
 
-      tx = await nft.emitNewLockedEvent({
-        gasLimit: 300000,
-      });
-      await tx.wait();
-      events = await nft.queryFilter(nft.filters.Locked(), tx.blockNumber);
-      expect(events.length).equal(0);
+      await expect(
+        nft.emitNewLockedEvent({
+          gasLimit: 300000,
+        })
+      ).revertedWith("NewLockedAlreadyEmitted()");
     });
   });
 });

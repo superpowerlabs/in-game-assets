@@ -14,20 +14,20 @@ contract EventPatch is SuperpowerNFT {
   // Locked and Unlocked, and it was spelled as "tokendId".
   // This patch fixes the typo and emits new events with the correct parameter name.
 
+  error DefaultLockedAlreadyEmitted();
+  error NewLockedAlreadyEmitted();
+
   bool public defaultLockedEmitted;
   uint256 public lastCheckedId;
   bool public allNewLockedEmitted;
 
-  function emitDefaultLockedEvent() public onlyOwner {
+  function emitNewLockedEvent() public {
     if (!defaultLockedEmitted) {
       emit DefaultLocked(true);
       defaultLockedEmitted = true;
     }
-  }
-
-  function emitNewLockedEvent() public {
     if (allNewLockedEmitted) {
-      return;
+      revert NewLockedAlreadyEmitted();
     }
     uint256 fromId = lastCheckedId + 1;
     for (uint256 i = fromId; i < _nextTokenId; i++) {
