@@ -318,5 +318,13 @@ abstract contract SuperpowerNFTBase is
     return super.wormholeTransfer(tokenID, recipientChain, recipient, nonce);
   }
 
+  function pause(bool status) external onlyOwner {
+    if (status) {
+      _pause();
+    } else {
+      _unpause();
+    }
+  }
+
   uint256[49] private __gap;
 }
