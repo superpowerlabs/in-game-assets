@@ -12,7 +12,7 @@ async function main() {
   const chainId = await deployUtils.currentChainId();
   let [deployer] = await ethers.getSigners();
 
-  const network = chainId === 56 ? "bsc" : chainId === 44787 ? "alfajores" : "localhost";
+  const network = chainId === 56 ? "bsc" : chainId === 5 ? "goerli" : chainId === 44787 ? "alfajores" : "localhost";
 
   console.log("Deploying contracts with the account:", deployer.address, "to", network);
   console.log("Account balance:", (await deployer.getBalance()).toString());
