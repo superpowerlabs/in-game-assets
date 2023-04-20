@@ -313,7 +313,7 @@ abstract contract SuperpowerNFTBase is
     uint16 recipientChain,
     bytes32 recipient,
     uint32 nonce
-  ) public payable override returns (uint64 sequence) {
+  ) public payable override whenNotPaused returns (uint64 sequence) {
     if (locked(tokenID)) revert LockedAsset();
     return super.wormholeTransfer(tokenID, recipientChain, recipient, nonce);
   }
