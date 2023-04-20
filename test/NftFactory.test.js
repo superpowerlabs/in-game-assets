@@ -1,6 +1,13 @@
 const {expect, assert} = require("chai");
 
-const {initEthers, increaseBlockTimestampBy, cleanStruct, getTimestamp} = require("./helpers");
+const {
+  initEthers,
+  increaseBlockTimestampBy,
+  cleanStruct,
+  getTimestamp,
+  overrideConsoleLog,
+  restoreConsoleLog,
+} = require("./helpers");
 const DeployUtils = require("../scripts/lib/DeployUtils");
 
 // tests to be fixed
@@ -29,6 +36,11 @@ describe("NftFactory", function () {
     FarmToken = await ethers.getContractFactory("Farm");
     NftFactory = await ethers.getContractFactory("NftFactory");
     initEthers(ethers);
+    overrideConsoleLog();
+  });
+
+  after(async function () {
+    restoreConsoleLog();
   });
 
   async function initAndDeploy(configure) {

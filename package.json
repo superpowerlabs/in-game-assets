@@ -6,8 +6,8 @@
   "scripts": {
     "test": "NODE_ENV=test npx hardhat test",
     "test:gas": "NODE_ENV=test GAS_REPORT=yes npx hardhat test",
-    "compile": "npx hardhat compile",
-    "size": "npx hardhat size-contracts",
+    "compile": "NODE_ENV=test npx hardhat compile",
+    "size": "NODE_ENV=test npx hardhat size-contracts",
     "lint": "prettier --write 'contracts/**/*.sol' && solhint 'contracts/**/*.sol'",
     "format": "npx prettier --write ./**/*.js",
     "coverage": "npx hardhat coverage",
@@ -18,19 +18,20 @@
   "license": "MIT",
   "devDependencies": {
     "@ethersproject/contracts": "^5.6.2",
+    "@ndujalabs/wormhole-tunnel": "^0.4.1",
+    "@ndujalabs/wormhole721": "^0.5.4",
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-etherscan": "^2.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "4.5.0",
     "@openzeppelin/contracts-upgradeable": "4.5.0",
-    "@openzeppelin/hardhat-upgrades": "^1.21.0",
+    "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "@poanet/solidity-flattener": "^3.0.6",
     "chai": "^4.3.4",
     "cryptoenv": "^0.2.0",
     "csv-parse": "^5.3.3",
     "dotenv": "^11.0.0",
     "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.5.2",
     "fs-extra": "^10.0.0",
     "glob": "*",
     "hardhat": "^2.7.1",
@@ -52,5 +53,8 @@
   },
   "lint-staged": {
     "*.js": "prettier --write"
+  },
+  "dependencies": {
+    "ethers": "5"
   }
 }

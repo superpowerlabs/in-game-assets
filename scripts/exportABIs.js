@@ -17,6 +17,7 @@ async function main() {
   abi("Farm", "tokens");
   abi("Turf", "tokens");
   abi("SeedTokenMock", "mocks");
+  abi("GamePool", "");
 
   await fs.writeFile(path.resolve(__dirname, "../export/ABIs.json"), JSON.stringify(ABIs, null, 2));
 }

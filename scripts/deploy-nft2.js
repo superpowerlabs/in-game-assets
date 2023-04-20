@@ -11,17 +11,6 @@ async function main() {
   const chainId = await deployUtils.currentChainId();
   let [deployer] = await ethers.getSigners();
 
-  let owner, holder, renter;
-  let farm, turf, validator;
-  let game;
-  let seed;
-  let bud;
-  let store;
-  let pool;
-  let gameViews;
-  const turfTokenType = 1;
-  const farmTokenType = 2;
-
   const network = chainId === 56 ? "bsc" : chainId === 97 ? "bsc_testnet" : "localhost";
 
   console.log("Deploying contracts with the account:", deployer.address, "to", network);

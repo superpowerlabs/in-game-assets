@@ -9,5 +9,6 @@ import "../SuperpowerNFTBase.sol";
 contract FarmBridged is SuperpowerNFTBase {
   function initialize(string memory tokenUri) public initializer onlyProxy {
     __SuperpowerNFTBase_init("MOBLAND Farm", "mFARM", tokenUri);
+    emit DefaultLocked(false);
   }
 }

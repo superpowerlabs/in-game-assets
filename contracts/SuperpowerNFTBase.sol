@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./wormhole721/Wormhole721Upgradeable.sol";
+import "@ndujalabs/wormhole721/contracts/Wormhole721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol";
 
 import "./interfaces/IAttributable.sol";
@@ -154,7 +154,6 @@ abstract contract SuperpowerNFTBase is
     returns (bool)
   {
     return
-      interfaceId == type(IERC5192).interfaceId ||
       interfaceId == type(IAttributable).interfaceId ||
       interfaceId == type(ILockable).interfaceId ||
       super.supportsInterface(interfaceId);
@@ -241,7 +240,7 @@ abstract contract SuperpowerNFTBase is
       revert LockerNotApproved();
     }
     _lockedBy[tokenId] = _msgSender();
-    emit Locked(tokenId);
+    emit Locked(tokenId, true);
   }
 
   function unlock(uint256 tokenId) external override onlyLocker {
@@ -250,7 +249,7 @@ abstract contract SuperpowerNFTBase is
       revert WrongLocker();
     }
     delete _lockedBy[tokenId];
-    emit Unlocked(tokenId);
+    emit Locked(tokenId, false);
   }
 
   // emergency function in case a compromised locker is removed
@@ -314,7 +313,7 @@ abstract contract SuperpowerNFTBase is
     uint16 recipientChain,
     bytes32 recipient,
     uint32 nonce
-  ) public payable override returns (uint64 sequence) {
+  ) public payable override whenNotPaused returns (uint64 sequence) {
     if (locked(tokenID)) revert LockedAsset();
     return super.wormholeTransfer(tokenID, recipientChain, recipient, nonce);
   }
