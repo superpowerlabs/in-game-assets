@@ -29,7 +29,7 @@ async function main() {
   await nft.deployed();
   console.log("SuperpowerNFT deployed to:", nft.address);
 
-  console.log("To verify SuperpowerNFT flatten the code and sumbit it for the implementation");
+  console.log("To verify SuperpowerNFT flatten the code and submit it for the implementation");
 
   await deployUtils.saveDeployed(chainId, ["SuperpowerNFT"], [nft.address]);
 }

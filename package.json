@@ -10,7 +10,7 @@
     "size": "NODE_ENV=test npx hardhat size-contracts",
     "lint": "prettier --write 'contracts/**/*.sol' && solhint 'contracts/**/*.sol'",
     "format": "npx prettier --write ./**/*.js",
-    "coverage": "npx hardhat coverage",
+    "coverage": "NODE_ENV=test npx hardhat coverage",
     "postinstall": "./post-install.sh",
     "prepare": "husky install"
   },
