@@ -12,29 +12,39 @@ async function main() {
   const chainId = await deployUtils.currentChainId();
   let [deployer] = await ethers.getSigners();
 
-  const network = chainId === 56 ? "bsc" : chainId === 97 ? "bsc_testnet" : chainId === 43113 ? "fuji" : "localhost";
+  const network =
+    chainId === 56
+      ? "bsc"
+      : chainId === 5
+      ? "goerli"
+      : chainId === 97
+      ? "bsc_testnet"
+      : chainId === 43113
+      ? "fuji"
+      : "localhost";
 
   console.log("Deploying contracts with the account:", deployer.address, "to", network);
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const farmToken = await deployUtils.attach("Farm");
-  const turfToken = await deployUtils.attach("Turf");
-  const seedToken = await deployUtils.attach("SeedToken");
-  const budToken = await deployUtils.attach("BudToken");
+  // const farmToken = await deployUtils.attach("Farm");
+  const farm = await deployUtils.attach("FarmMintable");
+  // const seedToken = await deployUtils.deployProxy("SeedToken");
 
-  for (let address of [
-    "0x3E4276Eb950C7a8aF7A1B4d03BDDF02e34A503f7",
-    "0xB664130222198dBE922C20C912d9847Bd87E31b1",
-    "0x5e7E3a602bBE9987BD653379bBA7Bf478D0570f5",
-    "0x781e24d233758D949e161f944C3b577Ab49fe192",
-  ]) {
-    await deployUtils.Tx(
-      seedToken.mint(address, ethers.utils.parseEther("1000000"), {gasLimit: 100000}),
-      "Giving 1000000 SEED to " + address
-    );
-    // await budToken.mint(address, ethers.utils.parseEther("1000000"));
-  }
+  // for (let address of [
+  //   "0x81Edfbcc12Abb98A3660608Dd1B65105EF2F00E5",
+  //   "0x34923658675B99B2DB634cB2BC0cA8d25EdEC743"
+  // ]) {
+  //   await deployUtils.Tx(
+  //     seedToken.mint(address, ethers.utils.parseEther("1000000"), {gasLimit: 100000}),
+  //     "Giving 1000000 SEED to " + address
+  //   );
+  //   // await budToken.mint(address, ethers.utils.parseEther("1000000"));
+  // }
+  await deployUtils.Tx(
+    farm.batchMint(["0x81Edfbcc12Abb98A3660608Dd1B65105EF2F00E5", "0x34923658675B99B2DB634cB2BC0cA8d25EdEC743"], [2, 3]),
+    "Minting farms"
+  );
 }
 
 main()
