@@ -68,3 +68,4 @@ package-lock.json
 ABIs.json
 /scripts/wallets.json
 /flattened
+tmp

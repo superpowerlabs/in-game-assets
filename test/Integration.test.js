@@ -1,4 +1,6 @@
 process.env.NODE_ENV = "test";
+const path = require("path");
+const fs = require("fs-extra");
 const {expect, assert} = require("chai");
 const _ = require("lodash");
 
@@ -11,8 +13,6 @@ const {
   overrideConsoleLog,
   restoreConsoleLog,
 } = require("./helpers");
-const turfAttributesJson = require("./fixtures/json/turfAttributes.json");
-const farmAttributesJson = require("./fixtures/json/farmAttributes.json");
 
 // Perform your tests
 // ...
@@ -33,6 +33,10 @@ describe("Integration test", function () {
   const farmTokenType = 2;
   const wrongTokenType = 4;
 
+  const tempDir = path.resolve(__dirname, "../tmp/test");
+  let turfAttributesJson;
+  let farmAttributesJson;
+
   const deployUtils = new DeployUtils(ethers);
 
   let validator0PK = "0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a";
@@ -42,6 +46,13 @@ describe("Integration test", function () {
     [owner, holder, renter, buyer1, validator0, validator1, buyer2, buyer3, buyer4, buyer5] = await ethers.getSigners();
     initEthers(ethers);
     overrideConsoleLog();
+  });
+
+  beforeEach(async function () {
+    await fs.emptyDir(tempDir);
+    await fs.copy(path.resolve(__dirname, "./fixtures"), tempDir);
+    turfAttributesJson = require(path.resolve(tempDir, "json/turfAttributes.json"));
+    farmAttributesJson = require(path.resolve(tempDir, "json/farmAttributes.json"));
   });
 
   after(async function () {

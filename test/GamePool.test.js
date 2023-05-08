@@ -16,6 +16,8 @@ const turfAttributesJson = require("./fixtures/json/turfAttributes.json");
 const farmAttributesJson = require("./fixtures/json/farmAttributes.json");
 
 const DeployUtils = require("../scripts/lib/DeployUtils");
+const path = require("path");
+const fs = require("fs-extra");
 
 describe("GamePool", function () {
   let owner, holder, renter;
@@ -27,6 +29,10 @@ describe("GamePool", function () {
   const turfTokenType = 1;
   const farmTokenType = 2;
   const wrongTokenType = 4;
+
+  const tempDir = path.resolve(__dirname, "../tmp/test");
+  let turfAttributesJson;
+  let farmAttributesJson;
 
   const deployUtils = new DeployUtils(ethers);
 
@@ -49,6 +55,11 @@ describe("GamePool", function () {
   }
 
   async function initAndDeploy() {
+    await fs.emptyDir(tempDir);
+    await fs.copy(path.resolve(__dirname, "./fixtures"), tempDir);
+    turfAttributesJson = require(path.resolve(tempDir, "json/turfAttributes.json"));
+    farmAttributesJson = require(path.resolve(tempDir, "json/farmAttributes.json"));
+
     const amount = ethers.utils.parseEther("10000000000");
 
     seed = await deployUtils.deployProxy("SeedTokenMock2");
