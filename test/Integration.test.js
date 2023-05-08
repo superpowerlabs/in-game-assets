@@ -51,8 +51,8 @@ describe("Integration test", function () {
   beforeEach(async function () {
     await fs.emptyDir(tempDir);
     await fs.copy(path.resolve(__dirname, "./fixtures"), tempDir);
-    turfAttributesJson = require(path.resolve(tempDir, "json/turfAttributes.json"));
-    farmAttributesJson = require(path.resolve(tempDir, "json/farmAttributes.json"));
+    turfAttributesJson = require(path.resolve(tempDir, "attributes/turfAttributes.json"));
+    farmAttributesJson = require(path.resolve(tempDir, "attributes/farmAttributes.json"));
   });
 
   after(async function () {

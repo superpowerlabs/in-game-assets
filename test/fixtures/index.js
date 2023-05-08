@@ -1,4 +1,4 @@
-const {getCurrentTimestamp} = require("hardhat/internal/hardhat-network/provider/utils/getCurrentTimestamp");
+const {getTimestamp} = require("../helpers");
 const fixtures = {
   turfConf: {
     coordX: 1,
@@ -113,8 +113,8 @@ const fixtures = {
     minimumRentPrice: 21763522,
     priceReduction: 13662556,
     reduceInterval: 1,
-    startingTimestamp: getCurrentTimestamp(),
-    startedAt: getCurrentTimestamp(),
+    startingTimestamp: getTimestamp(),
+    startedAt: getTimestamp(),
     endedAt: 0,
     renter: undefined,
     usedArea: 0,
@@ -130,8 +130,8 @@ const fixtures = {
     minimumRentPrice: 124354332,
     priceReduction: 24354332,
     reduceInterval: 234232,
-    startingTimestamp: getCurrentTimestamp(),
-    startedAt: getCurrentTimestamp(),
+    startingTimestamp: getTimestamp(),
+    startedAt: getTimestamp(),
     endedAt: 0,
     renter: undefined,
   },

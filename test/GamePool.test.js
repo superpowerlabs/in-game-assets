@@ -55,8 +55,8 @@ describe("GamePool", function () {
   async function initAndDeploy() {
     await fs.emptyDir(tempDir);
     await fs.copy(path.resolve(__dirname, "./fixtures"), tempDir);
-    turfAttributesJson = require(path.resolve(tempDir, "json/turfAttributes.json"));
-    farmAttributesJson = require(path.resolve(tempDir, "json/farmAttributes.json"));
+    turfAttributesJson = require(path.resolve(tempDir, "attributes/turfAttributes.json"));
+    farmAttributesJson = require(path.resolve(tempDir, "attributes/farmAttributes.json"));
 
     const amount = ethers.utils.parseEther("10000000000");
 
