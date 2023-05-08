@@ -12,8 +12,6 @@ const {
   overrideConsoleLog,
   restoreConsoleLog,
 } = require("./helpers");
-const turfAttributesJson = require("./fixtures/json/turfAttributes.json");
-const farmAttributesJson = require("./fixtures/json/farmAttributes.json");
 
 const DeployUtils = require("../scripts/lib/DeployUtils");
 const path = require("path");
