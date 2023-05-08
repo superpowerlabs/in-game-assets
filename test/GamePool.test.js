@@ -46,6 +46,7 @@ describe("GamePool", function () {
 
   after(async function () {
     restoreConsoleLog();
+    await fs.emptyDir(tempDir);
   });
 
   async function getSignature(hash, privateKey) {
